@@ -1,0 +1,208 @@
+/**
+ * CSS Custom Properties — Design Tokens PT SI-RFC
+ * Diekstrak dari Figma: https://www.figma.com/design/GYMMRrpshWiu1m8UmlSZSo/PT-SI-RFC
+ * Generated: 2026-11-11
+ */
+
+:root {
+  /* ══════════════════════════════════════════════
+     TYPOGRAPHY
+  ══════════════════════════════════════════════ */
+
+  /* Font Family */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Font Size */
+  --text-xs-2:  9px;    /* Kategori label uppercase */
+  --text-xs:   10px;    /* Audit trail, badge */
+  --text-xs-1: 11px;    /* Caption / note */
+  --text-sm:   12px;    /* Body small, label form */
+  --text-sm-1: 13px;    /* Body medium */
+  --text-base: 14px;    /* Body utama */
+  --text-base-1: 15px;  /* Body besar */
+  --text-md:   16px;    /* Paragraf */
+  --text-lg:   17px;    /* Sub-heading */
+  --text-xl:   18px;    /* Heading section */
+  --text-xl-1: 19px;    /* Dashboard stats */
+  --text-2xl:  20px;    /* Heading card */
+  --text-2xl-1: 22px;   /* Symbol besar */
+  --text-2xl-2: 23px;   /* Form title */
+  --text-3xl:  24px;    /* Heading utama card */
+  --text-3xl-1: 26px;   /* CTA heading */
+  --text-4xl:  28px;    /* Page title */
+  --text-4xl-1: 30px;   /* Sukses / konfirmasi */
+  --text-5xl:  32px;    /* Auth heading */
+  --text-5xl-1: 36px;   /* Pusat bantuan heading */
+  --text-6xl:  48px;    /* Hero / judul utama */
+
+  /* Font Weight */
+  --font-normal:    400;
+  --font-medium:    500;
+  --font-semibold:  600;
+  --font-bold:      700;
+  --font-extrabold: 800;
+
+  /* Letter Spacing */
+  --tracking-normal: 0px;
+  --tracking-tight:  1.4px;   /* Badge uppercase kecil */
+  --tracking-wide:   1.8px;   /* Kategori label */
+  --tracking-wider:  2.0px;   /* Akun demo uppercase */
+
+  /* Line Height */
+  --leading-tight:    104%;
+  --leading-snug:     110%;
+  --leading-normal:   116%;
+  --leading-relaxed:  120%;
+  --leading-loose:    124%;
+  --leading-looser:   132%;
+
+  /* ══════════════════════════════════════════════
+     COLORS — Neutral / Slate
+  ══════════════════════════════════════════════ */
+  --color-neutral-950: #020617;  /* Latar modal / overlay gelap */
+  --color-neutral-900: #09090b;  /* Judul utama gelap */
+  --color-neutral-800: #0b1021;  /* Judul formulir */
+  --color-neutral-700: #0f172a;  /* Judul halaman */
+  --color-neutral-600: #334155;  /* Nama pengguna */
+  --color-neutral-500: #475569;  /* Posisi / subtext */
+  --color-neutral-400: #52525b;  /* Penjelasan */
+  --color-neutral-300: #64748b;  /* Placeholder sekunder */
+  --color-neutral-200: #e2e8f0;  /* Garis bawah / divider */
+  --color-neutral-100: #f1f5f9;  /* Background pencarian */
+  --color-neutral-50:  #f8fafc;  /* Background tabel head */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Biru / Brand Utama (SI-RFC)
+  ══════════════════════════════════════════════ */
+  --color-brand-900: #063d78;  /* Peringatan SLA gelap */
+  --color-brand-800: #073b70;  /* Kategori */
+  --color-brand-700: #0754a6;  /* Aksen garis */
+  --color-brand-600: #0757a8;  /* Aksen Jawa Barat utama ★ */
+  --color-brand-550: #1f5186;  /* Timer SLA */
+  --color-brand-500: #1d4ed8;  /* Label / link aksi */
+  --color-brand-400: #1e40af;  /* Isi konten link */
+  --color-brand-300: #2563eb;  /* CTA / tombol utama */
+  --color-brand-200: #416d9c;  /* Track progress */
+  --color-brand-150: #26568a;  /* Latar lambang */
+  --color-brand-100: #bfdbfe;  /* Petunjuk info */
+  --color-brand-50:  #eff6ff;  /* Background icon biru */
+  --color-brand-25:  #eaf2fd;  /* Tab aktif / filter */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Biru Panel / Sidebar
+  ══════════════════════════════════════════════ */
+  --color-panel-800: #285981;  /* Jumlah / count */
+  --color-panel-700: #2d405e;  /* Label email */
+  --color-panel-600: #32608e;  /* Audit trail link */
+  --color-panel-500: #344965;  /* Pemohon */
+  --color-panel-400: #7d94b1;  /* Akun demo */
+  --color-panel-300: #8ca3c1;  /* Garis dekoratif */
+  --color-panel-200: #a9c9e8;  /* Bagian menu */
+  --color-panel-100: #d8e7f8;  /* Latar kartu dinas */
+  --color-panel-50:  #e0eaf5;  /* Deskripsi layanan */
+  --color-panel-25:  #f3f7fb;  /* Background editable */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Hijau Jawa Barat (Aksen Resmi)
+  ══════════════════════════════════════════════ */
+  --color-jabar-800: #065f46;  /* Catatan */
+  --color-jabar-700: #047857;  /* Label hijau tua */
+  --color-jabar-600: #16834a;  /* Aksen Jawa Barat ★ */
+  --color-jabar-500: #059669;  /* Garis vektor */
+  --color-jabar-400: #106144;  /* Audit trail lengkap */
+  --color-jabar-300: #65c36e;  /* Progres implementasi */
+  --color-jabar-200: #6ee7b7;  /* Setujui stroke */
+  --color-jabar-100: #a7f3d0;  /* Priority rendah stroke */
+  --color-jabar-50:  #ecfdf5;  /* Background icon hijau */
+  --color-jabar-25:  #f7fcfa;  /* Background dibuat oleh */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Merah / Danger
+  ══════════════════════════════════════════════ */
+  --color-danger-800: #991b1b;  /* Pesan error tua */
+  --color-danger-700: #b91c1c;  /* Label error */
+  --color-danger-600: #dc2626;  /* Garis error */
+  --color-danger-500: #ef4444;  /* Notifikasi baru */
+  --color-danger-100: #fecaca;  /* Priority kritis stroke */
+  --color-danger-50:  #fef2f2;  /* Background icon merah */
+  --color-danger-25:  #ffd5d5;  /* Label merah muda */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Oranye / Warning
+  ══════════════════════════════════════════════ */
+  --color-warning-700: #c2410c;  /* Label oranye tua */
+  --color-warning-600: #b45309;  /* Garis oranye */
+  --color-warning-500: #92400e;  /* Label amber */
+  --color-warning-100: #fed7aa;  /* Priority tinggi stroke */
+  --color-warning-50:  #fff7ed;  /* Background priority P2 */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Kuning / Pending
+  ══════════════════════════════════════════════ */
+  --color-pending-400: #f4ce18;  /* Label layanan / badge */
+  --color-pending-300: #fcd34d;  /* Tunda stroke */
+  --color-pending-200: #fde68a;  /* Priority sedang stroke */
+  --color-pending-50:  #fffbeb;  /* Background icon kuning */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Cyan / Info
+  ══════════════════════════════════════════════ */
+  --color-info-600: #0e7490;  /* Label cyan */
+  --color-info-50:  #ecfeff;  /* Background pengerjaan */
+
+  /* ══════════════════════════════════════════════
+     COLORS — Semantic
+  ══════════════════════════════════════════════ */
+  --color-white:   #ffffff;
+  --color-surface: #f7f9fc;  /* Background upload / konten */
+
+  /* Alias semantik */
+  --color-primary:        var(--color-brand-600);   /* #0757a8 */
+  --color-primary-dark:   var(--color-brand-900);   /* #063d78 */
+  --color-primary-light:  var(--color-brand-25);    /* #eaf2fd */
+  --color-accent:         var(--color-jabar-600);   /* #16834a */
+  --color-accent-light:   var(--color-jabar-50);    /* #ecfdf5 */
+  --color-success:        var(--color-jabar-700);   /* #047857 */
+  --color-error:          var(--color-danger-500);  /* #ef4444 */
+  --color-warning:        var(--color-warning-700); /* #c2410c */
+  --color-info:           var(--color-info-600);    /* #0e7490 */
+  --color-text-primary:   var(--color-neutral-700); /* #0f172a */
+  --color-text-secondary: var(--color-neutral-500); /* #475569 */
+  --color-text-muted:     var(--color-neutral-300); /* #64748b */
+  --color-border:         var(--color-neutral-200); /* #e2e8f0 */
+  --color-bg-page:        var(--color-neutral-50);  /* #f8fafc */
+  --color-bg-card:        var(--color-white);       /* #ffffff */
+  --color-overlay:        var(--color-neutral-950); /* #020617 */
+
+  /* ══════════════════════════════════════════════
+     SPACING
+  ══════════════════════════════════════════════ */
+  --spacing-1: 4px;
+  --spacing-2: 8px;    /* Padding kompak (dari Figma) */
+  --spacing-3: 10px;   /* Gap kecil (dari Figma) */
+  --spacing-4: 12px;
+  --spacing-5: 16px;
+  --spacing-6: 20px;
+  --spacing-7: 24px;
+  --spacing-8: 32px;
+  --spacing-9: 40px;
+  --spacing-10: 48px;
+
+  /* ══════════════════════════════════════════════
+     BORDER RADIUS
+  ══════════════════════════════════════════════ */
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-2xl:  16px;
+  --radius-full: 9999px;
+
+  /* ══════════════════════════════════════════════
+     SHADOWS
+  ══════════════════════════════════════════════ */
+  --shadow-card:  0 1px 3px 0 rgba(0,0,0,0.10), 0 1px 2px 0 rgba(0,0,0,0.06);
+  --shadow-panel: 0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-modal: 0 20px 25px -5px rgba(2,6,23,0.15), 0 10px 10px -5px rgba(2,6,23,0.04);
+}
+
