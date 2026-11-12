@@ -226,7 +226,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 
 const showPassword = ref(false)
 const loading = ref(false)
