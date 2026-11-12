@@ -1,0 +1,29 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "autoprefixer": "^10.6.2",
+        "axios": "^1.21.1",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "postcss": "^8.5.32",
+        "tailwindcss": "^3.4.19",
+        "vite": "^7.0.7"
+    },
+    "dependencies": {
+        "@iconify/vue": "^5.0.5",
+        "@inertiajs/vue3": "^3.11.0",
+        "@vitejs/plugin-vue": "^6.0.10",
+        "vue": "^3.5.45",
+        "vue-signature-pad": "^3.0.2"
+    },
+    "allowScripts": {
+        "esbuild@0.28.2": true
+    }
+}
