@@ -37,7 +37,7 @@
           </h1>
 
           <p class="text-sm xl:text-[15px] text-[#E0EAF5] leading-[26px] max-w-[500px]">
-            Kelola seluruh siklus Request for Change berdasarkan standar ITIL, mulai dari pengajuan hingga dokumentasi BAST.
+            Kelola seluruh siklus Request for Change berdasarkan standar  Information Technology Infrastructure Library, mulai dari pengajuan hingga dokumentasi BAST (Berita Acara Serah Terima).
           </p>
         </div>
 
@@ -204,9 +204,7 @@
                 :disabled="loading"
                 class="w-full h-12 flex items-center justify-center gap-2 bg-[#0757A8] hover:bg-[#063D78] text-white rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Icon v-if="loading" icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
                 <span>Masuk ke SI-RFC</span>
-                <Icon v-if="!loading" icon="lucide:arrow-right" class="w-4 h-4" />
               </button>
             </div>
           </form>
