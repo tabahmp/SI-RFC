@@ -332,14 +332,18 @@ function submitRegister() {
   }
 
   loading.value = true
-  setTimeout(() => {
-    loading.value = false
-    const params = new URLSearchParams({
-      nama: form.nama_lengkap || 'Raka Pratama',
-      email: form.email || 'raka@instansi.go.id',
-      opd: form.asal_opd || 'Dinas Komunikasi dan Informatika Provinsi Jawa Barat'
-    })
-    router.visit(`/registration-status?${params.toString()}`)
-  }, 400)
+  router.post('/register', form, {
+    onError: (errors) => {
+      loading.value = false
+      if (errors.email) {
+        errorMessage.value = errors.email
+      } else {
+        errorMessage.value = Object.values(errors)[0] || 'Terjadi kesalahan saat pendaftaran akun.'
+      }
+    },
+    onFinish: () => {
+      loading.value = false
+    }
+  })
 }
 </script>

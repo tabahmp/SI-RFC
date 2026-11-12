@@ -37,7 +37,7 @@
           </h1>
 
           <p class="text-sm xl:text-[15px] text-[#E0EAF5] leading-[26px] max-w-[500px]">
-            Kelola seluruh siklus Request for Change berdasarkan standar  Information Technology Infrastructure Library, mulai dari pengajuan hingga dokumentasi BAST (Berita Acara Serah Terima).
+            Kelola seluruh siklus Request for Change berdasarkan standar Information Technology Infrastructure Library, mulai dari pengajuan hingga dokumentasi BAST (Berita Acara Serah Terima).
           </p>
         </div>
 
@@ -80,29 +80,29 @@
         <div class="my-auto w-full max-w-[460px] mx-auto">
           
           <!-- Headline Masuk -->
-          <div class="mb-6">
-            <div class="text-xs font-bold text-[#0757A8] uppercase tracking-[1.2px] mb-1.5">
+          <div class="mb-5">
+            <div class="text-xs font-bold text-[#0757A8] uppercase tracking-[1.2px] mb-1">
               Portal Layanan SI-RFC
             </div>
-            <h2 class="text-2xl xl:text-[30px] font-extrabold text-[#0B1021] leading-tight tracking-tight">
+            <h2 class="text-2xl xl:text-[28px] font-extrabold text-[#0B1021] leading-tight tracking-tight">
               Selamat datang kembali
             </h2>
-            <p class="text-xs xl:text-[13px] text-[#71839B] mt-1.5 leading-relaxed">
-              Masuk menggunakan akun instansi yang sudah diverifikasi.
+            <p class="text-xs text-[#71839B] mt-1 leading-relaxed">
+              Masuk menggunakan akun instansi yang sudah terdaftar.
             </p>
           </div>
 
           <!-- Alert Error -->
-          <div v-if="errorMessage" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center justify-between">
+          <div v-if="errorMessage || errors.email" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center justify-between">
             <div class="flex items-center gap-2">
               <Icon icon="lucide:alert-circle" class="w-4 h-4 flex-shrink-0" />
-              <span>{{ errorMessage }}</span>
+              <span>{{ errorMessage || errors.email }}</span>
             </div>
-            <button @click="errorMessage = null" class="text-slate-400 hover:text-slate-600 font-bold ml-2">✕</button>
+            <button @click="errorMessage = null; errors.email = null" class="text-slate-400 hover:text-slate-600 font-bold ml-2">✕</button>
           </div>
 
           <!-- FORMULIR INPUT -->
-          <form @submit.prevent="submitLogin" class="space-y-4">
+          <form @submit.prevent="submitLogin" class="space-y-3.5">
             
             <!-- Email Dinas -->
             <div>
@@ -116,7 +116,7 @@
                   type="email"
                   placeholder="nama@instansi.go.id"
                   required
-                  class="w-full pl-10 pr-3.5 py-3 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#71839B]"
+                  class="w-full pl-10 pr-3.5 py-2.5 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#71839B]"
                 />
               </div>
             </div>
@@ -133,7 +133,7 @@
                   :type="showPassword ? 'text' : 'password'"
                   placeholder="Masukkan kata sandi"
                   required
-                  class="w-full pl-10 pr-10 py-3 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#71839B]"
+                  class="w-full pl-10 pr-10 py-2.5 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#71839B]"
                 />
                 <button
                   type="button"
@@ -165,8 +165,8 @@
             <div class="pt-1">
               <div class="flex items-center justify-between mb-1.5">
                 <label class="text-xs font-bold text-[#2D405E] flex items-center gap-1.5">
-                  <Icon icon="lucide:shield-alert" class="w-4 h-4 text-[#0757A8]" />
-                  <span>Verifikasi Captcha</span>
+                  <Icon icon="lucide:shield" class="w-3.5 h-3.5 text-[#0757A8]" />
+                  <span>Verifikasi keamanan</span>
                 </label>
                 <button
                   type="button"
@@ -180,7 +180,7 @@
 
               <div class="flex items-center gap-2.5">
                 <!-- Tampilan Box Captcha Text -->
-                <div class="bg-[#F3F7FB] border border-[#DAE3EF] rounded-xl px-4 py-2.5 font-mono text-base font-extrabold tracking-[0.25em] text-[#073B70] select-none relative overflow-hidden shadow-xs flex items-center justify-center min-w-[120px]">
+                <div class="bg-[#F3F7FB] border border-[#DAE3EF] rounded-xl px-4 py-2 font-mono text-base font-extrabold tracking-[0.25em] text-[#073B70] select-none relative overflow-hidden shadow-xs flex items-center justify-center min-w-[120px]">
                   <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#0757A8 1px, transparent 1px); background-size: 5px 5px;"></div>
                   <span class="relative z-10 font-black italic tracking-widest">{{ captchaCode }}</span>
                 </div>
@@ -192,7 +192,7 @@
                   placeholder="Ketik kode"
                   maxlength="5"
                   required
-                  class="flex-1 px-4 py-2.5 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all uppercase font-mono tracking-widest placeholder:normal-case placeholder:font-sans placeholder:tracking-normal placeholder:text-[#71839B]"
+                  class="flex-1 px-4 py-2 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all uppercase font-mono tracking-widest placeholder:normal-case placeholder:font-sans placeholder:tracking-normal placeholder:text-[#71839B]"
                 />
               </div>
             </div>
@@ -202,9 +202,10 @@
               <button
                 type="submit"
                 :disabled="loading"
-                class="w-full h-12 flex items-center justify-center gap-2 bg-[#0757A8] hover:bg-[#063D78] text-white rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full h-11 flex items-center justify-center gap-2 bg-[#0757A8] hover:bg-[#063D78] text-white rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>Masuk ke SI-RFC</span>
+                <Icon v-if="loading" icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
+                <span>{{ loading ? 'Memverifikasi...' : 'Masuk ke SI-RFC' }}</span>
               </button>
             </div>
           </form>
@@ -227,6 +228,13 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
+
+const props = defineProps({
+  errors: {
+    type: Object,
+    default: () => ({})
+  }
+})
 
 const showPassword = ref(false)
 const loading = ref(false)
@@ -266,9 +274,24 @@ function submitLogin() {
   }
 
   loading.value = true
-  setTimeout(() => {
-    loading.value = false
-    router.visit('/form-perubahan-it')
-  }, 400)
+
+  router.post('/login', {
+    email: form.email,
+    password: form.password,
+    remember: form.remember,
+  }, {
+    onError: (errs) => {
+      loading.value = false
+      if (errs.email) {
+        errorMessage.value = errs.email
+      } else {
+        errorMessage.value = Object.values(errs)[0] || 'Terjadi kesalahan saat masuk.'
+      }
+      generateCaptcha()
+    },
+    onFinish: () => {
+      loading.value = false
+    }
+  })
 }
 </script>
