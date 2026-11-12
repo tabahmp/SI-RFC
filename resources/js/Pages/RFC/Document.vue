@@ -1,6 +1,15 @@
 <template>
   <AppLayout>
     <div class="space-y-6 max-w-[1000px] mx-auto pb-12">
+
+      <!-- Tombol Kembali ke Permohonan Saya -->
+      <Link
+        href="/dashboard/pemohon?view=permohonan"
+        class="inline-flex items-center gap-2 text-xs font-semibold text-[#0757A8] hover:underline"
+      >
+        <Icon icon="lucide:arrow-left" class="w-4 h-4" />
+        <span>Kembali ke Permohonan Saya</span>
+      </Link>
       
       <!-- HEADER ACTIONS & BREADCRUMB (Persis Figma Frame 1:5010) -->
       <div class="flex flex-wrap items-center justify-between gap-4">
