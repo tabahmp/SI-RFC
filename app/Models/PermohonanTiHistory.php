@@ -10,13 +10,18 @@ class PermohonanTiHistory extends Model
     protected $table = 'permohonan_ti_histories';
 
     protected $fillable = [
-        'permohonan_ti_id', 'actor_name', 'actor_role',
+        'permohonan_ti_id', 'user_id', 'actor_name', 'actor_role',
         'status_sebelumnya', 'status_baru', 'keterangan', 'catatan',
     ];
 
     public function permohonan(): BelongsTo
     {
         return $this->belongsTo(PermohonanTi::class, 'permohonan_ti_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function getActorRoleLabelAttribute(): string
