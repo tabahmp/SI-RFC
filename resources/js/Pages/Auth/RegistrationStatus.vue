@@ -1,16 +1,18 @@
 <template>
-  <!-- Layar Penuh 100vh tanpa scrollbar (overflow-hidden) -->
-  <div class="h-screen w-screen overflow-hidden bg-[#F3F7FB] flex flex-col items-center justify-center p-3 sm:p-5 font-sans">
+  <!-- Layar Penuh 100vh tanpa scrollbar (overflow-hidden) persis layout halaman register -->
+  <div class="h-screen w-screen overflow-hidden bg-[#F3F7FB] font-sans flex flex-col">
     
-    <!-- KARTU STATUS REGISTRASI PEMOHON (Sesuai Frame Figma 35 · Status registrasi pemohon) -->
-    <div class="w-full max-w-[740px] bg-white rounded-2xl sm:rounded-[20px] border border-[#E2E8F0] shadow-[0_15px_40px_rgba(15,23,42,0.06)] overflow-hidden relative p-5 sm:p-8 flex flex-col justify-between my-auto">
-      
-      <!-- Top Strip Aksen Jawa Barat (Khas Diskominfo Jabar) -->
-      <div class="absolute top-0 left-0 right-0 h-[3px] flex">
-        <div class="w-1/2 bg-[#0757A8]"></div>
-        <div class="w-1/4 bg-[#F4CE18]"></div>
-        <div class="w-1/4 bg-[#16834A]"></div>
-      </div>
+    <!-- WRAPPER KARTU STATUS — ukuran dan padding disesuaikan dengan kartu Register -->
+    <div class="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+      <div class="w-full max-w-[820px] bg-white rounded-2xl sm:rounded-[28px] border border-[#E2E8F0] shadow-[0_20px_60px_0_rgba(15,23,42,0.08)] relative flex flex-col overflow-hidden p-6 sm:p-9 space-y-4 my-auto"
+           style="max-height: calc(100vh - 2rem);">
+        
+        <!-- Top Strip Aksen Jawa Barat (Khas Diskominfo Jabar) -->
+        <div class="absolute top-0 left-0 right-0 h-[4px] flex z-10">
+          <div class="w-1/2 bg-[#0757A8]"></div>
+          <div class="w-1/4 bg-[#F4CE18]"></div>
+          <div class="w-1/4 bg-[#16834A]"></div>
+        </div>
 
       <!-- BAGIAN 1: Logo & Header Judul -->
       <div class="space-y-3">
@@ -83,47 +85,47 @@
       </div>
 
       <!-- BAGIAN 4: Alur Proses Verifikasi (Stepper 3 Tahap) -->
-      <div class="my-2.5 py-0.5 space-y-2">
+      <div class="my-1 py-1 space-y-2.5">
         <!-- Tahap 1: Selesai -->
-        <div class="flex items-start gap-2.5">
-          <div class="w-5 h-5 rounded-full bg-[#047857] flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-            <Icon icon="lucide:check" class="w-3 h-3 stroke-[3]" />
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-[#047857] flex items-center justify-center text-white flex-shrink-0 mt-0.5">
+            <Icon icon="lucide:check" class="w-3.5 h-3.5 stroke-[3]" />
           </div>
           <div class="leading-tight">
-            <div class="text-xs sm:text-[12.5px] font-semibold text-[#047857]">
-              ✓ &nbsp;Formulir registrasi dikirim
+            <div class="text-xs sm:text-[13px] font-bold text-[#047857]">
+              Formulir registrasi dikirim
             </div>
-            <div class="text-[10.5px] sm:text-[11.5px] text-[#64748B] mt-0.5">
+            <div class="text-[11px] sm:text-xs text-[#64748B] mt-0.5">
               Identitas dan kontak pemohon berhasil diterima oleh sistem.
             </div>
           </div>
         </div>
 
         <!-- Tahap 2: Sedang Diproses -->
-        <div class="flex items-start gap-2.5">
-          <div class="w-5 h-5 rounded-full bg-[#0757A8] flex items-center justify-center text-white font-bold text-[11px] flex-shrink-0 mt-0.5">
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-[#0757A8] flex items-center justify-center text-white font-bold text-xs flex-shrink-0 mt-0.5">
             2
           </div>
           <div class="leading-tight">
-            <div class="text-xs sm:text-[12.5px] font-semibold text-[#1E293B]">
-              2 &nbsp;Pemeriksaan administrator
+            <div class="text-xs sm:text-[13px] font-bold text-[#1E293B]">
+              Pemeriksaan administrator
             </div>
-            <div class="text-[10.5px] sm:text-[11.5px] text-[#64748B] mt-0.5">
+            <div class="text-[11px] sm:text-xs text-[#64748B] mt-0.5">
               Kesesuaian identitas dan Organisasi Perangkat Daerah sedang diperiksa oleh administrator.
             </div>
           </div>
         </div>
 
         <!-- Tahap 3: Menunggu -->
-        <div class="flex items-start gap-2.5">
-          <div class="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-[11px] flex-shrink-0 mt-0.5">
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs flex-shrink-0 mt-0.5">
             3
           </div>
           <div class="leading-tight">
-            <div class="text-xs sm:text-[12.5px] font-semibold text-[#64748B]">
-              3 &nbsp;Akun aktif & siap mengajukan
+            <div class="text-xs sm:text-[13px] font-bold text-[#64748B]">
+              Akun aktif & siap mengajukan
             </div>
-            <div class="text-[10.5px] sm:text-[11.5px] text-[#94A3B8] mt-0.5">
+            <div class="text-[11px] sm:text-xs text-[#94A3B8] mt-0.5">
               Pemberitahuan hasil verifikasi dan aktivasi akun dikirim ke email dinas.
             </div>
           </div>
@@ -140,14 +142,14 @@
         </Link>
       </div>
 
-    </div>
+      <!-- KETERANGAN KOREKSI DATA DI DALAM KARTU/FOOTER KARTU -->
+      <div class="text-center text-[11px] text-[#64748B] pt-2 border-t border-[#E2E8F0]/70 leading-relaxed">
+        Butuh koreksi data? Hubungi administrator melalui kanal kedinasan instansi Anda.
+      </div>
 
-    <!-- FOOTER KETERANGAN KOREKSI DATA DI LUAR KARTU -->
-    <div class="text-center text-[11px] text-[#64748B] mt-3 max-w-[740px] leading-relaxed">
-      Butuh koreksi data? Hubungi administrator melalui kanal kedinasan instansi Anda.
     </div>
-
   </div>
+</div>
 </template>
 
 <script setup>

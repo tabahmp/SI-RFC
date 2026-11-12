@@ -54,12 +54,12 @@ class PermohonanTiController extends Controller
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // FRONTEND PAGES (Inertia)
+    // DATA HELPERS UNTUK DASHBOARD PER PERAN
     // ═══════════════════════════════════════════════════════════════════════════
 
-    public function index(): Response
+    private function getFormattedTikets()
     {
-        $tikets = PermohonanTi::with('histories')
+        return PermohonanTi::with('histories')
             ->orderByDesc('created_at')
             ->get()
             ->map(fn ($t) => [
@@ -67,6 +67,9 @@ class PermohonanTiController extends Controller
                 'no_rfc' => $t->no_rfc,
                 'pemohon' => $t->pemohon,
                 'perangkat_daerah' => $t->perangkat_daerah,
+                'unit_kerja' => $t->unit_kerja,
+                'nama_aplikasi' => $t->nama_aplikasi ?? 'Sistem Layanan TI',
+                'perubahan_diharapkan' => $t->perubahan_diharapkan,
                 'jenis_perubahan' => $t->jenis_perubahan,
                 'status' => $t->status,
                 'status_label' => $t->status_label,
@@ -77,8 +80,88 @@ class PermohonanTiController extends Controller
                 'target_deadline' => $t->target_deadline?->format('d/m/Y'),
                 'created_at' => $t->created_at->diffForHumans(),
             ]);
+    }
 
-        return Inertia::render('RFC/Index', compact('tikets'));
+    private function getFormattedUsersPemohon()
+    {
+        return \App\Models\User::orderByDesc('created_at')
+            ->get()
+            ->map(fn ($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'nip' => $u->nip ?? '-',
+                'nomor_kontak' => $u->nomor_kontak ?? '-',
+                'asal_opd' => $u->asal_opd ?? '-',
+                'role' => $u->role ?? 'pemohon',
+                'status_registrasi' => $u->status_registrasi ?? 'menunggu_verifikasi',
+                'catatan_verifikasi' => $u->catatan_verifikasi,
+                'diverifikasi_pada' => $u->diverifikasi_pada?->format('d/m/Y H:i'),
+                'diverifikasi_oleh' => $u->diverifikasi_oleh,
+                'created_at' => $u->created_at ? $u->created_at->format('d/m/Y H:i') : '-',
+            ]);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FRONTEND PAGES (Inertia) PER ROLE
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    public function dashboardPemohon(Request $request): Response
+    {
+        return Inertia::render('Dashboard/Pemohon', [
+            'tikets' => $this->getFormattedTikets(),
+            'initialView' => $request->query('view', 'ringkasan'),
+        ]);
+    }
+
+    public function permohonanSaya(Request $request): Response
+    {
+        return Inertia::render('Dashboard/Pemohon', [
+            'tikets' => $this->getFormattedTikets(),
+            'initialView' => 'permohonan',
+        ]);
+    }
+
+    public function dashboardVerifikator(): Response
+    {
+        return Inertia::render('Dashboard/Verifikator', [
+            'tikets' => $this->getFormattedTikets(),
+            'usersPemohon' => $this->getFormattedUsersPemohon(),
+        ]);
+    }
+
+    public function dashboardPimpinan(): Response
+    {
+        return Inertia::render('Dashboard/Pimpinan', [
+            'tikets' => $this->getFormattedTikets(),
+        ]);
+    }
+
+    public function dashboardTeknisi(): Response
+    {
+        return Inertia::render('Dashboard/Teknisi', [
+            'tikets' => $this->getFormattedTikets(),
+        ]);
+    }
+
+    public function index(Request $request): Response
+    {
+        $role = $request->query('role');
+        if ($role === 'verifikator') {
+            return $this->dashboardVerifikator();
+        } elseif ($role === 'pimpinan') {
+            return $this->dashboardPimpinan();
+        } elseif ($role === 'teknisi') {
+            return $this->dashboardTeknisi();
+        } elseif ($role === 'pemohon') {
+            return $this->dashboardPemohon();
+        }
+
+        // Jika rute form-perubahan-it tanpa parameter role, render view utama RFC/Index atau default DashboardPemohon
+        $tikets = $this->getFormattedTikets();
+        $usersPemohon = $this->getFormattedUsersPemohon();
+
+        return Inertia::render('RFC/Index', compact('tikets', 'usersPemohon'));
     }
 
     public function create(): Response
@@ -190,6 +273,28 @@ class PermohonanTiController extends Controller
     // TAHAP 1: Simpan permohonan baru
     public function store(Request $request)
     {
+        // Normalisasi alias field dari frontend form
+        $pemohon = $request->input('pemohon') ?? $request->input('nama_pemohon');
+        $nip = $request->input('nip');
+        if ($nip && $pemohon && !str_contains($pemohon, 'NIP')) {
+            $pemohonDisplay = "{$pemohon} (NIP. {$nip})";
+        } else {
+            $pemohonDisplay = $pemohon;
+        }
+
+        $perangkatDaerah = $request->input('perangkat_daerah') ?? $request->input('opd');
+        $nomorKontak = $request->input('nomor_kontak') ?? $request->input('contact_person') ?? $request->input('nomor_surat');
+        $emailDinas = $request->input('email_dinas') ?? $request->input('email');
+        $ttdInput = $request->input('tanda_tangan_file') ?? $request->input('tanda_tangan');
+
+        // Merge ke request untuk validasi yang seragam
+        $request->merge([
+            'pemohon' => $pemohonDisplay,
+            'perangkat_daerah' => $perangkatDaerah,
+            'nomor_kontak' => $nomorKontak,
+            'email_dinas' => $emailDinas,
+        ]);
+
         $validated = $request->validate([
             'pemohon' => 'required|string|max:255',
             'unit_kerja' => 'required|string|max:255',
@@ -202,7 +307,7 @@ class PermohonanTiController extends Controller
             'latar_belakang' => 'required|string',
             'rincian_perubahan' => 'required|string',
             'risiko_tidak_dilakukan' => 'nullable|string',
-            'kriteria_risiko' => 'nullable|array',
+            'kriteria_risiko' => 'nullable',
             'keterangan' => 'nullable|string',
             'solusi_diharapkan' => 'nullable|string',
             'risiko_perubahan' => 'nullable|string',
@@ -210,14 +315,19 @@ class PermohonanTiController extends Controller
             'biaya_perubahan' => 'nullable|string',
             'waktu_perubahan' => 'nullable|string',
             'nama_aplikasi' => 'nullable|string',
-            'tanda_tangan_file' => 'nullable|string', // base64 canvas data
+            'alamat_aplikasi' => 'nullable|string',
+            'alamat_repository' => 'nullable|string',
+            'tanda_tangan_file' => 'nullable|string',
+            'tanda_tangan' => 'nullable|string',
             'dokumen_pendukung_file.*' => 'nullable|file|mimes:pdf,doc,docx,zip,png,jpg,jpeg|max:10240',
+            'lampiran.*' => 'nullable|file|mimes:pdf,doc,docx,zip,png,jpg,jpeg|max:10240',
         ]);
 
         // Simpan file lampiran
         $dokumenPaths = [];
-        if ($request->hasFile('dokumen_pendukung_file')) {
-            foreach ($request->file('dokumen_pendukung_file') as $file) {
+        $files = $request->file('dokumen_pendukung_file') ?? $request->file('lampiran') ?? [];
+        if (!empty($files)) {
+            foreach ($files as $file) {
                 if (count($dokumenPaths) >= 5) break;
                 $dokumenPaths[] = $this->saveFile($file, 'documents');
             }
@@ -225,22 +335,39 @@ class PermohonanTiController extends Controller
 
         // Simpan TTD (base64 canvas)
         $ttdPath = null;
-        if ($request->tanda_tangan_file && str_starts_with($request->tanda_tangan_file, 'data:image')) {
-            $ttdPath = $this->saveBase64Image($request->tanda_tangan_file, 'signatures');
+        if ($ttdInput && str_starts_with($ttdInput, 'data:image')) {
+            $ttdPath = $this->saveBase64Image($ttdInput, 'signatures');
+        }
+
+        $userId = auth()->id();
+        if (!$userId && $emailDinas) {
+            $userByEmail = \App\Models\User::where('email', $emailDinas)->first();
+            $userId = $userByEmail?->id;
+        }
+
+        $kriteriaRisiko = $request->input('kriteria_risiko');
+        if (is_string($kriteriaRisiko)) {
+            $kriteriaRisiko = [$kriteriaRisiko];
         }
 
         $tiket = PermohonanTi::create(array_merge($validated, [
+            'user_id' => $userId,
             'no_rfc' => PermohonanTi::generateNoRfc(),
+            'kriteria_risiko' => $kriteriaRisiko,
             'dokumen_pendukung_file' => $dokumenPaths ?: null,
             'tanda_tangan_file' => $ttdPath,
             'status' => 'menunggu_verifikasi',
         ]));
 
-        $tiket->addHistory($validated['pemohon'], 'pemohon', 'menunggu_verifikasi', 'Permohonan RFC diajukan');
+        $tiket->addHistory($validated['pemohon'], 'pemohon', 'menunggu_verifikasi', 'Permohonan RFC diajukan', null, $userId);
 
         return response()->json([
             'message' => 'Permohonan berhasil diajukan.',
             'no_rfc' => $tiket->no_rfc,
+            'data' => [
+                'id' => $tiket->id,
+                'no_rfc' => $tiket->no_rfc,
+            ]
         ], 201);
     }
 
@@ -453,6 +580,33 @@ class PermohonanTiController extends Controller
         $tiket->update(['assigned_to' => $validated['assigned_to']]);
         $tiket->addHistory('Administrator', 'admin', $tiket->status, "Disposisi diperbarui ke: {$validated['assigned_to']}");
         return response()->json(['message' => 'Penugasan diperbarui.']);
+    }
+
+    public function verifyUser(Request $request, int $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        $validated = $request->validate([
+            'status' => 'required|in:terverifikasi,ditolak',
+            'catatan' => 'nullable|string',
+            'diverifikasi_oleh' => 'nullable|string',
+        ]);
+
+        $user->update([
+            'status_registrasi' => $validated['status'],
+            'catatan_verifikasi' => $validated['catatan'] ?? null,
+            'diverifikasi_pada' => now(),
+            'diverifikasi_oleh' => $validated['diverifikasi_oleh'] ?? 'Raka Pratama',
+        ]);
+
+        return response()->json([
+            'message' => 'Status registrasi pemohon berhasil diperbarui.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'status_registrasi' => $user->status_registrasi,
+                'diverifikasi_pada' => $user->diverifikasi_pada?->format('d/m/Y H:i'),
+            ],
+        ]);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────

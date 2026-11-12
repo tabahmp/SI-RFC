@@ -3,21 +3,28 @@
 namespace Database\Seeders;
 
 use App\Models\PermohonanTi;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class PermohonanTiSeeder extends Seeder
 {
     public function run(): void
     {
+        $pemohon = User::where('email', 'pemohon@jabarprov.go.id')->first();
+        $verifikator = User::where('email', 'verifikator@jabarprov.go.id')->first();
+        $pimpinan = User::where('email', 'pimpinan@jabarprov.go.id')->first();
+        $teknisi = User::where('email', 'teknisi@jabarprov.go.id')->first();
+
         // 1. RFC-202506-0142: Satu Data Jabar (P1 - Menunggu Verifikasi)
         $t1 = PermohonanTi::updateOrCreate(
             ['no_rfc' => 'RFC-202506-0142'],
             [
-                'pemohon' => 'Raka Pratama, S.Kom (NIP. 199204152019031002)',
+                'user_id' => $pemohon?->id,
+                'pemohon' => 'Ahmad Fauzi, S.Kom (NIP. 198904122014031002)',
                 'unit_kerja' => 'Seksi Integrasi Layanan Publik',
-                'perangkat_daerah' => 'Dinas Komunikasi dan Informatika Provinsi Jawa Barat',
-                'nomor_kontak' => '0812-3456-7890 / ND-042/APTIKA/2025',
-                'email_dinas' => 'raka@instansi.go.id',
+                'perangkat_daerah' => 'Badan Perencanaan Pembangunan Daerah (Bappeda) Prov. Jawa Barat',
+                'nomor_kontak' => '0812-3456-7891 / ND-042/BAPPEDA/2025',
+                'email_dinas' => 'pemohon@jabarprov.go.id',
                 'tanggal_permohonan' => '2025-06-18',
                 'jenis_perubahan' => ['Peningkatan Sistem', 'Perbaikan Bug'],
                 'perubahan_diharapkan' => 'Optimasi sinkronisasi data lintas OPD untuk memastikan konsistensi dataset Satu Data Jabar.',
@@ -40,12 +47,16 @@ class PermohonanTiSeeder extends Seeder
             ]
         );
         $t1->histories()->delete();
-        $t1->addHistory('Raka Pratama', 'pemohon', 'menunggu_verifikasi', 'Permohonan RFC diajukan dengan prioritas P1');
+        $t1->addHistory('Ahmad Fauzi, S.Kom', 'pemohon', 'menunggu_verifikasi', 'Permohonan RFC diajukan dengan prioritas P1', null, $pemohon?->id);
 
         // 2. RFC-202506-0138: Sistem Perizinan Terpadu (P2 - Dalam Pengerjaan)
         $t2 = PermohonanTi::updateOrCreate(
             ['no_rfc' => 'RFC-202506-0138'],
             [
+                'user_id' => $pemohon?->id,
+                'verifikator_id' => $verifikator?->id,
+                'pimpinan_id' => $pimpinan?->id,
+                'teknisi_id' => $teknisi?->id,
                 'pemohon' => 'Budi Santoso, S.STP',
                 'unit_kerja' => 'Bidang Pelayanan Perizinan',
                 'perangkat_daerah' => 'Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu Provinsi Jawa Barat',
@@ -70,26 +81,27 @@ class PermohonanTiSeeder extends Seeder
                 'status' => 'dalam_pengerjaan',
                 'prioritas' => 'P2 - Tinggi',
                 'target_sla' => '2025-06-18 18:00:00',
-                'verifikator_nama' => 'Hendro Susilo, M.T.',
+                'verifikator_nama' => 'Raka Pratama, S.STP',
                 'verifikator_catatan' => 'Arsitektur integrasi memenuhi standar keamanan. Tim meminta implementasi di staging.',
                 'verifikator_rekomendasi' => 'lanjut_pimpinan',
                 'verifikator_tanggal' => '2025-06-17',
-                'pimpinan_nama' => 'Drs. H. Iwan Gunawan, M.Si (Kabid APTIKA)',
+                'pimpinan_nama' => 'Dr. H. Hendra Setiawan, M.Si',
                 'pimpinan_keputusan' => 'disetujui',
                 'pimpinan_catatan' => 'Disetujui. Lakukan uji beban API sebelum deployment produksi.',
                 'pimpinan_tanggal' => '2025-06-17',
-                'assigned_to' => 'Tim Integrasi & API (Nadia A.)',
+                'assigned_to' => 'Teguh Wicaksono, S.T',
                 'target_deadline' => '2025-06-27',
-                'teknisi_nama' => 'Tim Integrasi & API',
-                'telaah_teknis' => 'Gunakan endpoint sandbox BSrE, validasi webhook, dan siapkan rollback ke versi 2.4.1.',
+                'teknisi_nama' => 'Teguh Wicaksono, S.T',
+                'telaah_teknis' => 'Konfigurasi endpoint sandbox BSrE telah disiapkan dan webhook staging aktif.',
+                'catatan_implementasi' => 'Gunakan endpoint sandbox BSrE, validasi webhook, dan siapkan rollback ke versi 2.4.1.',
                 'tgl_mulai_pengerjaan' => '2025-06-18',
             ]
         );
         $t2->histories()->delete();
-        $t2->addHistory('Budi Santoso', 'pemohon', 'menunggu_verifikasi', 'Permohonan diajukan');
-        $t2->addHistory('Hendro Susilo', 'verifikator', 'menunggu_keputusan_pimpinan', 'Verifikasi selesai, rekomendasi layak dilanjutkan');
-        $t2->addHistory('Drs. H. Iwan Gunawan, M.Si', 'approver', 'disetujui', 'Disetujui Pimpinan, disposisi ke Tim Integrasi & API');
-        $t2->addHistory('Tim Integrasi & API', 'teknisi', 'dalam_pengerjaan', 'Pengerjaan modul TTE dimulai di lingkungan staging');
+        $t2->addHistory('Budi Santoso', 'pemohon', 'menunggu_verifikasi', 'Permohonan diajukan', null, $pemohon?->id);
+        $t2->addHistory('Raka Pratama, S.STP', 'verifikator', 'menunggu_keputusan_pimpinan', 'Verifikasi berkas disetujui, diteruskan ke Pimpinan', 'Arsitektur integrasi memenuhi standar keamanan.', $verifikator?->id);
+        $t2->addHistory('Dr. H. Hendra Setiawan, M.Si', 'approver', 'disetujui', 'Disetujui Pimpinan, disposisi ke Teguh Wicaksono, S.T', 'Disetujui dengan catatan uji staging.', $pimpinan?->id);
+        $t2->addHistory('Teguh Wicaksono, S.T', 'teknisi', 'dalam_pengerjaan', 'Pengerjaan modul TTE dimulai di lingkungan staging', null, $teknisi?->id);
 
         // 3. RFC-202506-0129: Portal Kepegawaian (P3 - Perlu Revisi)
         $t3 = PermohonanTi::updateOrCreate(

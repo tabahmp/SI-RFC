@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PermohonanTi extends Model
@@ -13,7 +14,7 @@ class PermohonanTi extends Model
     protected $table = 'permohonan_tis';
 
     protected $fillable = [
-        'no_rfc', 'pemohon', 'unit_kerja', 'perangkat_daerah',
+        'no_rfc', 'user_id', 'pemohon', 'unit_kerja', 'perangkat_daerah',
         'nomor_kontak', 'email_dinas', 'tanggal_permohonan',
         'jenis_perubahan', 'perubahan_diharapkan', 'latar_belakang', 'rincian_perubahan',
         'risiko_tidak_dilakukan', 'kriteria_risiko', 'keterangan',
@@ -22,14 +23,14 @@ class PermohonanTi extends Model
         'nama_aplikasi', 'deskripsi_aplikasi', 'alamat_aplikasi', 'alamat_repository',
         'dokumen_pendukung_file', 'tanda_tangan_file',
         'status', 'prioritas', 'target_sla', 'catatan_revisi',
-        'verifikator_nama', 'verifikator_catatan', 'verifikator_rekomendasi',
+        'verifikator_id', 'verifikator_nama', 'verifikator_catatan', 'verifikator_rekomendasi',
         'verifikator_tanggal', 'verifikator_ttd',
-        'pimpinan_nama', 'pimpinan_keputusan', 'pimpinan_catatan',
+        'pimpinan_id', 'pimpinan_nama', 'pimpinan_keputusan', 'pimpinan_catatan',
         'pimpinan_tanggal', 'pimpinan_ttd', 'assigned_to', 'target_deadline',
-        'teknisi_nama', 'telaah_teknis', 'catatan_implementasi',
+        'teknisi_id', 'teknisi_nama', 'telaah_teknis', 'catatan_implementasi',
         'tautan_perubahan', 'tgl_mulai_pengerjaan', 'tgl_selesai_pengerjaan',
         'nomor_bast', 'tanggal_bast', 'file_bast', 'catatan_bast',
-        'agen_nama', 'agen_ttd',
+        'agen_id', 'agen_nama', 'agen_ttd',
     ];
 
     protected $casts = [
@@ -49,6 +50,36 @@ class PermohonanTi extends Model
     public function histories(): HasMany
     {
         return $this->hasMany(PermohonanTiHistory::class, 'permohonan_ti_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function pemohonUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function verifikatorUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verifikator_id');
+    }
+
+    public function pimpinanUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pimpinan_id');
+    }
+
+    public function teknisiUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'teknisi_id');
+    }
+
+    public function agenUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'agen_id');
     }
 
     public static function generateNoRfc(): string
@@ -101,9 +132,10 @@ class PermohonanTi extends Model
         };
     }
 
-    public function addHistory(string $actorName, string $actorRole, string $statusBaru, string $keterangan, ?string $catatan = null): void
+    public function addHistory(string $actorName, string $actorRole, string $statusBaru, string $keterangan, ?string $catatan = null, ?int $userId = null): void
     {
         $this->histories()->create([
+            'user_id' => $userId ?? auth()->id(),
             'actor_name' => $actorName,
             'actor_role' => $actorRole,
             'status_sebelumnya' => $this->status,

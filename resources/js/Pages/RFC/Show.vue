@@ -1,6 +1,15 @@
 <template>
   <AppLayout>
     <div class="max-w-5xl mx-auto px-4 py-10">
+      <!-- Tombol Kembali -->
+      <Link
+        href="/dashboard/pemohon?view=permohonan"
+        class="inline-flex items-center gap-2 text-xs font-semibold text-[#0757A8] hover:underline mb-5"
+      >
+        <Icon icon="lucide:arrow-left" class="w-4 h-4" />
+        <span>Kembali ke Permohonan Saya</span>
+      </Link>
+
       <!-- Breadcrumb -->
       <nav class="text-xs text-slate-500 mb-6 flex items-center gap-1">
         <Link href="/form-perubahan-it" class="hover:text-[#0757a8]">Daftar Tiket</Link>
@@ -62,8 +71,9 @@
             <p class="text-orange-700 text-sm mt-1">{{ tiket.catatan_revisi }}</p>
           </div>
         </div>
-        <button @click="showRevisiForm = !showRevisiForm" class="btn-warning text-sm">
-          {{ showRevisiForm ? 'Tutup Form Revisi' : '✏️ Buka Form Revisi' }}
+        <button @click="showRevisiForm = !showRevisiForm" class="btn-warning text-sm inline-flex items-center gap-1.5">
+          <Icon :icon="showRevisiForm ? 'lucide:x' : 'lucide:edit-3'" class="w-4 h-4" />
+          <span>{{ showRevisiForm ? 'Tutup Form Revisi' : 'Buka Form Revisi' }}</span>
         </button>
         <div v-if="showRevisiForm" class="mt-4 space-y-3">
           <div>
@@ -82,11 +92,15 @@
             <label class="input-label">Tanda Tangan Pemohon</label>
             <SignaturePad v-model="revisiForm.tanda_tangan_file" />
           </div>
-          <button @click="submitRevisi" :disabled="revisiLoading" class="btn-primary">
+          <button @click="submitRevisi" :disabled="revisiLoading" class="btn-primary inline-flex items-center gap-1.5">
             <span v-if="revisiLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            {{ revisiLoading ? 'Mengirim...' : '📤 Kirim Revisi' }}
+            <Icon v-else icon="lucide:send" class="w-4 h-4" />
+            <span>{{ revisiLoading ? 'Mengirim...' : 'Kirim Revisi' }}</span>
           </button>
-          <div v-if="revisiSuccess" class="text-emerald-600 text-sm font-medium">✅ {{ revisiSuccess }}</div>
+          <div v-if="revisiSuccess" class="text-emerald-600 text-sm font-medium flex items-center gap-1.5">
+            <Icon icon="lucide:check-circle" class="w-4 h-4" />
+            <span>{{ revisiSuccess }}</span>
+          </div>
         </div>
       </div>
 
