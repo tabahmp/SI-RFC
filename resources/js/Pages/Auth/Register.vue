@@ -110,16 +110,84 @@
             </div>
 
             <!-- Baris 4: Kata Sandi & Konfirmasi -->
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-bold text-[#475569] mb-1">Kata sandi</label>
-                <input v-model="form.password" type="password" placeholder="Minimal 8 karakter" required minlength="8"
-                  class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
+                <div class="relative">
+                  <input
+                    v-model="form.password"
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="Minimal 8 karakter unik"
+                    required
+                    class="w-full h-9 pl-3 pr-8 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]"
+                  />
+                  <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#94A3B8] hover:text-[#475569]"
+                  >
+                    <Icon :icon="showPassword ? 'lucide:eye-off' : 'lucide:eye'" class="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
               <div>
                 <label class="block text-[11px] font-bold text-[#475569] mb-1">Konfirmasi kata sandi</label>
-                <input v-model="form.password_confirmation" type="password" placeholder="Ulangi kata sandi" required minlength="8"
-                  class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
+                <div class="relative">
+                  <input
+                    v-model="form.password_confirmation"
+                    :type="showPasswordConfirm ? 'text' : 'password'"
+                    placeholder="Ulangi kata sandi"
+                    required
+                    class="w-full h-9 pl-3 pr-8 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]"
+                  />
+                  <button
+                    type="button"
+                    @click="showPasswordConfirm = !showPasswordConfirm"
+                    class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#94A3B8] hover:text-[#475569]"
+                  >
+                    <Icon :icon="showPasswordConfirm ? 'lucide:eye-off' : 'lucide:eye'" class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indikator Keamanan Password (Live Strength & Checklist Syarat) -->
+            <div v-if="form.password" class="p-2.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] space-y-2">
+              <div class="flex items-center justify-between text-[10.5px]">
+                <span class="font-bold text-[#475569]">Kekuatan kata sandi:</span>
+                <span :class="passwordStrength.colorClass" class="font-extrabold uppercase tracking-wide">
+                  {{ passwordStrength.label }}
+                </span>
+              </div>
+
+              <!-- Bar Progres Kekuatan -->
+              <div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden flex gap-1">
+                <div
+                  v-for="i in 4"
+                  :key="i"
+                  class="flex-1 h-full rounded-full transition-all duration-300"
+                  :class="i <= passwordStrength.score ? passwordStrength.barClass : 'bg-[#E2E8F0]'"
+                ></div>
+              </div>
+
+              <!-- Checklist 4 Kriteria Keamanan -->
+              <div class="grid grid-cols-2 gap-x-2 gap-y-1 pt-1 text-[10px]">
+                <div class="flex items-center gap-1.5" :class="passwordRules.hasMinLength ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                  <Icon :icon="passwordRules.hasMinLength ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3 h-3 flex-shrink-0" />
+                  <span>Minimal 8 karakter</span>
+                </div>
+                <div class="flex items-center gap-1.5" :class="passwordRules.hasUpper ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                  <Icon :icon="passwordRules.hasUpper ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3 h-3 flex-shrink-0" />
+                  <span>Huruf kapital (A-Z)</span>
+                </div>
+                <div class="flex items-center gap-1.5" :class="passwordRules.hasNumber ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                  <Icon :icon="passwordRules.hasNumber ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3 h-3 flex-shrink-0" />
+                  <span>Angka (0-9)</span>
+                </div>
+                <div class="flex items-center gap-1.5" :class="passwordRules.hasSymbol ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                  <Icon :icon="passwordRules.hasSymbol ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3 h-3 flex-shrink-0" />
+                  <span>Simbol unik (@$!%*?&#)</span>
+                </div>
               </div>
             </div>
 
@@ -164,12 +232,44 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 
 const loading = ref(false)
 const successMessage = ref(null)
 const errorMessage = ref(null)
+const showPassword = ref(false)
+const showPasswordConfirm = ref(false)
+
+// Evaluasi aturan keamanan password (Kapital, Simbol, Angka, Minimal 8 Karakter)
+const passwordRules = computed(() => {
+  const pwd = form.password || ''
+  return {
+    hasMinLength: pwd.length >= 8,
+    hasUpper: /[A-Z]/.test(pwd),
+    hasNumber: /[0-9]/.test(pwd),
+    hasSymbol: /[^A-Za-z0-9]/.test(pwd),
+  }
+})
+
+const passwordStrength = computed(() => {
+  const rules = passwordRules.value
+  let score = 0
+  if (rules.hasMinLength) score++
+  if (rules.hasUpper) score++
+  if (rules.hasNumber) score++
+  if (rules.hasSymbol) score++
+
+  if (score <= 1) {
+    return { score, label: 'Sangat Lemah', colorClass: 'text-rose-500', barClass: 'bg-rose-500' }
+  } else if (score === 2) {
+    return { score, label: 'Lemah', colorClass: 'text-amber-500', barClass: 'bg-amber-500' }
+  } else if (score === 3) {
+    return { score, label: 'Sedang', colorClass: 'text-sky-600', barClass: 'bg-sky-600' }
+  } else {
+    return { score, label: 'Kuat & Aman', colorClass: 'text-emerald-600', barClass: 'bg-emerald-600' }
+  }
+})
 
 const opdList = [
   'Dinas Komunikasi dan Informatika Provinsi Jawa Barat',
@@ -213,6 +313,13 @@ const form = reactive({
 function submitRegister() {
   errorMessage.value = null
   successMessage.value = null
+
+  // Validasi Kriteria Keamanan Password (Minimal 8 karakter, Kapital, Angka, dan Simbol)
+  const rules = passwordRules.value
+  if (!rules.hasMinLength || !rules.hasUpper || !rules.hasNumber || !rules.hasSymbol) {
+    errorMessage.value = 'Kata sandi harus minimal 8 karakter dan mengandung huruf kapital, angka, serta simbol unik.'
+    return
+  }
 
   if (form.password !== form.password_confirmation) {
     errorMessage.value = 'Kata sandi dan konfirmasi kata sandi tidak cocok.'
