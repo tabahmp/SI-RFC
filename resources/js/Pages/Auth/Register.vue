@@ -4,18 +4,18 @@
 
     <!-- KARTU FORMULIR REGISTRASI — full height, scroll internal di dalam kartu -->
     <div class="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-      <div class="w-full max-w-[820px] bg-white rounded-2xl sm:rounded-[28px] border border-[#E2E8F0] shadow-[0_20px_60px_0_rgba(15,23,42,0.08)] relative flex flex-col"
+      <div class="w-full max-w-[820px] bg-white rounded-2xl sm:rounded-[28px] border border-[#E2E8F0] shadow-[0_20px_60px_0_rgba(15,23,42,0.08)] relative flex flex-col overflow-hidden"
            style="max-height: calc(100vh - 2rem);">
 
         <!-- Top Strip Aksen Jawa Barat -->
-        <div class="absolute top-0 left-0 right-0 h-[3px] flex rounded-t-2xl sm:rounded-t-[28px] overflow-hidden z-10">
+        <div class="absolute top-0 left-0 right-0 h-[4px] flex z-10">
           <div class="w-1/2 bg-[#0757A8]"></div>
           <div class="w-1/4 bg-[#F4CE18]"></div>
           <div class="w-1/4 bg-[#16834A]"></div>
         </div>
 
         <!-- KONTEN KARTU (flex-col, tidak overflow ke luar) -->
-        <div class="flex flex-col flex-1 overflow-hidden pt-[3px]">
+        <div class="flex flex-col flex-1 overflow-hidden pt-[4px]">
 
           <!-- Header (tidak scroll) -->
           <div class="flex-shrink-0 px-6 sm:px-8 pt-5 pb-3">

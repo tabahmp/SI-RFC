@@ -6,7 +6,7 @@
     <div class="w-full max-w-[740px] bg-white rounded-2xl sm:rounded-[20px] border border-[#E2E8F0] shadow-[0_15px_40px_rgba(15,23,42,0.06)] overflow-hidden relative p-5 sm:p-8 flex flex-col justify-between my-auto">
       
       <!-- Top Strip Aksen Jawa Barat (Khas Diskominfo Jabar) -->
-      <div class="absolute top-0 left-0 right-0 h-[3px] flex">
+      <div class="absolute top-0 left-0 right-0 h-[4px] flex z-10">
         <div class="w-1/2 bg-[#0757A8]"></div>
         <div class="w-1/4 bg-[#F4CE18]"></div>
         <div class="w-1/4 bg-[#16834A]"></div>
