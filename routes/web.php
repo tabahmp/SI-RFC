@@ -113,6 +113,12 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
         Route::get('/opd',                            [AdminController::class, 'apiOpd']);
         Route::get('/kategori',                       [AdminController::class, 'apiKategori']);
         
+        // Comments
+        Route::get('/rfc/{rfc}/comments',             [\App\Http\Controllers\CommentController::class, 'index']);
+        Route::post('/rfc/{rfc}/comments',            [\App\Http\Controllers\CommentController::class, 'store']);
+        Route::put('/rfc/{rfc}/comments/{comment}',   [\App\Http\Controllers\CommentController::class, 'update']);
+        Route::delete('/rfc/{rfc}/comments/{comment}', [\App\Http\Controllers\CommentController::class, 'destroy']);
+        
         // Analytics endpoints
         Route::prefix('analytics')->group(function () {
             Route::get('/rfc-by-status',          [AnalyticsController::class, 'rfcByStatus']);
