@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\CheckPeran;
+use App\Http\Middleware\EnsureUserActive;
+use App\Http\Middleware\EnsureUserAuthenticated;
+use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,10 +15,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
+        // Alias middleware
+        $middleware->alias([
+            'auth.user'   => EnsureUserAuthenticated::class,
+            'active.user' => EnsureUserActive::class,
+            'peran'       => CheckPeran::class,
         ]);
 
+        // Tambahkan Inertia ke web middleware group
+        $middleware->web(append: [
+            HandleInertiaRequests::class,
+        ]);
+
+        // Kecualikan CSRF untuk API routes
         $middleware->validateCsrfTokens(except: [
             'api/*',
         ]);
