@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AkunController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanController;
@@ -101,6 +102,7 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
     Route::get('/rfc/{kode}',        [PermohonanRfcController::class, 'show'])->name('rfc.show');
     Route::get('/rfc/{kode}/dokumen',[PermohonanRfcController::class, 'dokumen'])->name('rfc.dokumen');
     Route::get('/rfc/{kode}/workspace',[PermohonanRfcController::class, 'workspace'])->name('rfc.workspace');
+    Route::get('/analytics',         fn () => Inertia::render('Analytics/Index'))->name('analytics.index');
 
     // ─── API NOTIFIKASI ─────────────────────────────────────────────────────
     Route::prefix('api')->group(function () {
@@ -110,6 +112,19 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
         Route::get('/rfc',                            [PermohonanRfcController::class, 'apiIndex']);
         Route::get('/opd',                            [AdminController::class, 'apiOpd']);
         Route::get('/kategori',                       [AdminController::class, 'apiKategori']);
+        
+        // Analytics endpoints
+        Route::prefix('analytics')->group(function () {
+            Route::get('/rfc-by-status',          [AnalyticsController::class, 'rfcByStatus']);
+            Route::get('/rfc-by-urgency',         [AnalyticsController::class, 'rfcByUrgency']);
+            Route::get('/rfc-trend',              [AnalyticsController::class, 'rfcTrend']);
+            Route::get('/rfc-by-category',        [AnalyticsController::class, 'rfcByCategory']);
+            Route::get('/rfc-by-opd',             [AnalyticsController::class, 'rfcByOpd']);
+            Route::get('/completion-rate',        [AnalyticsController::class, 'completionRate']);
+            Route::get('/sla-compliance',         [AnalyticsController::class, 'slaCompliance']);
+            Route::get('/dashboard-summary',      [AnalyticsController::class, 'dashboardSummary']);
+            Route::post('/clear-cache',           [AnalyticsController::class, 'clearCache'])->middleware('peran:admin');
+        });
     });
 
     // ─── AKUN PENGGUNA ────────────────────────────────────────────────────────
