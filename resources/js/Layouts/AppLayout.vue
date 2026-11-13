@@ -135,6 +135,16 @@
               </div>
             </div>
 
+            <!-- ANALYTICS & REPORTS (All Roles) -->
+            <div>
+              <div class="text-[10px] font-extrabold tracking-wider text-[#a9c9e8] uppercase mb-2 px-3">
+                ANALYTICS
+              </div>
+              <nav class="space-y-0.5">
+                <SidebarLink href="/analytics" :aktif="isPath('/analytics')" icon="lucide:trending-up" label="Analytics & Reports" @click="tutupSidebarMobile" />
+              </nav>
+            </div>
+
             <!-- Badge keamanan -->
             <div class="bg-[#0757a8] rounded-xl p-3 border border-blue-400/20">
               <div class="flex items-center gap-2 text-white font-bold text-xs mb-1">
