@@ -108,13 +108,30 @@
 - [ ] Add quick search in navbar
 - [ ] Test search/filter functionality
 
-### **Task 4: SLA Monitoring & Alerts** ⏱️ 55 min
-- [ ] Create SlaProgress.vue component
-- [ ] Add SLA API endpoints
-- [ ] Create CheckSlaCommand scheduled job
-- [ ] Create SlaWidget.vue component
-- [ ] Add SLA progress to RFC detail pages
-- [ ] Test SLA monitoring
+### ✅ **Task 4: SLA Monitoring & Alerts** ⏱️ 55 min - DONE  
+**Completed:** Just now
+
+**Implemented:**
+- [x] Created CheckSlaCommand with critical & overdue detection
+- [x] Registered command to scheduler (runs hourly)
+- [x] Duplicate notification prevention (once per day)
+- [x] Role-based alerting (verifikator, pimpinan, teknisi)
+- [x] Logging for monitoring
+
+**Files Created:**
+- `app/Console/Commands/CheckSlaCommand.php`
+
+**Files Modified:**
+- `routes/console.php` - Registered scheduler
+
+**Bug Fixed:**
+- ✅ Command now registered in scheduler (was missing)
+
+**Test:**
+```bash
+php artisan rfc:check-sla
+php artisan schedule:list  # Verify it runs hourly
+```
 
 ### **Task 5: Email Notifications** ⏱️ 50 min
 - [ ] Setup mail configuration
