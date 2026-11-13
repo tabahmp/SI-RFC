@@ -106,7 +106,7 @@ class PermohonanTiController extends Controller
     // FRONTEND PAGES (Inertia) PER ROLE
     // ═══════════════════════════════════════════════════════════════════════════
 
-    public function dashboardPemohon(Request $request): Response
+    public function dashboardPemohon(Request $request)
     {
         return Inertia::render('Dashboard/Pemohon', [
             'tikets' => $this->getFormattedTikets(),
@@ -114,7 +114,7 @@ class PermohonanTiController extends Controller
         ]);
     }
 
-    public function permohonanSaya(Request $request): Response
+    public function permohonanSaya(Request $request)
     {
         return Inertia::render('Dashboard/Pemohon', [
             'tikets' => $this->getFormattedTikets(),
@@ -122,7 +122,7 @@ class PermohonanTiController extends Controller
         ]);
     }
 
-    public function dashboardVerifikator(): Response
+    public function dashboardVerifikator()
     {
         return Inertia::render('Dashboard/Verifikator', [
             'tikets' => $this->getFormattedTikets(),
@@ -130,21 +130,21 @@ class PermohonanTiController extends Controller
         ]);
     }
 
-    public function dashboardPimpinan(): Response
+    public function dashboardPimpinan()
     {
         return Inertia::render('Dashboard/Pimpinan', [
             'tikets' => $this->getFormattedTikets(),
         ]);
     }
 
-    public function dashboardTeknisi(): Response
+    public function dashboardTeknisi()
     {
         return Inertia::render('Dashboard/Teknisi', [
             'tikets' => $this->getFormattedTikets(),
         ]);
     }
 
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         $role = $request->query('role');
         if ($role === 'verifikator') {
@@ -164,12 +164,12 @@ class PermohonanTiController extends Controller
         return Inertia::render('RFC/Index', compact('tikets', 'usersPemohon'));
     }
 
-    public function create(): Response
+    public function create()
     {
         return Inertia::render('RFC/Create', ['opdList' => $this->opdList]);
     }
 
-    public function show(string $rfc): Response
+    public function show(string $rfc)
     {
         $tiket = PermohonanTi::with('histories')
             ->where('no_rfc', $rfc)
@@ -191,7 +191,7 @@ class PermohonanTiController extends Controller
         ]);
     }
 
-    public function workspace(string $rfc): Response
+    public function workspace(string $rfc)
     {
         $tiket = PermohonanTi::with('histories')
             ->where('no_rfc', $rfc)
@@ -214,7 +214,7 @@ class PermohonanTiController extends Controller
         ]);
     }
 
-    public function dokumen(string $rfc): Response
+    public function dokumen(string $rfc)
     {
         $tiket = PermohonanTi::with('histories')
             ->where('no_rfc', $rfc)

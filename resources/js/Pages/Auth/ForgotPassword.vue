@@ -105,20 +105,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { Link, router, usePage } from '@inertiajs/vue3'
 
-const email = ref('')
-const loading = ref(false)
-const submitted = ref(false)
+const page       = usePage()
+const email      = ref('')
+const loading    = ref(false)
+const submitted  = ref(false)
+
+// Tampilkan pesan sukses dari flash session
+const suksesPesan = computed(() => page.props.flash?.sukses)
 
 function submitRecovery() {
   if (!email.value) return
   loading.value = true
-  setTimeout(() => {
-    loading.value = false
-    submitted.value = true
-  }, 600)
+  router.post('/lupa-kata-sandi', { email: email.value }, {
+    onSuccess: () => { submitted.value = true },
+    onFinish:  () => { loading.value = false },
+  })
 }
 </script>
 

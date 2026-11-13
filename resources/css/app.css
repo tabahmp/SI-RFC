@@ -21,3 +21,23 @@
   .badge-p3 { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200; }
   .badge-p4 { @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200; }
 }
+/* --- Sembunyikan native password reveal button dari browser (Edge/Chrome/IE) --- */
+/* Mencegah dua ikon mata muncul bersamaan dengan ikon custom kita */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none;
+}
+/* Chrome/Edge modern */
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-caps-lock-indicator,
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
