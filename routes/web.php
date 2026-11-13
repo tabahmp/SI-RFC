@@ -119,6 +119,9 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
         Route::put('/rfc/{rfc}/comments/{comment}',   [\App\Http\Controllers\CommentController::class, 'update']);
         Route::delete('/rfc/{rfc}/comments/{comment}', [\App\Http\Controllers\CommentController::class, 'destroy']);
         
+        // Teknisi list (untuk dropdown pimpinan & admin)
+        Route::get('/teknisi-list', [PermohonanRfcController::class, 'teknisiList']);
+        
         // Analytics endpoints
         Route::prefix('analytics')->group(function () {
             Route::get('/rfc-by-status',          [AnalyticsController::class, 'rfcByStatus']);

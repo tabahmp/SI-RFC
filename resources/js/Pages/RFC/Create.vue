@@ -7,18 +7,20 @@
         <div class="max-w-5xl mx-auto">
           <nav class="flex items-center gap-1 text-xs text-slate-500 mb-2">
             <Link href="/dashboard" class="hover:text-[#0757a8]">Beranda</Link>
-            <span>›</span>
+            <span>ï¿½</span>
             <Link href="/dashboard/pemohon" class="hover:text-[#0757a8]">Dashboard</Link>
-            <span>›</span>
+            <span>ï¿½</span>
             <span class="text-slate-700 font-medium">Formulir Permohonan Baru</span>
           </nav>
           <div class="flex flex-wrap items-center gap-2 mb-3">
             <span class="inline-flex items-center gap-1.5 bg-[#0757a8] text-white text-xs font-semibold px-3 py-1 rounded-full tracking-wide">
-              FORMULIR PERUBAHAN TI · FR-015 · SMKI ISO/IEC 27001
+              FORMULIR PERUBAHAN TI ï¿½ FR-015 ï¿½ SMKI ISO/IEC 27001
             </span>
           </div>
-          <h1 class="text-xl font-bold text-slate-900">Formulir Permohonan Request for Change (RFC)</h1>
-          <p class="text-sm text-slate-500 mt-0.5">Diskominfo Prov. Jawa Barat · Bidang APTIKA</p>
+          <h1 class="text-xl font-bold text-slate-900">
+            {{ mode === 'edit' ? 'Edit Permohonan RFC' : 'Formulir Permohonan Request for Change (RFC)' }}
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">Diskominfo Prov. Jawa Barat ï¿½ Bidang APTIKA</p>
         </div>
       </div>
 
@@ -32,7 +34,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 1 · INFORMASI PEMOHON (BIRU)
+             SEKSI 1 ï¿½ INFORMASI PEMOHON (BIRU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -113,7 +115,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 2 · KATEGORI & JENIS PERUBAHAN (HIJAU)
+             SEKSI 2 ï¿½ KATEGORI & JENIS PERUBAHAN (HIJAU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#16834A] px-6 py-4 bg-green-50/60">
@@ -156,7 +158,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 3 · DATA PERUBAHAN (KUNING)
+             SEKSI 3 ï¿½ DATA PERUBAHAN (KUNING)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#F9C031] px-6 py-4 bg-yellow-50/60">
@@ -170,9 +172,9 @@
 
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Perubahan yang Diharapkan <span class="text-red-500">*</span></label>
-              <textarea v-model="form.perubahan_diharapkan" rows="3" required placeholder="Deskripsikan perubahan yang diinginkan secara spesifik..."
+              <textarea v-model="form.deskripsi_perubahan" rows="3" required placeholder="Deskripsikan perubahan yang diinginkan secara spesifik..."
                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0757a8]/30 focus:border-[#0757a8] transition resize-none" style="min-height:80px"></textarea>
-              <p v-if="errors.perubahan_diharapkan" class="mt-1 text-xs text-red-500">{{ errors.perubahan_diharapkan }}</p>
+              <p v-if="errors.deskripsi_perubahan" class="mt-1 text-xs text-red-500">{{ errors.deskripsi_perubahan }}</p>
             </div>
 
             <div>
@@ -193,7 +195,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 4 · ANALISIS RISIKO SMKI (KUNING — header saja)
+             SEKSI 4 ï¿½ ANALISIS RISIKO SMKI (KUNING ï¿½ header saja)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -201,7 +203,7 @@
               <span class="w-6 h-6 rounded-full bg-[#0757A8] text-white text-xs flex items-center justify-center font-bold flex-shrink-0">4</span>
               Analisis Risiko SMKI
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Sesuai standar ISO/IEC 27001 — Sistem Manajemen Keamanan Informasi</p>
+            <p class="text-xs text-slate-500 mt-0.5">Sesuai standar ISO/IEC 27001 ï¿½ Sistem Manajemen Keamanan Informasi</p>
           </div>
           <!-- Body putih biasa (bukan amber) -->
           <div class="px-6 py-5 space-y-5">
@@ -254,7 +256,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 5 · TEKNIS & SOLUSI (BIRU)
+             SEKSI 5 ï¿½ TEKNIS & SOLUSI (BIRU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#16834A] px-6 py-4 bg-green-50/60">
@@ -300,7 +302,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 6 · IDENTITAS APLIKASI / SISTEM (HIJAU)
+             SEKSI 6 ï¿½ IDENTITAS APLIKASI / SISTEM (HIJAU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#F9C031] px-6 py-4 bg-yellow-50/60">
@@ -340,7 +342,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 7 · LAMPIRAN & TANDA TANGAN (KUNING)
+             SEKSI 7 ï¿½ LAMPIRAN & TANDA TANGAN (KUNING)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -356,7 +358,7 @@
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">
                 Dokumen Pendukung
-                <span class="text-xs font-normal text-slate-400 ml-1">(Maks 5 file · PDF/DOCX/ZIP/PNG/JPG · Max 10MB per file)</span>
+                <span class="text-xs font-normal text-slate-400 ml-1">(Maks 5 file ï¿½ PDF/DOCX/ZIP/PNG/JPG ï¿½ Max 10MB per file)</span>
               </label>
               <div
                 class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-[#0757a8] transition-colors cursor-pointer"
@@ -392,7 +394,7 @@
               </label>
               <SignaturePad v-model="form.tanda_tangan" />
               <p class="mt-1.5 text-xs text-slate-500 text-center">
-                <strong>Dibuat Oleh: Pemohon</strong> — {{ form.nama_pemohon || '(nama pemohon)' }}
+                <strong>Dibuat Oleh: Pemohon</strong> ï¿½ {{ form.nama_pemohon || '(nama pemohon)' }}
               </p>
               <p v-if="errors.tanda_tangan" class="mt-1 text-xs text-red-500">{{ errors.tanda_tangan }}</p>
             </div>
@@ -466,6 +468,8 @@ const props = defineProps({
   opdList:      { type: Array, default: () => [] },
   opdUser:      { type: Object, default: null },
   userProfile:  { type: Object, default: null },
+  mode:         { type: String, default: 'create' },
+  rfc:          { type: Object, default: null },
 })
 
 const page = usePage()
@@ -508,7 +512,7 @@ const form = reactive({
   kategori_id:       null,
   jenis_perubahan:   [],
   // Seksi 3
-  perubahan_diharapkan: '',
+  deskripsi_perubahan: '',
   latar_belakang:    '',
   rincian_perubahan: '',
   // Seksi 4
@@ -541,12 +545,30 @@ const successModal = reactive({ show: false, kodePelacakan: '' })
 
 // -- Auto-isi dari profil user yang login --------------------------------------
 onMounted(() => {
-  if (props.userProfile) {
-    form.nama_pemohon = props.userProfile.nama_lengkap ?? ''
-    form.nip          = props.userProfile.nip ?? ''
-    form.nomor_kontak = props.userProfile.nomor_kontak ?? ''
-    form.email_dinas  = props.userProfile.email ?? ''
-    form.opd_id       = props.userProfile.opd_id ?? null
+  if (props.mode === 'edit' && props.rfc) {
+    // Pre-fill form dari data RFC yang sudah ada
+    Object.keys(form).forEach(key => {
+      if (props.rfc[key] !== undefined && props.rfc[key] !== null) {
+        if (key === 'jenis_perubahan' && typeof props.rfc[key] === 'string') {
+          form[key] = JSON.parse(props.rfc[key] || '[]')
+        } else {
+          form[key] = props.rfc[key]
+        }
+      }
+    })
+    // Path lampiran lama (read-only)
+    if (props.rfc.path_lampiran) {
+      // Tampilkan info lampiran yang sudah ada
+    }
+  } else {
+    // Mode create: auto-isi dari profil user
+    if (props.userProfile) {
+      form.nama_pemohon = props.userProfile.nama_lengkap ?? ''
+      form.nip          = props.userProfile.nip ?? ''
+      form.nomor_kontak = props.userProfile.nomor_kontak ?? ''
+      form.email_dinas  = props.userProfile.email ?? ''
+      form.opd_id       = props.userProfile.opd_id ?? null
+    }
   }
   if (props.opdUser) {
     form.opd_id = props.opdUser.id
@@ -606,9 +628,29 @@ function buildFormData(simpanDraf = false) {
 async function simpanDraf() {
   isSavingDraf.value = true
   try {
-    const res = await axios.post('/rfc', buildFormData(true), {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    let res
+    if (props.mode === 'edit' && props.rfc) {
+      // Mode edit: PUT ke /rfc/{id}
+      const data = new FormData()
+      data.append('simpan_draf', '1')
+      data.append('_method', 'PUT')
+      Object.entries(form).forEach(([key, val]) => {
+        if (val === null || val === undefined) return
+        if (Array.isArray(val)) {
+          val.forEach(v => data.append(`${key}[]`, v))
+        } else {
+          data.append(key, val)
+        }
+      })
+      res = await axios.post(`/rfc/${props.rfc.id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    } else {
+      // Mode create: POST ke /rfc
+      res = await axios.post('/rfc', buildFormData(true), {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    }
     // Redirect ke dashboard dengan view draf
     window.location.href = '/dashboard/pemohon?view=draf'
   } catch (err) {
@@ -633,7 +675,7 @@ function validate() {
   if (!form.tanggal_permohonan)         { errors.tanggal_permohonan = 'Wajib diisi.'; valid = false }
   if (!form.kategori_id)                { errors.kategori_id = 'Kategori wajib dipilih.'; valid = false }
   if (!form.jenis_perubahan.length)     { errors.jenis_perubahan = 'Pilih minimal satu.'; valid = false }
-  if (!form.perubahan_diharapkan?.trim()){ errors.perubahan_diharapkan = 'Wajib diisi.'; valid = false }
+  if (!form.deskripsi_perubahan?.trim()){ errors.deskripsi_perubahan = 'Wajib diisi.'; valid = false }
   if (!form.latar_belakang?.trim())     { errors.latar_belakang = 'Wajib diisi.'; valid = false }
   if (!form.rincian_perubahan?.trim())  { errors.rincian_perubahan = 'Wajib diisi.'; valid = false }
   if (!form.tanda_tangan)               { errors.tanda_tangan = 'Tanda tangan digital wajib dibuat.'; valid = false }
@@ -648,11 +690,34 @@ async function handleSubmit() {
   }
   isSubmitting.value = true
   try {
-    const res = await axios.post('/rfc', buildFormData(false), {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    successModal.kodePelacakan = res.data?.kode_pelacakan ?? res.data?.no_rfc ?? 'RFC-' + Date.now()
-    successModal.show = true
+    let res
+    if (props.mode === 'edit' && props.rfc) {
+      // Mode edit: PUT ke /rfc/{id}
+      const data = new FormData()
+      data.append('simpan_draf', '0')
+      data.append('_method', 'PUT')
+      Object.entries(form).forEach(([key, val]) => {
+        if (val === null || val === undefined) return
+        if (Array.isArray(val)) {
+          val.forEach(v => data.append(`${key}[]`, v))
+        } else {
+          data.append(key, val)
+        }
+      })
+      selectedFiles.value.forEach(file => data.append('lampiran[]', file))
+      res = await axios.post(`/rfc/${props.rfc.id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      // Redirect ke detail RFC
+      window.location.href = `/rfc/${props.rfc.kode_pelacakan || res.data?.kode_pelacakan}`
+    } else {
+      // Mode create: POST ke /rfc
+      res = await axios.post('/rfc', buildFormData(false), {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      successModal.kodePelacakan = res.data?.kode_pelacakan ?? res.data?.no_rfc ?? 'RFC-' + Date.now()
+      successModal.show = true
+    }
   } catch (err) {
     if (err.response?.data?.errors) Object.assign(errors, err.response.data.errors)
     else errors._general = err.response?.data?.message ?? 'Terjadi kesalahan. Silakan coba lagi.'

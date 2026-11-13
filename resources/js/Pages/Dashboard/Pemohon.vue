@@ -27,7 +27,7 @@
         <div class="flex items-start gap-3 p-4 rounded-xl bg-[#FFFBEB] border border-[#FDE68A]">
           <Icon icon="lucide:info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
           <p class="text-xs text-[#92400E] leading-relaxed">
-            <strong>Tersimpan sebagai draf</strong> · Nomor RFC diterbitkan setelah seluruh isian wajib dan tanda tangan pemohon dikirim ke verifikator.
+            <strong>Tersimpan sebagai draf</strong> ï¿½ Nomor RFC diterbitkan setelah seluruh isian wajib dan tanda tangan pemohon dikirim ke verifikator.
           </p>
         </div>
 
@@ -46,7 +46,7 @@
                 <div class="flex items-center gap-1.5 mt-3 text-xs text-[#64748B]">
                   <Icon icon="lucide:layers" class="w-3.5 h-3.5 text-[#0757A8]" />
                   <span class="font-semibold text-[#0F172A]">{{ d.langkah_terisi }} dari 7 seksi</span>
-                  <span class="text-[#CBD5E1]">•</span>
+                  <span class="text-[#CBD5E1]">ï¿½</span>
                   <span>{{ d.seksi_terakhir }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 mt-2 text-[11px] text-[#94A3B8]">
@@ -58,7 +58,7 @@
               <!-- Tombol Aksi -->
               <div class="flex flex-col sm:flex-row gap-2 flex-shrink-0">
                 <Link
-                  :href="`/rfc/${d.kode_pelacakan}/workspace`"
+                  :href="`/rfc/${d.id}/edit`"
                   class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold shadow-xs transition-all"
                 >
                   <Icon icon="lucide:pencil" class="w-3.5 h-3.5" />
@@ -143,7 +143,7 @@
               activeStatusFilter === tab.value
                 ? 'bg-[#EAF2FD] text-[#0757A8] font-bold shadow-xs'
                 : 'bg-white text-[#64748B] border border-[#DFE7F1] hover:bg-slate-50']"
-          >{{ tab.label }} · {{ tab.count }}</button>
+          >{{ tab.label }} ï¿½ {{ tab.count }}</button>
         </div>
 
         <!-- Filter bar -->
@@ -214,9 +214,14 @@
                     <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold', statusKelas(t.status_terkini)]">{{ t.status_label }}</span>
                   </td>
                   <td class="py-3.5 px-5 text-right">
-                    <Link :href="`/rfc/${t.kode_pelacakan}`"
+                    <Link v-if="t.status_terkini === 'perlu_revisi'" :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:underline">
+                      <span>Perbaiki</span>
+                      <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5" />
+                    </Link>
+                    <Link v-else :href="`/rfc/${t.kode_pelacakan}`"
                       class="inline-flex items-center gap-1 text-xs font-bold text-[#0757A8] hover:underline">
-                      <span>{{ t.status_terkini === 'perlu_revisi' ? 'Perbaiki' : 'Detail' }}</span>
+                      <span>Detail</span>
                       <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5" />
                     </Link>
                   </td>

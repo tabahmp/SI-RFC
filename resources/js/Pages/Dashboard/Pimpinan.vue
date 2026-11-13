@@ -1,268 +1,158 @@
 <template>
-  <AppLayout role="pimpinan">
+  <AppLayout>
     <div class="max-w-[1440px] mx-auto space-y-6">
-      
-      <!-- HEADER DASHBOARD PIMPINAN (PERSIS FIGMA 1:474) -->
+
+      <!-- HEADER -->
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div class="text-[11px] font-bold text-[#0757A8] tracking-wider uppercase mb-1">
-            Ringkasan eksekutif
-          </div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
-            Papan Keputusan
-          </h1>
-          <p class="text-xs sm:text-sm text-[#64748B] mt-0.5">
-            Keputusan terarah berdasarkan telaah teknis dan dampak layanan.
-          </p>
+          <div class="text-[11px] font-bold text-[#0757A8] tracking-wider uppercase mb-1">Ringkasan eksekutif</div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">Papan Keputusan</h1>
+          <p class="text-xs sm:text-sm text-[#64748B] mt-0.5">Keputusan terarah berdasarkan rekomendasi verifikator.</p>
         </div>
-
-        <div class="flex items-center gap-2">
-          <button
-            @click="exportPdf"
-            class="px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
-          >
-            <Icon icon="lucide:file-down" class="w-4 h-4 text-red-500" />
-            <span>Ekspor PDF</span>
-          </button>
-          <button
-            @click="exportExcel"
-            class="px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
-          >
-            <Icon icon="lucide:sheet" class="w-4 h-4 text-emerald-600" />
-            <span>Excel</span>
-          </button>
-        </div>
+        <span class="px-3 py-1.5 rounded-lg bg-blue-50 text-[#0757A8] text-xs font-bold border border-blue-200 flex items-center gap-1.5">
+          <Icon icon="lucide:scale" class="w-4 h-4" />
+          <span>Pimpinan APTIKA</span>
+        </span>
       </div>
 
-      <!-- Alert Notifikasi Tindakan Pimpinan -->
-      <div v-if="actionSuccessMessage" class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between">
+      <!-- Flash message -->
+      <div v-if="successMsg" class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between">
         <div class="flex items-center gap-2">
           <Icon icon="lucide:check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
-          <span>{{ actionSuccessMessage }}</span>
+          <span>{{ successMsg }}</span>
         </div>
-        <button @click="actionSuccessMessage = null" class="text-emerald-700 hover:text-emerald-900 font-bold ml-2">✕</button>
+        <button @click="successMsg = null" class="text-emerald-700 hover:text-emerald-900 font-bold ml-2">✕</button>
       </div>
 
-      <!-- 4 KARTU METRIK PIMPINAN (PERSIS FIGMA) -->
+      <!-- 4 Kartu Metrik -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs">
-          <div class="text-xs font-bold text-amber-600 uppercase tracking-wide">Menunggu Persetujuan</div>
-          <div class="text-3xl font-black text-amber-600 mt-2">{{ menungguPersetujuanList.length }}</div>
+          <div class="text-xs font-bold text-amber-600 uppercase tracking-wide">Menunggu Keputusan</div>
+          <div class="text-3xl font-black text-amber-600 mt-2">{{ countMenunggu }}</div>
           <div class="text-[11px] text-slate-500 mt-1">Memerlukan keputusan pimpinan</div>
         </div>
-
         <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs">
-          <div class="text-xs font-bold text-emerald-600 uppercase tracking-wide">Disetujui Bulan Ini</div>
-          <div class="text-3xl font-black text-emerald-600 mt-2">{{ disetujuiCount }}</div>
-          <div class="text-[11px] text-emerald-600 mt-1 font-semibold">+18% dari bulan lalu</div>
+          <div class="text-xs font-bold text-emerald-600 uppercase tracking-wide">Disetujui</div>
+          <div class="text-3xl font-black text-emerald-600 mt-2">{{ statistik?.disetujui ?? 0 }}</div>
+          <div class="text-[11px] text-slate-500 mt-1">Bulan ini</div>
         </div>
-
         <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs">
           <div class="text-xs font-bold text-red-600 uppercase tracking-wide">Ditolak / Ditunda</div>
-          <div class="text-3xl font-black text-red-600 mt-2">{{ ditolakDitundaCount }}</div>
+          <div class="text-3xl font-black text-red-600 mt-2">{{ (statistik?.ditolak ?? 0) + (statistik?.ditunda ?? 0) }}</div>
           <div class="text-[11px] text-slate-500 mt-1">Dampak risiko tinggi</div>
         </div>
-
         <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs">
-          <div class="text-xs font-bold text-[#0757A8] uppercase tracking-wide">Kepatuhan SLA</div>
-          <div class="text-3xl font-black text-[#0757A8] mt-2">{{ kepatuhanSla }}%</div>
-          <div class="text-[11px] text-slate-500 mt-1">Target Diskominfo ≥ 95%</div>
+          <div class="text-xs font-bold text-[#0757A8] uppercase tracking-wide">Total Selesai</div>
+          <div class="text-3xl font-black text-[#0757A8] mt-2">{{ statistik?.total_selesai ?? 0 }}</div>
+          <div class="text-[11px] text-slate-500 mt-1">RFC berhasil diimplementasi</div>
         </div>
       </div>
 
-      <!-- KARTU TINJAUAN KEPUTUSAN UTAMA -->
+      <!-- Form Keputusan -->
       <div v-if="activeTiket" class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-5">
         <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <span class="px-2 py-0.5 rounded text-xs font-extrabold" :class="activeTiket.prioritas === 'P1' || activeTiket.prioritas === 'P1 - Kritis' ? 'bg-red-600 text-white' : 'bg-amber-500 text-white'">
-                {{ activeTiket.prioritas }}
+              <span class="px-2 py-0.5 rounded text-xs font-extrabold text-white" :class="getBadgeByUrgensi(activeTiket.urgensi)">
+                {{ activeTiket.urgensi_label }}
               </span>
-              <span class="font-mono text-xs font-bold text-[#0757A8]">{{ activeTiket.no_rfc }}</span>
+              <span class="font-mono text-xs font-bold text-[#0757A8]">{{ activeTiket.kode_pelacakan }}</span>
             </div>
-            <h2 class="text-lg font-extrabold text-[#0F172A]">{{ activeTiket.perubahan_diharapkan }}</h2>
-            <div class="text-xs text-slate-500 mt-0.5">Pemohon: {{ activeTiket.perangkat_daerah }} ({{ activeTiket.pemohon }})</div>
+            <h2 class="text-lg font-extrabold text-[#0F172A]">{{ activeTiket.deskripsi || 'Permohonan RFC' }}</h2>
+            <div class="text-xs text-slate-500 mt-0.5">{{ activeTiket.opd }} · {{ activeTiket.nama_pemohon }}</div>
           </div>
-
           <div class="flex items-center gap-2">
-            <!-- Pilihan Tiket jika ada lebih dari 1 -->
-            <select
-              v-if="menungguPersetujuanList.length > 1"
-              v-model="selectedTicketId"
-              class="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700"
-            >
-              <option v-for="t in menungguPersetujuanList" :key="t.id" :value="t.id">
-                {{ t.no_rfc }} — {{ t.nama_aplikasi }}
+            <!-- Pilih tiket -->
+            <select v-if="menungguList.length > 1" v-model="selectedId"
+              class="text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700">
+              <option v-for="t in menungguList" :key="t.id" :value="t.id">
+                {{ t.kode_pelacakan }}
               </option>
             </select>
-
-            <Link
-              :href="`/form-perubahan-it/dokumen/${activeTiket.no_rfc}`"
-              class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors"
-            >
+            <Link :href="`/rfc/${activeTiket.kode_pelacakan}`"
+              class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors">
               <Icon icon="lucide:file-text" class="w-4 h-4 text-[#0757A8]" />
-              <span>Lihat Dokumen FR-015 Lengkap</span>
+              <span>Detail FR-015</span>
             </Link>
           </div>
         </div>
 
-        <!-- Rekomendasi Verifikator APTIKA -->
-        <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 space-y-1">
-          <div class="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
-            <Icon icon="lucide:check-circle" class="w-4 h-4 text-emerald-600" />
-            <span>Rekomendasi verifikator: Layak dilanjutkan ke tahap implementasi teknis</span>
+        <!-- Rekomendasi verifikator (jika ada) -->
+        <div v-if="revisiTerbaru" class="p-4 rounded-xl bg-purple-50 border border-purple-200/80 space-y-1">
+          <div class="text-xs font-bold text-purple-800 flex items-center gap-1.5">
+            <Icon icon="lucide:message-circle" class="w-4 h-4 text-purple-600" />
+            <span>Catatan Verifikator</span>
           </div>
-          <p class="text-xs text-emerald-900/90 leading-relaxed">
-            Arsitektur integrasi memenuhi standar keamanan informasi. Telah diperiksa kelayakan administratif dan kriteria risiko SMKI ISO/IEC 27001.
-          </p>
+          <p class="text-xs text-purple-900/90 leading-relaxed">{{ revisiTerbaru }}</p>
         </div>
 
-        <!-- Form Keputusan & Disposisi -->
-        <form @submit.prevent="submitDecision" class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-4">
-          <div class="text-xs font-bold text-slate-700 uppercase tracking-wide">Tentukan keputusan resmi pimpinan</div>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Tim pelaksana / Teknisi ditugaskan <span class="text-red-500">*</span></label>
-              <input
-                v-model="formKeputusan.assigned_to"
-                type="text"
-                placeholder="Contoh: Teguh Wicaksono, S.T / Tim Integrasi & API"
-                required
-                class="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none transition-all"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">Target selesai implementasi <span class="text-red-500">*</span></label>
-              <input
-                v-model="formKeputusan.target_deadline"
-                type="date"
-                required
-                class="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none transition-all"
-              />
-            </div>
-          </div>
+        <!-- Form keputusan -->
+        <form @submit.prevent="submitKeputusan" class="space-y-4">
 
+          <!-- Pilihan keputusan -->
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan dan instruksi pimpinan</label>
-            <textarea
-              v-model="formKeputusan.pimpinan_catatan"
-              rows="2"
-              placeholder="Berikan arahan mitigasi risiko atau instruksi pengerjaan..."
-              class="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none transition-all"
-            ></textarea>
+            <label class="block text-xs font-bold text-slate-700 mb-2">Keputusan <span class="text-red-500">*</span></label>
+            <div class="grid grid-cols-3 gap-3">
+              <label v-for="opt in keputusanOptions" :key="opt.value"
+                :class="['border-2 rounded-xl p-3 flex flex-col items-center cursor-pointer text-center transition-all',
+                  keputusan === opt.value ? opt.activeClass : 'border-slate-200 hover:bg-slate-50']">
+                <input type="radio" :value="opt.value" v-model="keputusan" class="sr-only" />
+                <Icon :icon="opt.icon" class="w-6 h-6 mb-1" :class="opt.iconClass" />
+                <span class="font-bold text-xs">{{ opt.label }}</span>
+                <span class="text-[10px] text-slate-500">{{ opt.desc }}</span>
+              </label>
+            </div>
           </div>
 
-          <!-- 3 Opsi Tombol Keputusan -->
-          <div class="flex flex-wrap items-center gap-3 pt-2">
-            <button
-              type="button"
-              @click="pimpinanChoice = 'ditolak'"
-              :class="[
-                'px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5',
-                pimpinanChoice === 'ditolak' ? 'bg-red-600 text-white shadow-xs' : 'bg-red-50 text-red-700 border border-red-200'
-              ]"
-            >
-              <Icon icon="lucide:x-circle" class="w-3.5 h-3.5" />
-              <span>Tolak</span>
-            </button>
-            <button
-              type="button"
-              @click="pimpinanChoice = 'ditunda'"
-              :class="[
-                'px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5',
-                pimpinanChoice === 'ditunda' ? 'bg-amber-500 text-white shadow-xs' : 'bg-amber-50 text-amber-700 border border-amber-200'
-              ]"
-            >
-              <Icon icon="lucide:clock" class="w-3.5 h-3.5" />
-              <span>Tunda</span>
-            </button>
-            <button
-              type="button"
-              @click="pimpinanChoice = 'disetujui'"
-              :class="[
-                'px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5',
-                pimpinanChoice === 'disetujui' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-              ]"
-            >
-              <Icon icon="lucide:check-circle-2" class="w-3.5 h-3.5" />
-              <span>Setujui</span>
-            </button>
+          <!-- Pilih teknisi (jika disetujui) -->
+          <div v-if="keputusan === 'disetujui'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Teknisi Pelaksana <span class="text-red-500">*</span></label>
+              <select v-model="form.teknisi_id" required
+                class="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none">
+                <option value="" disabled>Pilih teknisi...</option>
+                <option v-for="t in teknisiList" :key="t.id" :value="t.id">{{ t.nama }}</option>
+              </select>
+              <p class="text-[10px] text-slate-400 mt-1">Jika teknisi tidak ada, tambahkan via Admin.</p>
+            </div>
+          </div>
 
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="ml-auto px-5 py-2 rounded-lg bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 disabled:opacity-50"
-            >
+          <!-- Jadwal tinjau (jika ditunda) -->
+          <div v-if="keputusan === 'ditunda'">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Jadwal Tinjau Ulang <span class="text-red-500">*</span></label>
+            <input v-model="form.jadwal_tinjau" type="date" required
+              class="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none" />
+          </div>
+
+          <!-- Catatan (wajib untuk tolak/tunda) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">
+              Catatan Pimpinan
+              <span v-if="keputusan !== 'disetujui'" class="text-red-500">*</span>
+            </label>
+            <textarea v-model="form.catatan_keputusan" :required="keputusan !== 'disetujui'" rows="3"
+              :placeholder="keputusan === 'disetujui' ? 'Arahan atau instruksi khusus (opsional)...' : 'Alasan keputusan (wajib)...'"
+              class="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none" />
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="submit" :disabled="isSubmitting"
+              class="px-6 py-2.5 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold shadow-xs flex items-center gap-1.5 disabled:opacity-50">
               <Icon v-if="isSubmitting" icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
-              <Icon v-else icon="lucide:save" class="w-4 h-4" />
-              <span>Simpan Keputusan (Status: {{ pimpinanChoice.toUpperCase() }})</span>
+              <Icon v-else icon="lucide:send" class="w-4 h-4" />
+              <span>{{ isSubmitting ? 'Menyimpan...' : 'Simpan Keputusan' }}</span>
             </button>
           </div>
         </form>
       </div>
 
-      <!-- State Kosong jika tidak ada tiket menunggu persetujuan -->
-      <div v-else class="bg-white rounded-2xl border border-slate-200/90 p-12 text-center space-y-3">
+      <!-- Empty state -->
+      <div v-else-if="menungguList.length === 0" class="bg-white rounded-2xl border border-slate-200/90 p-12 text-center space-y-3">
         <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
           <Icon icon="lucide:check-circle" class="w-6 h-6" />
         </div>
-        <h3 class="font-bold text-slate-800 text-base">Tidak ada permohonan yang menunggu keputusan</h3>
-        <p class="text-xs text-slate-500 max-w-md mx-auto">
-          Semua permohonan telah ditindaklanjuti. Laporan kepatuhan SLA dan riwayat disposisi dapat diunduh melalui menu ekspor di atas.
-        </p>
-      </div>
-
-      <!-- Tabel Daftar Seluruh Keputusan & Tiket Aktif -->
-      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 class="font-bold text-slate-800 text-sm">Daftar Permohonan Terkait Keputusan</h3>
-          <span class="text-xs text-slate-500 font-medium">Total: {{ (tikets || []).length }} Permohonan</span>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="bg-slate-50 text-slate-600 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
-                <th class="py-3 px-4">NOMOR RFC</th>
-                <th class="py-3 px-4">SISTEM & KEBUTUHAN</th>
-                <th class="py-3 px-4">PEMOHON / OPD</th>
-                <th class="py-3 px-4">STATUS</th>
-                <th class="py-3 px-4">DISPOSISI</th>
-                <th class="py-3 px-4 text-right">AKSI</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 text-slate-700">
-              <tr v-for="t in tikets" :key="t.no_rfc" class="hover:bg-slate-50 transition-colors">
-                <td class="py-3 px-4 font-mono font-bold text-[#0757A8]">{{ t.no_rfc }}</td>
-                <td class="py-3 px-4 font-medium text-slate-800">{{ t.nama_aplikasi }}</td>
-                <td class="py-3 px-4 text-slate-500">{{ t.perangkat_daerah }}</td>
-                <td class="py-3 px-4">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
-                    :class="[
-                      t.status === 'disetujui' ? 'bg-emerald-100 text-emerald-800' :
-                      t.status === 'menunggu_keputusan_pimpinan' ? 'bg-purple-100 text-purple-800' :
-                      t.status === 'dalam_pengerjaan' ? 'bg-cyan-100 text-cyan-800' :
-                      t.status === 'ditolak' ? 'bg-red-100 text-red-800' :
-                      t.status === 'ditunda' ? 'bg-amber-100 text-amber-800' :
-                      'bg-slate-100 text-slate-700'
-                    ]"
-                  >
-                    {{ t.status_label || t.status }}
-                  </span>
-                </td>
-                <td class="py-3 px-4 font-medium text-slate-700">{{ t.assigned_to || '-' }}</td>
-                <td class="py-3 px-4 text-right">
-                  <Link
-                    :href="`/form-perubahan-it/ticket/${t.no_rfc}`"
-                    class="text-[#0757A8] hover:underline font-bold"
-                  >
-                    Detail FR-015
-                  </Link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <h3 class="font-bold text-slate-800 text-base">Tidak ada permohonan menunggu keputusan</h3>
+        <p class="text-xs text-slate-500 max-w-md mx-auto">Semua permohonan telah ditindaklanjuti.</p>
       </div>
 
     </div>
@@ -270,107 +160,89 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, watch } from 'vue'
-import { Link, router, usePage } from '@inertiajs/vue3'
+import { ref, computed, watch } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { Icon } from '@iconify/vue'
 
+// ── Props (match controller: dashboardPimpinan) ───────────────────────────────
 const props = defineProps({
-  tikets: {
-    type: Array,
-    default: () => []
-  }
+  menungguKeputusan: { type: Array,  default: () => [] },   // RFC status 'menunggu_persetujuan'
+  countMenunggu:     { type: Number, default: 0 },
+  statistik:         { type: Object, default: null },
+  initialView:       { type: String, default: 'ringkasan' },
 })
 
-const page = usePage()
-const authUser = computed(() => page.props.auth?.user)
-
-const pimpinanChoice = ref('disetujui')
+// ── State ─────────────────────────────────────────────────────────────────────
 const isSubmitting = ref(false)
-const actionSuccessMessage = ref(null)
+const successMsg   = ref(null)
+const keputusan    = ref('disetujui')
 
-const localTikets = ref([...(props.tikets || [])])
-
-watch(() => props.tikets, (newVal) => {
-  localTikets.value = [...(newVal || [])]
+const form = ref({
+  catatan_keputusan: '',
+  teknisi_id: '',
+  jadwal_tinjau: '',
 })
 
-const menungguPersetujuanList = computed(() => {
-  return localTikets.value.filter(t => t.status === 'menunggu_keputusan_pimpinan')
-})
+const menungguList   = ref([...props.menungguKeputusan])
+const selectedId     = ref(menungguList.value[0]?.id ?? null)
 
-const disetujuiCount = computed(() => {
-  return localTikets.value.filter(t => ['disetujui', 'dalam_pengerjaan', 'selesai'].includes(t.status)).length
-})
+watch(() => props.menungguKeputusan, v => { menungguList.value = [...v] })
+watch(menungguList, list => { if (list.length > 0 && !selectedId.value) selectedId.value = list[0].id }, { immediate: true })
 
-const ditolakDitundaCount = computed(() => {
-  return localTikets.value.filter(t => ['ditolak', 'ditunda'].includes(t.status)).length
-})
+const activeTiket = computed(() => menungguList.value.find(t => t.id === selectedId.value) ?? menungguList.value[0] ?? null)
 
-const kepatuhanSla = computed(() => {
-  return '96.4'
-})
+// Ambil catatan verifikator terbaru dari histories (jika ada di prop rfc)
+const revisiTerbaru = computed(() => null) // akan ditampilkan dari workspace
 
-const selectedTicketId = ref(null)
+// Teknisi list dari halaman (akan di-fetch via API)
+const teknisiList = ref([])
 
-// Otomatis pilih tiket pertama yang menunggu keputusan, atau fallback tiket pertama
-watch(menungguPersetujuanList, (list) => {
-  if (list.length > 0 && !selectedTicketId.value) {
-    selectedTicketId.value = list[0].id
-  }
-}, { immediate: true })
+// Fetch daftar teknisi
+async function loadTeknisi() {
+  try {
+    const res = await axios.get('/api/teknisi-list')
+    teknisiList.value = res.data
+  } catch {}
+}
+loadTeknisi()
 
-const activeTiket = computed(() => {
-  if (selectedTicketId.value) {
-    return localTikets.value.find(t => t.id === selectedTicketId.value) || menungguPersetujuanList.value[0] || localTikets.value[0]
-  }
-  return menungguPersetujuanList.value[0] || localTikets.value[0]
-})
-
-const formKeputusan = reactive({
-  assigned_to: 'Teguh Wicaksono, S.T (Teknisi APTIKA)',
-  target_deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  pimpinan_catatan: 'Disetujui. Lakukan uji implementasi di lingkungan staging dan koordinasikan dengan pemohon.',
-})
-
-async function submitDecision() {
+// ── Submit ────────────────────────────────────────────────────────────────────
+async function submitKeputusan() {
   if (!activeTiket.value) return
   isSubmitting.value = true
 
-  const pimpinanNama = authUser.value?.name || 'Dr. H. Hendra Setiawan, M.Si'
+  const payload = {
+    keputusan: keputusan.value,                // 'disetujui' | 'ditolak' | 'ditunda'
+    catatan_keputusan: form.value.catatan_keputusan,
+    teknisi_id: keputusan.value === 'disetujui' ? form.value.teknisi_id : null,
+    jadwal_tinjau_ulang: keputusan.value === 'ditunda' ? form.value.jadwal_tinjau : null,
+  }
 
   try {
-    const res = await axios.post(`/api/form-perubahan-it/${activeTiket.value.id}/keputusan-pimpinan`, {
-      pimpinan_nama: pimpinanNama,
-      pimpinan_keputusan: pimpinanChoice.value,
-      pimpinan_catatan: formKeputusan.pimpinan_catatan,
-      assigned_to: formKeputusan.assigned_to,
-      target_deadline: formKeputusan.target_deadline,
-    })
-
-    actionSuccessMessage.value = `Keputusan pimpinan berhasil disimpan untuk ${activeTiket.value.no_rfc}. Tiket sekarang berstatus: ${pimpinanChoice.value.toUpperCase()}.`
-    
-    // Update data lokal
-    const idx = localTikets.value.findIndex(t => t.id === activeTiket.value.id)
-    if (idx !== -1) {
-      localTikets.value[idx].status = pimpinanChoice.value
-      localTikets.value[idx].status_label = pimpinanChoice.value === 'disetujui' ? 'Disetujui' : (pimpinanChoice.value === 'ditolak' ? 'Ditolak' : 'Ditunda')
-      localTikets.value[idx].assigned_to = formKeputusan.assigned_to
-    }
-    selectedTicketId.value = null
+    await axios.post(`/rfc/${activeTiket.value.id}/keputusan`, payload)
+    successMsg.value = `Keputusan berhasil disimpan untuk ${activeTiket.value.kode_pelacakan}.`
+    // Hapus dari list lokal
+    menungguList.value = menungguList.value.filter(t => t.id !== activeTiket.value.id)
+    selectedId.value = menungguList.value[0]?.id ?? null
+    form.value = { catatan_keputusan: '', teknisi_id: '', jadwal_tinjau: '' }
+    keputusan.value = 'disetujui'
   } catch (err) {
-    console.error(err)
-    alert(err.response?.data?.message || 'Gagal menyimpan keputusan pimpinan.')
+    alert(err.response?.data?.message || 'Gagal menyimpan keputusan.')
   } finally {
     isSubmitting.value = false
   }
 }
 
-function exportPdf() {
-  window.print()
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function getBadgeByUrgensi(urgensi) {
+  return { kritis: 'bg-red-600', tinggi: 'bg-amber-500', sedang: 'bg-blue-600', rendah: 'bg-emerald-600' }[urgensi] ?? 'bg-slate-500'
 }
 
-function exportExcel() {
-  alert('Data rekapitulasi keputusan FR-015 diekspor.')
-}
+const keputusanOptions = [
+  { value: 'disetujui', label: 'Setujui', desc: 'Lanjut ke teknisi', icon: 'lucide:check-circle-2', iconClass: 'text-emerald-600', activeClass: 'border-emerald-500 bg-emerald-50 text-emerald-800' },
+  { value: 'ditunda',   label: 'Tunda',   desc: 'Jadwal nanti',       icon: 'lucide:clock',           iconClass: 'text-amber-600',   activeClass: 'border-amber-500 bg-amber-50 text-amber-800' },
+  { value: 'ditolak',   label: 'Tolak',   desc: 'RFC dibatalkan',     icon: 'lucide:x-circle',        iconClass: 'text-red-600',     activeClass: 'border-red-500 bg-red-50 text-red-800' },
+]
 </script>

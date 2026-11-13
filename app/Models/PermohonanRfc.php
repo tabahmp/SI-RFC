@@ -95,7 +95,7 @@ class PermohonanRfc extends Model
 
     public function eksekusi(): HasMany
     {
-        return $this->hasMany(EksekusiRfc::class, 'rfc_id');
+        return $this->hasMany(EksekusiRfc::class, 'rfc_id')->orderByDesc('dimulai_pada');
     }
 
     public function eksekusiAktif(): HasOne
@@ -202,13 +202,14 @@ class PermohonanRfc extends Model
         string $peranAktor,
         string $statusBaru,
         string $keterangan,
-        ?string $catatan = null
+        ?string $catatan = null,
+        ?string $statusSebelumnya = null
     ): RfcHistory {
         return $this->histories()->create([
             'pengguna_id'      => $pengguna?->id,
             'nama_aktor'       => $namaAktor,
             'peran_aktor'      => $peranAktor,
-            'status_sebelumnya'=> $this->status_terkini,
+            'status_sebelumnya'=> $statusSebelumnya ?? $this->status_terkini,
             'status_baru'      => $statusBaru,
             'keterangan'       => $keterangan,
             'catatan'          => $catatan,
@@ -233,7 +234,8 @@ class PermohonanRfc extends Model
             'diajukan'             => ['perlu_revisi', 'ditolak_verifikator', 'menunggu_persetujuan'],
             'perlu_revisi'         => ['diajukan'],
             'menunggu_persetujuan' => ['ditolak_pimpinan', 'ditunda', 'disetujui'],
-            'disetujui'            => ['sedang_dikerjakan'],
+            'ditunda'              => ['ditolak_pimpinan', 'disetujui', 'menunggu_persetujuan'],
+            'disetujui'            => ['sedang_dikerjakan', 'selesai'],
             'sedang_dikerjakan'    => ['selesai'],
         ];
 
