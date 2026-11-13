@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\RfcDetailExport;
+use App\Exports\RfcExport;
 use App\Models\KategoriRfc;
 use App\Models\Opd;
 use App\Models\PermohonanRfc;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
 {
@@ -54,7 +57,36 @@ class LaporanController extends Controller
         ]);
     }
 
+    /**
+     * Export RFC data to Excel
+     */
     public function ekspor(Request $request)
+    {
+        $format = $request->input('format', 'excel'); // excel or csv
+        $type = $request->input('type', 'summary'); // summary or detail
+        
+        $filters = [
+            'start_date' => $request->tanggal_dari,
+            'end_date' => $request->tanggal_sampai,
+            'status' => $request->status,
+            'opd_id' => $request->opd_id,
+        ];
+        
+        $filename = 'laporan-rfc-' . ($type === 'detail' ? 'detail-' : '') . now()->format('Ymd-His');
+        
+        if ($format === 'excel') {
+            $export = $type === 'detail' ? new RfcDetailExport($filters) : new RfcExport($filters);
+            return Excel::download($export, $filename . '.xlsx');
+        }
+        
+        // Legacy CSV export
+        return $this->eksporCsv($request);
+    }
+    
+    /**
+     * Legacy CSV export method
+     */
+    private function eksporCsv(Request $request)
     {
         $query = PermohonanRfc::with(['pengguna', 'opd', 'kategori', 'persetujuan'])
             ->orderByDesc('created_at');
