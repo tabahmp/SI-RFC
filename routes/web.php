@@ -102,6 +102,7 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
     Route::get('/rfc/{kode}',        [PermohonanRfcController::class, 'show'])->name('rfc.show');
     Route::get('/rfc/{kode}/dokumen',[PermohonanRfcController::class, 'dokumen'])->name('rfc.dokumen');
     Route::get('/rfc/{kode}/workspace',[PermohonanRfcController::class, 'workspace'])->name('rfc.workspace');
+    Route::get('/analytics',         fn () => Inertia::render('Analytics/Index'))->name('analytics.index');
 
     // ─── API NOTIFIKASI ─────────────────────────────────────────────────────
     Route::prefix('api')->group(function () {
