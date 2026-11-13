@@ -190,7 +190,7 @@ class PermohonanRfc extends Model
                 ->whereMonth('created_at', $bulan)
                 ->count() + 1;
             
-            return sprintf('RFC-%s%s-%04d', $tahun, $bulan, $urutan);
+            return sprintf('RFC-%s-%s-%05d', $tahun, $bulan, $urutan);
         });
     }
 
