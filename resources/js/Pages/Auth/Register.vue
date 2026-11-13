@@ -94,10 +94,10 @@
               </div>
               <div>
                 <label class="block text-[11px] font-bold text-[#475569] mb-1">Asal Organisasi Perangkat Daerah</label>
-                <select v-model="form.asal_opd" required
+                <select v-model="form.opd_id" required
                   class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all">
                   <option value="" disabled selected>Pilih Organisasi Perangkat Daerah</option>
-                  <option v-for="opd in opdList" :key="opd" :value="opd">{{ opd }}</option>
+                  <option v-for="opd in opdList" :key="opd.id" :value="opd.id">{{ opd.nama_opd }}</option>
                 </select>
               </div>
             </div>
@@ -271,39 +271,17 @@ const passwordStrength = computed(() => {
   }
 })
 
-const opdList = [
-  'Dinas Komunikasi dan Informatika Provinsi Jawa Barat',
-  'Badan Perencanaan Pembangunan Daerah Provinsi Jawa Barat',
-  'Dinas Pendidikan Provinsi Jawa Barat',
-  'Dinas Kesehatan Provinsi Jawa Barat',
-  'Dinas Pekerjaan Umum dan Penataan Ruang Provinsi Jawa Barat',
-  'Dinas Perhubungan Provinsi Jawa Barat',
-  'Dinas Sosial Provinsi Jawa Barat',
-  'Badan Kepegawaian Daerah Provinsi Jawa Barat',
-  'Badan Pengelolaan Keuangan dan Aset Daerah Provinsi Jawa Barat',
-  'Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu Provinsi Jawa Barat',
-  'Dinas Lingkungan Hidup Provinsi Jawa Barat',
-  'Dinas Pariwisata dan Kebudayaan Provinsi Jawa Barat',
-  'Dinas Ketahanan Pangan dan Peternakan Provinsi Jawa Barat',
-  'Dinas Tanaman Pangan dan Hortikultura Provinsi Jawa Barat',
-  'Dinas Perindustrian dan Perdagangan Provinsi Jawa Barat',
-  'Dinas Koperasi dan Usaha Kecil Provinsi Jawa Barat',
-  'Dinas Tenaga Kerja dan Transmigrasi Provinsi Jawa Barat',
-  'Dinas Pemberdayaan Perempuan, Perlindungan Anak dan KB Provinsi Jawa Barat',
-  'Dinas Perpustakaan dan Kearsipan Daerah Provinsi Jawa Barat',
-  'Badan Kesatuan Bangsa dan Politik Provinsi Jawa Barat',
-  'Badan Pendapatan Daerah Provinsi Jawa Barat',
-  'Inspektorat Daerah Provinsi Jawa Barat',
-  'Sekretariat Daerah Provinsi Jawa Barat',
-  'Sekretariat Dewan Perwakilan Rakyat Daerah Provinsi Jawa Barat',
-  'Lainnya / Instansi Organisasi Perangkat Daerah Pemohon',
-]
+// OPD dari database via props
+const props = defineProps({
+  opdList: { type: Array, default: () => [] },
+  errors:  { type: Object, default: () => ({}) },
+})
 
 const form = reactive({
   nama_lengkap: '',
   nip: '',
   nomor_kontak: '',
-  asal_opd: '',
+  opd_id: '',           // FK ke tabel opd
   email: '',
   password: '',
   password_confirmation: '',
@@ -332,7 +310,16 @@ function submitRegister() {
   }
 
   loading.value = true
-  router.post('/register', form, {
+  router.post('/register', {
+    nama_lengkap:          form.nama_lengkap,
+    nip:                   form.nip,
+    nomor_kontak:          form.nomor_kontak,
+    opd_id:                form.opd_id,
+    email:                 form.email,
+    password:              form.password,
+    password_confirmation: form.password_confirmation,
+    pernyataan:            form.pernyataan,
+  }, {
     onError: (errors) => {
       loading.value = false
       if (errors.email) {

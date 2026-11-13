@@ -1,59 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SI-RFC — Sistem Informasi Request for Change
+**Diskominfo Prov. Jawa Barat · Bidang APTIKA**
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web untuk mengelola siklus penuh Request for Change (RFC) perubahan layanan TI,
+mulai dari pengajuan formulir FR-015, verifikasi, keputusan pimpinan, eksekusi teknis, hingga penerbitan BAST.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack Teknologi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Layer    | Teknologi                                |
+|----------|------------------------------------------|
+| Backend  | Laravel 12 · PHP 8.2                     |
+| Frontend | Vue 3 · Inertia.js v3 · TailwindCSS 3   |
+| Database | MySQL (dev: SQLite compatible)           |
+| Email    | Mailtrap (dev) / SMTP (prod)             |
+| Icons    | Lucide via @iconify/vue                  |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Instalasi & Setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+# 1. Clone repository
+git clone <repo-url>
+cd SI-RFC
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 2. Copy environment
+cp .env.example .env
 
-## Laravel Sponsors
+# 3. Isi konfigurasi di .env:
+#    - DB_DATABASE, DB_USERNAME, DB_PASSWORD
+#    - MAIL_USERNAME, MAIL_PASSWORD (dari Mailtrap)
+#    - APP_URL
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 4. Install dependencies
+composer install
+npm install
 
-### Premium Partners
+# 5. Generate key
+php artisan key:generate
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 6. Migrate & seed database
+php artisan migrate:fresh --seed
 
-## Contributing
+# 7. Build assets
+npm run build
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 8. Storage link
+php artisan storage:link
 
-## Code of Conduct
+# 9. Jalankan aplikasi
+composer run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Akun Demo (Password: `Password@123`)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Email                                    | Peran       | OPD               |
+|------------------------------------------|-------------|-------------------|
+| admin@diskominfo.jabarprov.go.id         | Admin       | Diskominfo Jabar  |
+| pemohon@jabarprov.go.id                  | Pemohon     | Bappeda Jabar     |
+| verifikator@jabarprov.go.id              | Verifikator | Diskominfo Jabar  |
+| pimpinan@jabarprov.go.id                 | Pimpinan    | Diskominfo Jabar  |
+| teknisi@jabarprov.go.id                  | Teknisi     | Diskominfo Jabar  |
+| dadan.perhubungan@jabarprov.go.id        | Pemohon     | Dinas Perhubungan |
 
-## License
+> **Catatan:** Akun `dadan.perhubungan` berstatus *tertunda* — cocok untuk testing aktivasi akun via Admin.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Konfigurasi Email (Mailtrap)
+
+1. Daftar di [mailtrap.io](https://mailtrap.io) (gratis)
+2. Buka: Inboxes → pilih inbox → SMTP Settings
+3. Isi `.env`:
+   ```
+   MAIL_MAILER=smtp
+   MAIL_HOST=sandbox.smtp.mailtrap.io
+   MAIL_PORT=2525
+   MAIL_USERNAME=<dari mailtrap>
+   MAIL_PASSWORD=<dari mailtrap>
+   MAIL_FROM_ADDRESS="noreply@si-rfc.jabarprov.go.id"
+   MAIL_FROM_NAME="SI-RFC Diskominfo Jabar"
+   ```
+4. Pastikan queue berjalan: `php artisan queue:work`
+
+---
+
+## Alur Kerja RFC (State Machine)
+
+```
+draf → diajukan → perlu_revisi ⟷ diajukan
+              → ditolak_verifikator
+              → menunggu_persetujuan → ditolak_pimpinan
+                                     → ditunda
+                                     → disetujui → sedang_dikerjakan → selesai (BAST)
+```
+
+---
+
+## Skema Database (3NF)
+
+| Tabel              | Keterangan                              |
+|--------------------|-----------------------------------------|
+| peran              | Master 5 peran sistem                   |
+| opd                | Master 21 OPD Jawa Barat                |
+| kategori_rfc       | Master kategori domain teknis           |
+| users              | Pengguna (FK ke peran & opd)            |
+| permohonan_rfc     | Tabel utama RFC (FR-015)                |
+| revisi_rfc         | Catatan telaah & revisi verifikator     |
+| persetujuan_rfc    | Keputusan pimpinan                      |
+| eksekusi_rfc       | Log pengerjaan teknisi                  |
+| dokumen_bast       | Berita Acara Serah Terima               |
+| notifikasi         | Notifikasi in-app per pengguna          |
+| rfc_histories      | Audit trail seluruh perubahan status    |
+
+---
+
+## Fitur Utama
+
+- **Auth:** Login + CAPTCHA, registrasi mandiri pemohon, lupa kata sandi via email
+- **RBAC:** 5 peran (Admin, Pemohon, Verifikator, Pimpinan, Teknisi) dengan proteksi rute ketat
+- **Admin:** Dashboard statistik, kelola akun + aktivasi, master OPD & kategori, laporan & ekspor CSV
+- **Pemohon:** Form FR-015 lengkap (7 seksi), simpan draf, ajukan, pantau progres, cetak dokumen
+- **Verifikator:** Antrean telaah, pemantauan SLA, telaah teknis + revisi
+- **Pimpinan:** Dashboard keputusan, setujui / tolak / tunda RFC
+- **Teknisi:** Daftar tugas, mulai eksekusi, upload BAST, arsip dokumen
+- **Notifikasi:** In-app real-time + email via Mailtrap untuk setiap perubahan status
+- **Cetak:** FR-015 dan BAST dalam format print A4
+
+---
+
+## Standar
+
+- ITIL v4 (Change Management)
+- ISO/IEC 20000 (IT Service Management)
+- ISO/IEC 27001 (Information Security)
