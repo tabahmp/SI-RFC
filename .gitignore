@@ -22,3 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Testing files (internal only)
+TESTING_REPORT.md
+QA_TEST_PLAN.md
+test_*.php
+routes_temp.json
