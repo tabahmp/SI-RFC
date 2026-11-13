@@ -113,6 +113,11 @@ class PermohonanRfc extends Model
         return $this->hasMany(RfcHistory::class, 'rfc_id')->orderByDesc('dibuat_pada');
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(RfcComment::class, 'rfc_id')->orderBy('created_at');
+    }
+
     // ─── Accessors ───────────────────────────────────────────────────────────
 
     public function getStatusTerkiniLabelAttribute(): string
