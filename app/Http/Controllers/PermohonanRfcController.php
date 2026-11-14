@@ -271,16 +271,38 @@ class PermohonanRfcController extends Controller
 
         if ($simpanDraf) {
             $validated = $request->validate([
-                'kategori_id'         => ['nullable', 'exists:kategori_rfc,id'],
-                'unit_kerja'          => ['nullable', 'string', 'max:255'],
-                'nomor_surat'         => ['nullable', 'string', 'max:100'],
-                'nomor_kontak'        => ['nullable', 'string', 'max:50'],
-                'email_dinas'         => ['nullable', 'email'],
-                'tanggal_permohonan'  => ['nullable', 'date'],
-                'jenis_perubahan'     => ['nullable', 'array'],
-                'deskripsi_perubahan' => ['nullable', 'string'],
-                'urgensi'             => ['nullable', 'in:rendah,sedang,tinggi,kritis'],
-                'nama_aplikasi'       => ['nullable', 'string'],
+                // Seksi 1
+                'kategori_id'            => ['nullable', 'exists:kategori_rfc,id'],
+                'unit_kerja'             => ['nullable', 'string', 'max:255'],
+                'nomor_surat'            => ['nullable', 'string', 'max:100'],
+                'nomor_kontak'           => ['nullable', 'string', 'max:50'],
+                'email_dinas'            => ['nullable', 'email'],
+                'tanggal_permohonan'     => ['nullable', 'date'],
+                // Seksi 2
+                'jenis_perubahan'        => ['nullable', 'array'],
+                // Seksi 3
+                'deskripsi_perubahan'    => ['nullable', 'string'],
+                'latar_belakang'         => ['nullable', 'string'],
+                'rincian_perubahan'      => ['nullable', 'string'],
+                // Seksi 4
+                'urgensi'                => ['nullable', 'in:rendah,sedang,tinggi,kritis'],
+                'risiko_tidak_dilakukan' => ['nullable', 'string'],
+                'kriteria_risiko'        => ['nullable', 'string'],
+                'keterangan_risiko'      => ['nullable', 'string'],
+                'rencana_pemulihan'      => ['nullable', 'string'],
+                // Seksi 5
+                'solusi_diharapkan'      => ['nullable', 'string'],
+                'risiko_perubahan'       => ['nullable', 'string'],
+                'alternatif_perubahan'   => ['nullable', 'string'],
+                'biaya_perubahan'        => ['nullable', 'string', 'max:100'],
+                'waktu_perubahan'        => ['nullable', 'string', 'max:100'],
+                // Seksi 6
+                'nama_aplikasi'          => ['nullable', 'string'],
+                'deskripsi_aplikasi'     => ['nullable', 'string'],
+                'alamat_aplikasi'        => ['nullable', 'string'],
+                'alamat_repository'      => ['nullable', 'string'],
+                // Seksi 7
+                'tanda_tangan'           => ['nullable', 'string'],
             ]);
         } else {
             $validated = $request->validate([
@@ -360,16 +382,38 @@ class PermohonanRfcController extends Controller
 
         if ($simpanDraf) {
             $validated = $request->validate([
-                'kategori_id'         => ['nullable', 'exists:kategori_rfc,id'],
-                'unit_kerja'          => ['nullable', 'string', 'max:255'],
-                'nomor_surat'         => ['nullable', 'string', 'max:100'],
-                'nomor_kontak'        => ['nullable', 'string', 'max:50'],
-                'email_dinas'         => ['nullable', 'email'],
-                'tanggal_permohonan'  => ['nullable', 'date'],
-                'jenis_perubahan'     => ['nullable', 'array'],
-                'deskripsi_perubahan' => ['nullable', 'string'],
-                'urgensi'             => ['nullable', 'in:rendah,sedang,tinggi,kritis'],
-                'nama_aplikasi'       => ['nullable', 'string'],
+                // Seksi 1
+                'kategori_id'            => ['nullable', 'exists:kategori_rfc,id'],
+                'unit_kerja'             => ['nullable', 'string', 'max:255'],
+                'nomor_surat'            => ['nullable', 'string', 'max:100'],
+                'nomor_kontak'           => ['nullable', 'string', 'max:50'],
+                'email_dinas'            => ['nullable', 'email'],
+                'tanggal_permohonan'     => ['nullable', 'date'],
+                // Seksi 2
+                'jenis_perubahan'        => ['nullable', 'array'],
+                // Seksi 3
+                'deskripsi_perubahan'    => ['nullable', 'string'],
+                'latar_belakang'         => ['nullable', 'string'],
+                'rincian_perubahan'      => ['nullable', 'string'],
+                // Seksi 4
+                'urgensi'                => ['nullable', 'in:rendah,sedang,tinggi,kritis'],
+                'risiko_tidak_dilakukan' => ['nullable', 'string'],
+                'kriteria_risiko'        => ['nullable', 'string'],
+                'keterangan_risiko'      => ['nullable', 'string'],
+                'rencana_pemulihan'      => ['nullable', 'string'],
+                // Seksi 5
+                'solusi_diharapkan'      => ['nullable', 'string'],
+                'risiko_perubahan'       => ['nullable', 'string'],
+                'alternatif_perubahan'   => ['nullable', 'string'],
+                'biaya_perubahan'        => ['nullable', 'string', 'max:100'],
+                'waktu_perubahan'        => ['nullable', 'string', 'max:100'],
+                // Seksi 6
+                'nama_aplikasi'          => ['nullable', 'string'],
+                'deskripsi_aplikasi'     => ['nullable', 'string'],
+                'alamat_aplikasi'        => ['nullable', 'string'],
+                'alamat_repository'      => ['nullable', 'string'],
+                // Seksi 7
+                'tanda_tangan'           => ['nullable', 'string'],
             ]);
         } else {
             $validated = $request->validate([
@@ -453,6 +497,10 @@ class PermohonanRfcController extends Controller
             'keterangan_risiko'      => $validated['keterangan_risiko'] ?? null,
             'rencana_pemulihan'      => $validated['rencana_pemulihan'] ?? null,
             'solusi_diharapkan'      => $validated['solusi_diharapkan'] ?? null,
+            'risiko_perubahan'       => $validated['risiko_perubahan'] ?? null,
+            'alternatif_perubahan'   => $validated['alternatif_perubahan'] ?? null,
+            'biaya_perubahan'        => $validated['biaya_perubahan'] ?? null,
+            'waktu_perubahan'        => $validated['waktu_perubahan'] ?? null,
             'nama_aplikasi'          => $validated['nama_aplikasi'] ?? null,
             'deskripsi_aplikasi'     => $validated['deskripsi_aplikasi'] ?? null,
             'alamat_aplikasi'        => $validated['alamat_aplikasi'] ?? null,
