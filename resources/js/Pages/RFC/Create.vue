@@ -859,18 +859,9 @@ async function simpanDraf() {
   try {
     let res
     if (props.mode === 'edit' && props.rfc) {
-      // Mode edit: PUT ke /rfc/{id}
-      const data = new FormData()
-      data.append('simpan_draf', '1')
+      // Mode edit: POST dengan _method=PUT ke /rfc/{id}
+      const data = buildFormData(true)   // pakai buildFormData agar file & existing ikut
       data.append('_method', 'PUT')
-      Object.entries(form).forEach(([key, val]) => {
-        if (val === null || val === undefined) return
-        if (Array.isArray(val)) {
-          val.forEach(v => data.append(`${key}[]`, v))
-        } else {
-          data.append(key, val)
-        }
-      })
       res = await axios.post(`/rfc/${props.rfc.id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
@@ -921,19 +912,9 @@ async function handleSubmit() {
   try {
     let res
     if (props.mode === 'edit' && props.rfc) {
-      // Mode edit: PUT ke /rfc/{id}
-      const data = new FormData()
-      data.append('simpan_draf', '0')
+      // Mode edit: POST dengan _method=PUT ke /rfc/{id}
+      const data = buildFormData(false)  // pakai buildFormData agar file & existing ikut
       data.append('_method', 'PUT')
-      Object.entries(form).forEach(([key, val]) => {
-        if (val === null || val === undefined) return
-        if (Array.isArray(val)) {
-          val.forEach(v => data.append(`${key}[]`, v))
-        } else {
-          data.append(key, val)
-        }
-      })
-      selectedFiles.value.forEach(file => data.append('lampiran[]', file))
       res = await axios.post(`/rfc/${props.rfc.id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
