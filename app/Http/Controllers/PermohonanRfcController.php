@@ -239,9 +239,13 @@ class PermohonanRfcController extends Controller
                 // Seksi 7
                 'tanda_tangan'           => $rfc->tanda_tangan_pemohon ? Storage::url($rfc->tanda_tangan_pemohon) : null,
                 // Lampiran existing
-                'lampiran_existing'      => collect($rfc->path_lampiran ?? [])->map(fn ($p) => [
+                'lampiran_existing'      => collect(
+                    is_array($rfc->path_lampiran)
+                        ? $rfc->path_lampiran
+                        : (json_decode($rfc->getRawOriginal('path_lampiran') ?? '[]', true) ?: [])
+                )->map(fn ($p) => [
                     'url'  => Storage::url($p),
-                    'nama' => basename($p),
+                    'nama' => preg_replace('/^\d+_[a-f0-9]+_/', '', basename($p)), // hapus prefix timestamp
                     'path' => $p,
                 ])->values()->all(),
             ],
