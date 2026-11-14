@@ -546,22 +546,62 @@ const successModal = reactive({ show: false, kodePelacakan: '' })
 // -- Auto-isi dari profil user yang login --------------------------------------
 onMounted(() => {
   if (props.mode === 'edit' && props.rfc) {
-    // Pre-fill form dari data RFC yang sudah ada
-    Object.keys(form).forEach(key => {
-      if (props.rfc[key] !== undefined && props.rfc[key] !== null) {
-        if (key === 'jenis_perubahan' && typeof props.rfc[key] === 'string') {
-          form[key] = JSON.parse(props.rfc[key] || '[]')
-        } else {
-          form[key] = props.rfc[key]
-        }
+    // Pre-fill SEMUA field form dari data RFC yang tersimpan di database
+    const rfcData = props.rfc
+
+    // Seksi 1
+    if (rfcData.nama_pemohon)       form.nama_pemohon       = rfcData.nama_pemohon
+    if (rfcData.nip)                form.nip                = rfcData.nip
+    if (rfcData.unit_kerja)         form.unit_kerja         = rfcData.unit_kerja
+    if (rfcData.opd_id)             form.opd_id             = rfcData.opd_id
+    if (rfcData.nomor_surat)        form.nomor_surat        = rfcData.nomor_surat
+    if (rfcData.nomor_kontak)       form.nomor_kontak       = rfcData.nomor_kontak
+    if (rfcData.email_dinas)        form.email_dinas        = rfcData.email_dinas
+    if (rfcData.tanggal_permohonan) form.tanggal_permohonan = rfcData.tanggal_permohonan
+
+    // Seksi 2
+    if (rfcData.kategori_id)        form.kategori_id        = rfcData.kategori_id
+    if (rfcData.jenis_perubahan) {
+      if (Array.isArray(rfcData.jenis_perubahan)) {
+        form.jenis_perubahan = rfcData.jenis_perubahan
+      } else {
+        try { form.jenis_perubahan = JSON.parse(rfcData.jenis_perubahan) } catch { form.jenis_perubahan = [] }
       }
-    })
-    // Path lampiran lama (read-only)
-    if (props.rfc.path_lampiran) {
-      // Tampilkan info lampiran yang sudah ada
     }
+
+    // Seksi 3
+    if (rfcData.deskripsi_perubahan) form.deskripsi_perubahan = rfcData.deskripsi_perubahan
+    if (rfcData.latar_belakang)      form.latar_belakang      = rfcData.latar_belakang
+    if (rfcData.rincian_perubahan)   form.rincian_perubahan   = rfcData.rincian_perubahan
+
+    // Seksi 4
+    if (rfcData.urgensi)                 form.urgensi                 = rfcData.urgensi
+    if (rfcData.risiko_tidak_dilakukan)  form.risiko_tidak_dilakukan  = rfcData.risiko_tidak_dilakukan
+    if (rfcData.kriteria_risiko)         form.kriteria_risiko         = rfcData.kriteria_risiko
+    if (rfcData.keterangan_risiko)       form.keterangan_risiko       = rfcData.keterangan_risiko
+    if (rfcData.rencana_pemulihan)       form.rencana_pemulihan       = rfcData.rencana_pemulihan
+
+    // Seksi 5
+    if (rfcData.solusi_diharapkan)       form.solusi_diharapkan       = rfcData.solusi_diharapkan
+    if (rfcData.risiko_perubahan)        form.risiko_perubahan        = rfcData.risiko_perubahan
+    if (rfcData.alternatif_perubahan)    form.alternatif_perubahan    = rfcData.alternatif_perubahan
+    if (rfcData.biaya_perubahan)         form.biaya_perubahan         = rfcData.biaya_perubahan
+    if (rfcData.waktu_perubahan)         form.waktu_perubahan         = rfcData.waktu_perubahan
+
+    // Seksi 6
+    if (rfcData.nama_aplikasi)           form.nama_aplikasi           = rfcData.nama_aplikasi
+    if (rfcData.deskripsi_aplikasi)      form.deskripsi_aplikasi      = rfcData.deskripsi_aplikasi
+    if (rfcData.alamat_aplikasi)         form.alamat_aplikasi         = rfcData.alamat_aplikasi
+    if (rfcData.alamat_repository)       form.alamat_repository       = rfcData.alamat_repository
+
+    // Seksi 7 — tanda tangan existing (URL dari storage)
+    if (rfcData.tanda_tangan)            form.tanda_tangan            = rfcData.tanda_tangan
+
+    // Override opd_id dari opdUser jika ada
+    if (props.opdUser) form.opd_id = props.opdUser.id
+
   } else {
-    // Mode create: auto-isi dari profil user
+    // Mode create: auto-isi dari profil user yang login
     if (props.userProfile) {
       form.nama_pemohon = props.userProfile.nama_lengkap ?? ''
       form.nip          = props.userProfile.nip ?? ''
@@ -569,9 +609,9 @@ onMounted(() => {
       form.email_dinas  = props.userProfile.email ?? ''
       form.opd_id       = props.userProfile.opd_id ?? null
     }
-  }
-  if (props.opdUser) {
-    form.opd_id = props.opdUser.id
+    if (props.opdUser) {
+      form.opd_id = props.opdUser.id
+    }
   }
 })
 
