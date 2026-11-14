@@ -340,7 +340,8 @@ class PermohonanRfcController extends Controller
         if ($sisa > 0 && $request->hasFile('lampiran')) {
             foreach (array_slice($request->file('lampiran'), 0, $sisa) as $file) {
                 $safeName = time().'_'.uniqid().'_'.preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $file->getClientOriginalName());
-                $pathLampiran[] = $file->storeAs('public/lampiran', $safeName);
+                $file->storeAs('lampiran', $safeName, 'public');
+                $pathLampiran[] = 'public/lampiran/'.$safeName;
             }
         }
 
@@ -1105,9 +1106,11 @@ class PermohonanRfcController extends Controller
         $data      = explode(',', $base64, 2);
         $imageData = base64_decode($data[1]);
         $ext       = str_contains($data[0], 'png') ? 'png' : 'jpg';
-        $filename  = "public/{$folder}/" . uniqid('ttd_', true) . ".{$ext}";
-        Storage::put($filename, $imageData);
-        return $filename;
+        $namaFile  = uniqid('ttd_', true) . ".{$ext}";
+        // Simpan di disk 'public' agar bisa diakses via /storage/
+        Storage::disk('public')->put("{$folder}/{$namaFile}", $imageData);
+        // Kembalikan path dengan prefix 'public/' agar Storage::url() menghasilkan URL yang benar
+        return "public/{$folder}/{$namaFile}";
     }
 
     private function statistikBulanIni(): array
