@@ -358,9 +358,35 @@
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">
                 Dokumen Pendukung
-                <span class="text-xs font-normal text-slate-400 ml-1">(Maks 5 file � PDF/DOCX/ZIP/PNG/JPG � Max 10MB per file)</span>
+                <span class="text-xs font-normal text-slate-400 ml-1">(Maks 5 file — PDF/DOCX/ZIP/PNG/JPG — Max 10MB per file)</span>
               </label>
-              <div
+
+              <!-- File existing dari draft (edit mode) -->
+              <div v-if="existingFiles.length > 0" class="mb-3 space-y-2">
+                <p class="text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                  <Icon icon="lucide:paperclip" class="w-3.5 h-3.5" />
+                  File yang sudah diunggah sebelumnya:
+                </p>
+                <div v-for="(file, idx) in existingFiles" :key="file.path"
+                  class="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2 border border-blue-100">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <Icon icon="lucide:file-check" class="w-4 h-4 text-[#0757a8] flex-shrink-0" />
+                    <a :href="file.url" target="_blank"
+                      class="text-sm text-[#0757a8] hover:underline truncate">{{ file.nama }}</a>
+                    <span class="text-[10px] text-slate-400 flex-shrink-0 bg-blue-100 px-1.5 py-0.5 rounded">Tersimpan</span>
+                  </div>
+                  <button type="button" @click="removeExistingFile(idx)"
+                    class="text-red-400 hover:text-red-600 ml-2 flex-shrink-0" title="Hapus file ini">
+                    <Icon icon="lucide:x" class="w-4 h-4" />
+                  </button>
+                </div>
+                <p class="text-xs text-slate-400">
+                  Tambahkan file baru di bawah. Total maks 5 file (sudah ada {{ existingFiles.length }}).
+                </p>
+              </div>
+
+              <!-- Upload file baru -->
+              <div v-if="(existingFiles.length + selectedFiles.length) < 5"
                 class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-[#0757a8] transition-colors cursor-pointer"
                 @click="triggerFileInput"
                 @dragover.prevent
@@ -368,10 +394,17 @@
               >
                 <input ref="fileInputRef" type="file" multiple accept=".pdf,.docx,.zip,.png,.jpg,.jpeg" class="hidden" @change="handleFileChange" />
                 <Icon icon="lucide:upload-cloud" class="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p class="text-sm text-slate-500">Klik atau seret file ke sini</p>
+                <p class="text-sm text-slate-500">Klik atau seret file baru ke sini</p>
                 <p class="text-xs text-slate-400 mt-1">PDF, DOCX, ZIP, PNG, JPG</p>
               </div>
+              <p v-else class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center gap-1.5">
+                <Icon icon="lucide:info" class="w-3.5 h-3.5 flex-shrink-0" />
+                Batas maksimal 5 file sudah tercapai.
+              </p>
+
+              <!-- File baru yang akan diunggah -->
               <div v-if="selectedFiles.length > 0" class="mt-3 space-y-2">
+                <p class="text-xs font-medium text-slate-500">File baru yang akan diunggah:</p>
                 <div v-for="(file, idx) in selectedFiles" :key="idx"
                   class="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 border border-slate-200">
                   <div class="flex items-center gap-2 min-w-0">
@@ -392,10 +425,26 @@
               <label class="block text-sm font-medium text-slate-700 mb-2">
                 Tanda Tangan Digital <span class="text-red-500">*</span>
               </label>
+
+              <!-- Info tanda tangan existing (saat loading) -->
+              <div v-if="mode === 'edit' && props.rfc?.tanda_tangan && !form.tanda_tangan"
+                class="mb-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center gap-2">
+                <Icon icon="lucide:loader-2" class="w-4 h-4 animate-spin flex-shrink-0" />
+                <span>Memuat tanda tangan yang tersimpan...</span>
+              </div>
+
               <SignaturePad v-model="form.tanda_tangan" />
-              <p class="mt-1.5 text-xs text-slate-500 text-center">
-                <strong>Dibuat Oleh: Pemohon</strong> � {{ form.nama_pemohon || '(nama pemohon)' }}
-              </p>
+
+              <div class="mt-1.5 flex items-center justify-between">
+                <p class="text-xs text-slate-500">
+                  <strong>Dibuat Oleh: Pemohon</strong> — {{ form.nama_pemohon || '(nama pemohon)' }}
+                </p>
+                <p v-if="mode === 'edit' && props.rfc?.tanda_tangan && form.tanda_tangan"
+                  class="text-xs text-emerald-600 flex items-center gap-1">
+                  <Icon icon="lucide:check-circle" class="w-3.5 h-3.5" />
+                  Tanda tangan tersimpan
+                </p>
+              </div>
               <p v-if="errors.tanda_tangan" class="mt-1 text-xs text-red-500">{{ errors.tanda_tangan }}</p>
             </div>
 
@@ -540,6 +589,7 @@ const errors       = reactive({})
 const isSubmitting = ref(false)
 const isSavingDraf = ref(false)
 const selectedFiles= ref([])
+const existingFiles= ref([])   // file lampiran yang sudah tersimpan di draft
 const fileInputRef = ref(null)
 const successModal = reactive({ show: false, kodePelacakan: '' })
 
@@ -600,6 +650,28 @@ onMounted(() => {
     // Override opd_id dari opdUser jika ada
     if (props.opdUser) form.opd_id = props.opdUser.id
 
+    // Lampiran existing — tampilkan file yang sudah diupload sebelumnya
+    if (rfcData.lampiran_existing && rfcData.lampiran_existing.length > 0) {
+      existingFiles.value = rfcData.lampiran_existing
+    }
+
+    // Load tanda tangan: jika URL /storage/..., fetch sebagai base64 untuk ditampilkan di canvas
+    if (rfcData.tanda_tangan && rfcData.tanda_tangan.startsWith('/')) {
+      fetch(rfcData.tanda_tangan)
+        .then(r => r.blob())
+        .then(blob => {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            form.tanda_tangan = reader.result  // base64 data URL
+          }
+          reader.readAsDataURL(blob)
+        })
+        .catch(() => {
+          // Gagal load — tanda tangan tidak ditampilkan, user harus tanda tangan ulang
+          form.tanda_tangan = null
+        })
+    }
+
   } else {
     // Mode create: auto-isi dari profil user yang login
     if (props.userProfile) {
@@ -640,6 +712,10 @@ function addFiles(newFiles) {
 
 function removeFile(idx) { selectedFiles.value.splice(idx, 1) }
 
+function removeExistingFile(idx) {
+  existingFiles.value.splice(idx, 1)
+}
+
 function formatFileSize(bytes) {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
@@ -660,7 +736,12 @@ function buildFormData(simpanDraf = false) {
     }
   })
 
+  // File baru
   selectedFiles.value.forEach(file => data.append('lampiran[]', file))
+
+  // Kirim path lampiran existing yang masih dipertahankan (mode edit)
+  existingFiles.value.forEach(f => data.append('lampiran_existing[]', f.path))
+
   return data
 }
 

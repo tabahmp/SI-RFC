@@ -238,6 +238,12 @@ class PermohonanRfcController extends Controller
                 'alamat_repository'      => $rfc->alamat_repository,
                 // Seksi 7
                 'tanda_tangan'           => $rfc->tanda_tangan_pemohon ? Storage::url($rfc->tanda_tangan_pemohon) : null,
+                // Lampiran existing
+                'lampiran_existing'      => collect($rfc->path_lampiran ?? [])->map(fn ($p) => [
+                    'url'  => Storage::url($p),
+                    'nama' => basename($p),
+                    'path' => $p,
+                ])->values()->all(),
             ],
             'kategoriList' => KategoriRfc::aktif()->orderBy('nama_kategori')->get(['id', 'nama_kategori', 'deskripsi']),
             'opdList'      => \App\Models\Opd::aktif()->orderBy('nama_opd')->get(['id', 'nama_opd']),
@@ -323,8 +329,9 @@ class PermohonanRfcController extends Controller
             }
         }
 
-        // Lampiran
-        $pathLampiran = $rfc->path_lampiran ?? [];
+        // Lampiran: merge existing yang dipertahankan + file baru
+        $lampiranExisting = $request->input('lampiran_existing', []);
+        $pathLampiran = is_array($lampiranExisting) ? array_values($lampiranExisting) : [];
         $sisa = max(0, 5 - count($pathLampiran));
         if ($sisa > 0 && $request->hasFile('lampiran')) {
             foreach (array_slice($request->file('lampiran'), 0, $sisa) as $file) {
