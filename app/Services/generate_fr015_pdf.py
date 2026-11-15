@@ -136,7 +136,8 @@ def generate_pdf(data: dict, pdf_output_path: str) -> str:
         raise FileNotFoundError(f"Template tidak ditemukan: {TEMPLATE_PATH}")
 
     # Siapkan direktori output
-    os.makedirs(os.path.dirname(pdf_output_path), exist_ok=True)
+    out_dir = os.path.dirname(os.path.abspath(pdf_output_path))
+    os.makedirs(out_dir, exist_ok=True)
 
     # Jalur DOCX sementara (ditulis ke direktori yg sama dengan PDF output)
     tmp_docx = pdf_output_path.replace(".pdf", "_tmp.docx")
@@ -193,15 +194,11 @@ def generate_pdf(data: dict, pdf_output_path: str) -> str:
                 else:
                     replace_in_paragraph(p, replacements)
 
-    # Tambahkan page break sebelum Row 18 (tanda tangan)
-    # Ini menjamin halaman 1 = isian, halaman 2 = persetujuan
+    # Pastikan tidak ada pageBreakBefore paksaan sehingga dokumen mengalir natural sesuai template
     p_first_in_row18 = table.rows[18].cells[0].paragraphs[0]
     pPr = p_first_in_row18._p.get_or_add_pPr()
-    # Hapus pageBreakBefore lama jika ada lalu tambah baru
     for existing in pPr.findall(qn("w:pageBreakBefore")):
         pPr.remove(existing)
-    page_break_elem = OxmlElement("w:pageBreakBefore")
-    pPr.append(page_break_elem)
 
     doc.save(tmp_docx)
 
