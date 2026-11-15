@@ -148,7 +148,7 @@
                     <th class="py-2.5 px-3">Perangkat Daerah</th>
                     <th class="py-2.5 px-3 text-center">Keputusan</th>
                     <th class="py-2.5 px-3">Tanggal Sah</th>
-                    <th class="py-2.5 px-3 text-right">Aksi</th>
+                    <th class="py-2.5 px-3 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -175,7 +175,7 @@
                     <td class="py-3 px-3 text-slate-600 whitespace-nowrap">
                       {{ r.diputuskan_pada || '-' }}
                     </td>
-                    <td class="py-3 px-3 text-right whitespace-nowrap">
+                    <td class="py-3 px-3 text-center whitespace-nowrap">
                       <Link
                         v-if="r.kode_pelacakan"
                         :href="`/rfc/${r.kode_pelacakan}/workspace`"
@@ -360,7 +360,7 @@
                   <th class="py-3.5 px-4 min-w-[280px]">Rincian Perubahan</th>
                   <th class="py-3.5 px-4 w-32 text-center">Urgensi</th>
                   <th class="py-3.5 px-4 w-36 text-center">SLA</th>
-                  <th class="py-3.5 px-4 w-44 text-right">Aksi</th>
+                  <th class="py-3.5 px-4 w-44 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-xs">
@@ -417,8 +417,8 @@
                   </td>
 
                   <!-- Tombol Aksi -->
-                  <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
-                    <div class="flex items-center justify-end">
+                  <td class="py-4 px-4 align-middle text-center whitespace-nowrap">
+                    <div class="flex items-center justify-center">
                       <Link
                         :href="`/rfc/${t.kode_pelacakan}/workspace`"
                         class="px-3.5 py-1.5 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-sm transition-all duration-200"
@@ -509,7 +509,7 @@
                   <th class="py-3.5 px-4 min-w-[180px]">Pemohon</th>
                   <th class="py-3.5 px-4 min-w-[280px]">Rincian & Catatan Tunda</th>
                   <th class="py-3.5 px-4 w-44 text-center">Jadwal Tinjau Ulang</th>
-                  <th class="py-3.5 px-4 w-44 text-right">Aksi</th>
+                  <th class="py-3.5 px-4 w-44 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-xs">
@@ -569,8 +569,8 @@
                     </div>
                   </td>
 
-                  <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
-                    <div class="flex items-center justify-end gap-1.5">
+                  <td class="py-4 px-4 align-middle text-center whitespace-nowrap">
+                    <div class="flex items-center justify-center gap-1.5">
                       <button
                         type="button"
                         @click="bukaModalKeputusan(t)"

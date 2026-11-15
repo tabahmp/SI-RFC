@@ -173,7 +173,7 @@
                     <th class="py-2.5 px-3">Perangkat Daerah</th>
                     <th class="py-2.5 px-3">Uraian Pekerjaan</th>
                     <th class="py-2.5 px-3">Tanggal Selesai</th>
-                    <th class="py-2.5 px-3 text-right">Aksi</th>
+                    <th class="py-2.5 px-3 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -193,7 +193,7 @@
                     <td class="py-3 px-3 text-slate-600 whitespace-nowrap">
                       {{ r.selesai_pada || r.created_at || '-' }}
                     </td>
-                    <td class="py-3 px-3 text-right whitespace-nowrap">
+                    <td class="py-3 px-3 text-center whitespace-nowrap">
                       <!-- Buka Workspace RFC -->
                       <Link
                         v-if="r.kode_pelacakan"
@@ -382,7 +382,7 @@
                   <th class="py-3.5 px-4 min-w-[260px]">Rincian Perubahan</th>
                   <th class="py-3.5 px-4 w-28 text-center">Urgensi</th>
                   <th class="py-3.5 px-4 w-36 text-center">Status</th>
-                  <th class="py-3.5 px-4 w-52 text-right">Aksi</th>
+                  <th class="py-3.5 px-4 w-52 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-xs">
@@ -446,7 +446,7 @@
                   </td>
 
                   <!-- Tombol Aksi -->
-                  <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
+                  <td class="py-4 px-4 align-middle text-center whitespace-nowrap">
                     <!-- Tombol Buka Workspace (Utama) -->
                     <Link
                       :href="`/rfc/${t.kode_pelacakan}/workspace`"
@@ -509,7 +509,7 @@
                   <th class="py-3.5 px-4 min-w-[200px]">Perangkat Daerah & Pemohon</th>
                   <th class="py-3.5 px-4 min-w-[240px]">Nomor & Tanggal BAST</th>
                   <th class="py-3.5 px-4 min-w-[240px]">Hasil Pekerjaan</th>
-                  <th class="py-3.5 px-4 w-44 text-right">Aksi</th>
+                  <th class="py-3.5 px-4 w-44 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -558,8 +558,8 @@
                   </td>
 
                   <!-- Aksi -->
-                  <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
-                    <div class="flex items-center justify-end gap-2">
+                  <td class="py-4 px-4 align-middle text-center whitespace-nowrap">
+                    <div class="flex items-center justify-center gap-2">
                       <!-- Unduh BAST -->
                       <a
                         v-if="r.path_file_bast"

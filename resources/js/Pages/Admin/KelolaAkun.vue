@@ -70,7 +70,7 @@
                 <th class="text-left px-5 py-3 text-slate-500 font-semibold">Peran</th>
                 <th class="text-left px-5 py-3 text-slate-500 font-semibold">Status</th>
                 <th class="text-left px-5 py-3 text-slate-500 font-semibold">Terdaftar</th>
-                <th class="text-right px-5 py-3 text-slate-500 font-semibold">Aksi</th>
+                <th class="text-center px-5 py-3 text-slate-500 font-semibold">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -102,7 +102,7 @@
                 </td>
                 <td class="px-5 py-3 text-slate-400">{{ user.created_at }}</td>
                 <td class="px-5 py-3">
-                  <div class="flex items-center justify-end gap-2">
+                  <div class="flex items-center justify-center gap-2">
                     <!-- Aktifkan -->
                     <button
                       v-if="user.status_aktivasi !== 'aktif'"

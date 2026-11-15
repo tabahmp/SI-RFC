@@ -139,7 +139,7 @@
                   <th class="py-3 px-4">KEBUTUHAN PERUBAHAN</th>
                   <th class="py-3 px-4">URGENSI</th>
                   <th class="py-3 px-4">SLA</th>
-                  <th class="py-3 px-4 text-right">TINDAKAN</th>
+                  <th class="py-3 px-4 text-center">TINDAKAN</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -161,7 +161,7 @@
                     <SlaTimer v-if="rfc.target_sla" :deadline="rfc.target_sla" />
                     <span v-else class="text-slate-400 text-xs">—</span>
                   </td>
-                  <td class="py-3.5 px-4 text-right">
+                  <td class="py-3.5 px-4 text-center">
                     <Link :href="`/rfc/${rfc.kode_pelacakan}/workspace`"
                       class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0757A8] hover:bg-[#063D78] text-white font-bold text-xs">
                       <span>Mulai telaah</span>
@@ -221,7 +221,7 @@
                   <th class="py-3 px-4">PERUBAHAN / OPD</th>
                   <th class="py-3 px-4">URGENSI</th>
                   <th class="py-3 px-4">SISA TANGGAP</th>
-                  <th class="py-3 px-4 text-right">TINDAKAN</th>
+                  <th class="py-3 px-4 text-center">TINDAKAN</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -239,7 +239,7 @@
                   <td class="py-3.5 px-4">
                     <SlaTimer :deadline="rfc.target_sla" class="font-bold text-red-600" />
                   </td>
-                  <td class="py-3.5 px-4 text-right">
+                  <td class="py-3.5 px-4 text-center">
                     <Link :href="`/rfc/${rfc.kode_pelacakan}/workspace`"
                       class="px-3 py-1.5 rounded-lg bg-[#0757A8] text-white font-bold text-xs hover:bg-[#063D78]">Verifikasi</Link>
                   </td>

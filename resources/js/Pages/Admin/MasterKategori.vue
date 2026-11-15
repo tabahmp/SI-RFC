@@ -48,7 +48,7 @@
               <th class="text-left px-5 py-3 text-slate-500 font-semibold">Nama Kategori</th>
               <th class="text-left px-5 py-3 text-slate-500 font-semibold">Deskripsi</th>
               <th class="text-left px-5 py-3 text-slate-500 font-semibold">Status</th>
-              <th class="text-right px-5 py-3 text-slate-500 font-semibold">Aksi</th>
+              <th class="text-center px-5 py-3 text-slate-500 font-semibold">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -61,7 +61,7 @@
                 </span>
               </td>
               <td class="px-5 py-3">
-                <div class="flex justify-end gap-2">
+                <div class="flex justify-center gap-2">
                   <button @click="toggleAktif(item)" :class="['px-3 py-1.5 text-[10px] font-bold rounded-lg transition-colors', item.aktif ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-green-50 text-green-700 hover:bg-green-100']">
                     {{ item.aktif ? 'Nonaktifkan' : 'Aktifkan' }}
                   </button>
