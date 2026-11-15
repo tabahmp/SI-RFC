@@ -38,9 +38,26 @@ class AkunController extends Controller
             'email'        => $validated['email'],
             'nip'          => $validated['nip'] ?? $user->nip,
             'nomor_kontak' => $validated['nomor_kontak'] ?? $user->nomor_kontak,
+            'unit_kerja'   => $validated['unit_kerja'] ?? $user->unit_kerja,
         ]);
 
-        return response()->json(['message' => 'Profil berhasil diperbarui.']);
+        // Sinkronkan juga unit kerja ke draf RFC pemohon yang belum diajukan
+        if (!empty($validated['unit_kerja'])) {
+            \App\Models\PermohonanRfc::where('pengguna_id', $user->id)
+                ->where('status_terkini', 'draf')
+                ->update(['unit_kerja' => $validated['unit_kerja']]);
+        }
+
+        return response()->json([
+            'message' => 'Profil berhasil diperbarui.',
+            'user'    => [
+                'nama_lengkap' => $user->nama_lengkap,
+                'email'        => $user->email,
+                'nip'          => $user->nip,
+                'unit_kerja'   => $user->unit_kerja,
+                'nomor_kontak' => $user->nomor_kontak,
+            ],
+        ]);
     }
 
     public function ubahKataSandi(Request $request)
