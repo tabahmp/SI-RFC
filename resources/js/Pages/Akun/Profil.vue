@@ -145,8 +145,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { Link, usePage, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Icon } from '@iconify/vue'
 import axios from 'axios'
@@ -179,20 +179,26 @@ function isiDariAuth() {
   form.nama_lengkap = u.nama_lengkap ?? ''
   form.email        = u.email ?? ''
   form.nip          = u.nip ?? ''
+  form.unit_kerja   = u.unit_kerja ?? ''
   form.nomor_kontak = u.nomor_kontak ?? ''
 }
 
 function resetForm() { isiDariAuth() }
 
 onMounted(isiDariAuth)
+watch(() => authUser.value, isiDariAuth, { deep: true })
 
 async function simpanProfil() {
   loading.value = true
   sukses.value  = null
   Object.keys(errors).forEach(k => { errors[k] = '' })
   try {
-    await axios.patch('/akun/profil', form)
+    const res = await axios.patch('/akun/profil', form)
     sukses.value = 'Profil berhasil diperbarui.'
+    if (res.data?.user?.unit_kerja) {
+      form.unit_kerja = res.data.user.unit_kerja
+    }
+    router.reload({ only: ['auth'] })
   } catch (e) {
     if (e.response?.data?.errors) Object.assign(errors, e.response.data.errors)
     else errors._general = e.response?.data?.message ?? 'Gagal menyimpan.'

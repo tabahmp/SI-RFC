@@ -54,6 +54,9 @@ class PermohonanRfc extends Model
         // Seksi 7
         'path_lampiran',
         'tanda_tangan_pemohon',
+        'nama_penanggung_jawab',
+        'nip_penanggung_jawab',
+        'tanda_tangan_penanggung_jawab',
         // Status
         'status_terkini',
         'target_sla',
@@ -106,6 +109,11 @@ class PermohonanRfc extends Model
     public function dokumenBast(): HasOne
     {
         return $this->hasOne(DokumenBast::class, 'rfc_id')->latestOfMany('dibuat_pada');
+    }
+
+    public function bast(): HasOne
+    {
+        return $this->dokumenBast();
     }
 
     public function histories(): HasMany
@@ -183,14 +191,26 @@ class PermohonanRfc extends Model
         return \DB::transaction(function () {
             $tahun = now()->format('Y');
             $bulan = now()->format('m');
+            $prefix = sprintf('RFC-%s-%s-', $tahun, $bulan);
             
-            // Lock table untuk prevent race condition
-            $urutan = static::lockForUpdate()
-                ->whereYear('created_at', $tahun)
-                ->whereMonth('created_at', $bulan)
-                ->count() + 1;
+            // Ambil kode_pelacakan terakhir dengan prefix bulan & tahun ini
+            $lastRecord = static::lockForUpdate()
+                ->where('kode_pelacakan', 'like', "{$prefix}%")
+                ->orderByDesc('kode_pelacakan')
+                ->value('kode_pelacakan');
             
-            return sprintf('RFC-%s-%s-%05d', $tahun, $bulan, $urutan);
+            $nextNumber = 1;
+            if ($lastRecord && preg_match('/-(\d+)$/', $lastRecord, $matches)) {
+                $nextNumber = intval($matches[1]) + 1;
+            }
+
+            // Loop guard: pastikan nomor kode belum pernah digunakan
+            do {
+                $kode = sprintf('%s%05d', $prefix, $nextNumber);
+                $nextNumber++;
+            } while (static::where('kode_pelacakan', $kode)->exists());
+
+            return $kode;
         });
     }
 
@@ -234,7 +254,7 @@ class PermohonanRfc extends Model
             'diajukan'             => ['perlu_revisi', 'ditolak_verifikator', 'menunggu_persetujuan'],
             'perlu_revisi'         => ['diajukan'],
             'menunggu_persetujuan' => ['ditolak_pimpinan', 'ditunda', 'disetujui'],
-            'ditunda'              => ['ditolak_pimpinan', 'disetujui', 'menunggu_persetujuan'],
+            'ditunda'              => ['ditolak_pimpinan', 'disetujui', 'menunggu_persetujuan', 'ditunda'],
             'disetujui'            => ['sedang_dikerjakan', 'selesai'],
             'sedang_dikerjakan'    => ['selesai'],
         ];

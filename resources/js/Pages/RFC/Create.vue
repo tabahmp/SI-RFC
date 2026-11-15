@@ -7,20 +7,122 @@
         <div class="max-w-5xl mx-auto">
           <nav class="flex items-center gap-1 text-xs text-slate-500 mb-2">
             <Link href="/dashboard" class="hover:text-[#0757a8]">Beranda</Link>
-            <span>�</span>
+            <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5 text-slate-400" />
             <Link href="/dashboard/pemohon" class="hover:text-[#0757a8]">Dashboard</Link>
-            <span>�</span>
+            <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5 text-slate-400" />
             <span class="text-slate-700 font-medium">Formulir Permohonan Baru</span>
           </nav>
           <div class="flex flex-wrap items-center gap-2 mb-3">
             <span class="inline-flex items-center gap-1.5 bg-[#0757a8] text-white text-xs font-semibold px-3 py-1 rounded-full tracking-wide">
-              FORMULIR PERUBAHAN TI � FR-015 � SMKI ISO/IEC 27001
+              FORMULIR PERUBAHAN TI · FR-015 · SMKI ISO/IEC 27001
             </span>
           </div>
           <h1 class="text-xl font-bold text-slate-900">
-            {{ mode === 'edit' ? 'Edit Permohonan RFC' : 'Formulir Permohonan Request for Change (RFC)' }}
+            {{ isPerluRevisi ? `Perbaikan Permohonan (${rfc?.kode_pelacakan || ''})` : (mode === 'edit' ? 'Edit Draf Permohonan RFC' : 'Formulir Permohonan Request for Change (RFC)') }}
           </h1>
-          <p class="text-sm text-slate-500 mt-0.5">Diskominfo Prov. Jawa Barat � Bidang APTIKA</p>
+          <p class="text-sm text-slate-500 mt-0.5">Diskominfo Prov. Jawa Barat · Bidang APTIKA</p>
+        </div>
+      </div>
+
+      <!-- Banner Catatan Revisi dari Verifikator (Mencolok, Jelas & Informatif) -->
+      <div v-if="isPerluRevisi" class="max-w-5xl mx-auto px-4 mt-6">
+        <div class="rounded-2xl bg-gradient-to-br from-amber-50 via-white to-amber-50/70 border-2 border-amber-300 shadow-md overflow-hidden">
+          
+          <!-- Header Bar -->
+          <div class="px-5 py-3.5 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center flex-shrink-0 shadow-inner">
+                <Icon icon="lucide:alert-triangle" class="w-5 h-5 text-amber-100" />
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-white text-amber-900 tracking-wider">
+                    Perlu Revisi
+                  </span>
+                  <span class="font-mono text-xs font-bold text-amber-100">{{ rfc?.kode_pelacakan || '-' }}</span>
+                </div>
+                <h3 class="text-sm font-bold text-white mt-0.5">Formulir Dikembalikan oleh Verifikator</h3>
+              </div>
+            </div>
+
+            <!-- Info Pengirim Revisi -->
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <div class="text-right text-[11px] leading-tight">
+                <div class="font-bold text-white flex items-center gap-1 sm:justify-end">
+                  <Icon icon="lucide:user-check" class="w-3.5 h-3.5 text-amber-200" />
+                  <span>{{ namaVerifikator }}</span>
+                </div>
+                <div v-if="tanggalRevisi" class="text-amber-200 text-[10px] mt-0.5">
+                  {{ tanggalRevisi }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Body Kartu: Pesan Inti Verifikator -->
+          <div class="p-5 sm:p-6 space-y-4">
+            
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-black uppercase tracking-wider text-amber-950 flex items-center gap-1.5">
+                  <Icon icon="lucide:message-square-quote" class="w-4 h-4 text-amber-600" />
+                  <span>Catatan & Instruksi Perbaikan Verifikator:</span>
+                </label>
+                <span class="text-[11px] font-semibold text-amber-700">Wajib Diperbaiki</span>
+              </div>
+
+              <!-- Kotak Pesan Revisi yang Jelas & Kontras -->
+              <div class="p-4 sm:p-5 rounded-xl bg-white border-2 border-amber-300 shadow-xs relative">
+                <div class="absolute -top-3 left-4 px-2 py-0.5 bg-amber-100 border border-amber-300 rounded text-[10px] font-bold text-amber-900">
+                  Pesan Verifikator
+                </div>
+                <p v-if="pesanVerifikator" class="text-sm text-slate-800 leading-relaxed font-semibold whitespace-pre-line">
+                  {{ pesanVerifikator }}
+                </p>
+                <p v-else class="text-sm text-slate-500 italic">
+                  (Tidak ada catatan teks tertulis. Silakan tinjau kelengkapan isian formulir, dokumen lampiran, atau kriteria risiko Anda.)
+                </p>
+              </div>
+            </div>
+
+            <!-- Petunjuk Pemohon & Tombol Riwayat Revisi -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+              <div class="flex items-start gap-2 text-xs text-amber-900">
+                <Icon icon="lucide:info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <span class="leading-relaxed">
+                  Perbaiki poin yang diminta pada formulir di bawah ini, lalu klik tombol <strong>"Kirim Perbaikan RFC"</strong>.
+                </span>
+              </div>
+
+              <!-- Tombol toggle riwayat jika ada lebih dari 1 catatan revisi -->
+              <button
+                v-if="daftarRiwayatRevisi.length > 1"
+                type="button"
+                @click="showRiwayat = !showRiwayat"
+                class="text-xs font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 self-start sm:self-auto py-1 px-2.5 rounded-lg bg-amber-100/70 hover:bg-amber-100 border border-amber-200 transition-colors whitespace-nowrap"
+              >
+                <Icon :icon="showRiwayat ? 'lucide:chevron-up' : 'lucide:chevron-down'" class="w-3.5 h-3.5" />
+                <span>{{ showRiwayat ? 'Tutup Riwayat Revisi' : `Lihat Riwayat Revisi (${daftarRiwayatRevisi.length})` }}</span>
+              </button>
+            </div>
+
+            <!-- List Riwayat Revisi Sebelumnya (Jika Dibuka) -->
+            <div v-if="showRiwayat && daftarRiwayatRevisi.length > 1" class="mt-3 pt-3 border-t border-amber-200 space-y-2.5 animate-in fade-in duration-150">
+              <div class="text-[11px] font-bold text-amber-950 uppercase tracking-wider">Riwayat Catatan Sebelumnya:</div>
+              <div
+                v-for="(r, idx) in daftarRiwayatRevisi.slice(1)"
+                :key="r.id || idx"
+                class="p-3 rounded-lg bg-amber-50/70 border border-amber-200/80 text-xs text-slate-700 space-y-1"
+              >
+                <div class="flex items-center justify-between text-[11px] text-amber-800 font-semibold">
+                  <span>{{ r.verifikator }}</span>
+                  <span class="text-slate-500">{{ r.tanggal }}</span>
+                </div>
+                <p class="text-slate-800 font-medium whitespace-pre-line">{{ r.catatan }}</p>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
@@ -34,7 +136,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 1 � INFORMASI PEMOHON (BIRU)
+             SEKSI 1 — INFORMASI PEMOHON (BIRU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -61,7 +163,10 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Unit Kerja / Bidang <span class="text-red-500">*</span></label>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-sm font-medium text-slate-700">Unit Kerja / Bidang <span class="text-red-500">*</span></label>
+                <span v-if="userProfile?.unit_kerja" class="text-[10px] font-semibold text-[#0757A8] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Terisi Otomatis</span>
+              </div>
               <input v-model="form.unit_kerja" type="text" placeholder="Nama unit kerja atau bidang" required
                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0757a8]/30 focus:border-[#0757a8] transition" />
               <p v-if="errors.unit_kerja" class="mt-1 text-xs text-red-500">{{ errors.unit_kerja }}</p>
@@ -115,7 +220,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 2 � KATEGORI & JENIS PERUBAHAN (HIJAU)
+             SEKSI 2 — KATEGORI & JENIS PERUBAHAN (HIJAU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#16834A] px-6 py-4 bg-green-50/60">
@@ -158,7 +263,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 3 � DATA PERUBAHAN (KUNING)
+             SEKSI 3 — DATA PERUBAHAN (KUNING)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#F9C031] px-6 py-4 bg-yellow-50/60">
@@ -195,7 +300,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 4 � ANALISIS RISIKO SMKI (KUNING � header saja)
+             SEKSI 4 — ANALISIS RISIKO SMKI (KUNING — header saja)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -203,7 +308,7 @@
               <span class="w-6 h-6 rounded-full bg-[#0757A8] text-white text-xs flex items-center justify-center font-bold flex-shrink-0">4</span>
               Analisis Risiko SMKI
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Sesuai standar ISO/IEC 27001 � Sistem Manajemen Keamanan Informasi</p>
+            <p class="text-xs text-slate-500 mt-0.5">Sesuai standar ISO/IEC 27001 · Sistem Manajemen Keamanan Informasi</p>
           </div>
           <!-- Body putih biasa (bukan amber) -->
           <div class="px-6 py-5 space-y-5">
@@ -256,7 +361,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 5 � TEKNIS & SOLUSI (BIRU)
+             SEKSI 5 — TEKNIS & SOLUSI (BIRU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#16834A] px-6 py-4 bg-green-50/60">
@@ -302,7 +407,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 6 � IDENTITAS APLIKASI / SISTEM (HIJAU)
+             SEKSI 6 — IDENTITAS APLIKASI / SISTEM (HIJAU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#F9C031] px-6 py-4 bg-yellow-50/60">
@@ -342,7 +447,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 7 � LAMPIRAN & TANDA TANGAN (KUNING)
+             SEKSI 7 — LAMPIRAN & TANDA TANGAN (KUNING)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -507,6 +612,77 @@
               </p>
             </div>
 
+            <!-- Penanggung Jawab OPD (Kepala Bidang) -->
+            <div class="border-t border-slate-200 pt-6 space-y-4">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
+                  <Icon icon="lucide:user-check" class="w-4 h-4 text-[#0757A8]" />
+                  Penanggung Jawab Perangkat Daerah
+                </h3>
+                <p class="text-xs text-slate-500">Kepala Bidang OPD yang menyetujui pengajuan RFC ini.</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Nama Kabid -->
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1">
+                    Nama Kepala Bidang <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="form.nama_penanggung_jawab"
+                    type="text"
+                    placeholder="Nama lengkap Kepala Bidang OPD"
+                    class="w-full text-sm px-3 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none transition-all"
+                  />
+                  <p v-if="errors.nama_penanggung_jawab" class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                    <Icon icon="lucide:alert-circle" class="w-3.5 h-3.5" />
+                    {{ errors.nama_penanggung_jawab }}
+                  </p>
+                </div>
+
+                <!-- NIP Kabid -->
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-1">
+                    NIP Kepala Bidang <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    v-model="form.nip_penanggung_jawab"
+                    type="text"
+                    placeholder="Nomor Induk Pegawai Kepala Bidang"
+                    class="w-full text-sm px-3 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] outline-none transition-all"
+                  />
+                  <p v-if="errors.nip_penanggung_jawab" class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                    <Icon icon="lucide:alert-circle" class="w-3.5 h-3.5" />
+                    {{ errors.nip_penanggung_jawab }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- TTD Kabid OPD -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">
+                  Tanda Tangan Kepala Bidang OPD <span class="text-red-500">*</span>
+                </label>
+
+                <!-- Badge TTD Kabid loaded -->
+                <div v-if="!ttdPjLoading && mode === 'edit' && form.tanda_tangan_penanggung_jawab"
+                  class="mb-2 flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-700">
+                  <Icon icon="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>Tanda tangan Kepala Bidang sebelumnya dimuat. Gambar ulang untuk mengubah.</span>
+                </div>
+
+                <SignaturePad v-model="form.tanda_tangan_penanggung_jawab" />
+
+                <p class="mt-1.5 text-xs text-slate-500">
+                  <strong>Disetujui Oleh: Kepala Bidang</strong> — {{ form.nama_penanggung_jawab || '(nama kepala bidang)' }}
+                </p>
+                <p v-if="errors.tanda_tangan_penanggung_jawab" class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                  <Icon icon="lucide:alert-circle" class="w-3.5 h-3.5" />
+                  {{ errors.tanda_tangan_penanggung_jawab }}
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -514,18 +690,31 @@
              TOMBOL AKSI
         ------------------------------------------------------- -->
         <div class="flex flex-col sm:flex-row justify-end gap-3 pb-8">
-          <button type="button" @click="simpanDraf" :disabled="isSavingDraf"
-            class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50">
+          <!-- Tombol Simpan sebagai Draf: dinonaktifkan jika status Perlu Revisi -->
+          <button
+            type="button"
+            @click="simpanDraf"
+            :disabled="isSavingDraf || isPerluRevisi"
+            :title="isPerluRevisi ? 'Permohonan berstatus Perlu Revisi tidak dapat disimpan ke draf karena sudah pernah diajukan sebelumnya' : 'Simpan progres pengisian ke draf'"
+            class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border text-sm font-medium transition-colors"
+            :class="isPerluRevisi
+              ? 'border-slate-200 bg-slate-100 text-slate-400 opacity-60 cursor-not-allowed select-none'
+              : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-50'"
+          >
             <Icon v-if="isSavingDraf" icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
             <Icon v-else icon="lucide:save" class="w-4 h-4" />
             {{ isSavingDraf ? 'Menyimpan...' : 'Simpan sebagai Draf' }}
           </button>
 
-          <button type="submit" :disabled="isSubmitting"
-            class="inline-flex items-center justify-center gap-2 px-8 py-2.5 rounded-lg bg-[#0757a8] hover:bg-[#065096] text-white text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm">
+          <!-- Tombol Submit / Kirim Permohonan -->
+          <button
+            type="submit"
+            :disabled="isSubmitting"
+            class="inline-flex items-center justify-center gap-2 px-8 py-2.5 rounded-lg bg-[#0757a8] hover:bg-[#065096] text-white text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+          >
             <Icon v-if="isSubmitting" icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
             <Icon v-else icon="lucide:send" class="w-4 h-4" />
-            {{ isSubmitting ? 'Mengirim...' : 'Kirim Permohonan RFC' }}
+            {{ isSubmitting ? 'Mengirim...' : (isPerluRevisi ? 'Kirim Perbaikan RFC' : 'Kirim Permohonan RFC') }}
           </button>
         </div>
 
@@ -546,9 +735,9 @@
               <p class="text-2xl font-bold font-mono text-[#0757a8] tracking-widest">{{ successModal.kodePelacakan }}</p>
             </div>
             <div class="flex flex-col gap-2">
-              <Link :href="`/rfc/${successModal.kodePelacakan}`"
+              <Link :href="`/rfc/${successModal.kodePelacakan}/workspace`"
                 class="w-full px-4 py-2.5 rounded-lg bg-[#0757a8] text-white text-sm font-semibold hover:bg-[#065096] transition-colors">
-                Lihat Status RFC
+                Buka Workspace RFC
               </Link>
               <button type="button" @click="resetForm"
                 class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
@@ -564,7 +753,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { Link, usePage }   from '@inertiajs/vue3'
 import AppLayout           from '@/Layouts/AppLayout.vue'
 import SignaturePad        from '@/Components/SignaturePad.vue'
@@ -572,13 +761,46 @@ import { Icon }            from '@iconify/vue'
 import axios               from 'axios'
 
 const props = defineProps({
-  kategoriList: { type: Array, default: () => [] },
-  opdList:      { type: Array, default: () => [] },
-  opdUser:      { type: Object, default: null },
-  userProfile:  { type: Object, default: null },
-  mode:         { type: String, default: 'create' },
-  rfc:          { type: Object, default: null },
+  kategoriList:  { type: Array, default: () => [] },
+  opdList:       { type: Array, default: () => [] },
+  opdUser:       { type: Object, default: null },
+  userProfile:   { type: Object, default: null },
+  mode:          { type: String, default: 'create' },
+  rfc:           { type: Object, default: null },
+  catatanRevisi: { type: Object, default: null },
+  riwayatRevisi: { type: Array,  default: () => [] },
 })
+
+const isPerluRevisi = computed(() => {
+  return props.rfc?.status_terkini === 'perlu_revisi'
+})
+
+const pesanVerifikator = computed(() => {
+  return props.catatanRevisi?.catatan 
+    || props.rfc?.catatan_verifikator 
+    || props.rfc?.catatanRevisi?.catatan 
+    || null
+})
+
+const namaVerifikator = computed(() => {
+  return props.catatanRevisi?.verifikator 
+    || props.rfc?.nama_verifikator 
+    || props.rfc?.catatanRevisi?.verifikator 
+    || 'Verifikator Diskominfo Jabar'
+})
+
+const tanggalRevisi = computed(() => {
+  return props.catatanRevisi?.tanggal 
+    || props.rfc?.tanggal_revisi 
+    || props.rfc?.catatanRevisi?.tanggal 
+    || null
+})
+
+const daftarRiwayatRevisi = computed(() => {
+  return props.riwayatRevisi?.length ? props.riwayatRevisi : (props.rfc?.riwayatRevisi || [])
+})
+
+const showRiwayat = ref(false)
 
 const page = usePage()
 const today = new Date().toISOString().split('T')[0]
@@ -642,6 +864,10 @@ const form = reactive({
   alamat_repository: '',
   // Seksi 7
   tanda_tangan:      null,
+  // Seksi 7 — Penanggung Jawab OPD (Kepala Bidang)
+  nama_penanggung_jawab:          '',
+  nip_penanggung_jawab:           '',
+  tanda_tangan_penanggung_jawab:  null,
 })
 
 const errors       = reactive({})
@@ -652,6 +878,7 @@ const existingFiles= ref([])    // [{url, nama, path}] - file existing dari draf
 const isDragOver   = ref(false)
 const ttdLoading   = ref(false)
 const ttdFailed    = ref(false)
+const ttdPjLoading = ref(false)
 const fileInputRef = ref(null)
 const successModal = reactive({ show: false, kodePelacakan: '' })
 
@@ -661,18 +888,20 @@ onMounted(() => {
     // Pre-fill SEMUA field form dari data RFC yang tersimpan di database
     const rfcData = props.rfc
 
-    // Seksi 1
-    if (rfcData.nama_pemohon)       form.nama_pemohon       = rfcData.nama_pemohon
-    if (rfcData.nip)                form.nip                = rfcData.nip
-    if (rfcData.unit_kerja)         form.unit_kerja         = rfcData.unit_kerja
-    if (rfcData.opd_id)             form.opd_id             = rfcData.opd_id
-    if (rfcData.nomor_surat)        form.nomor_surat        = rfcData.nomor_surat
-    if (rfcData.nomor_kontak)       form.nomor_kontak       = rfcData.nomor_kontak
-    if (rfcData.email_dinas)        form.email_dinas        = rfcData.email_dinas
-    if (rfcData.tanggal_permohonan) form.tanggal_permohonan = rfcData.tanggal_permohonan
+    console.log('[RFC Edit] props.rfc =', rfcData)
+
+    // Seksi 1 — semua field di-assign langsung (nullable pakai ?? '')
+    form.nama_pemohon       = rfcData.nama_pemohon       ?? ''
+    form.nip                = rfcData.nip                ?? ''
+    form.unit_kerja         = rfcData.unit_kerja || props.userProfile?.unit_kerja || ''
+    form.opd_id             = rfcData.opd_id             ?? null
+    form.nomor_surat        = rfcData.nomor_surat        ?? ''
+    form.nomor_kontak       = rfcData.nomor_kontak       ?? ''
+    form.email_dinas        = rfcData.email_dinas        ?? ''
+    form.tanggal_permohonan = rfcData.tanggal_permohonan ?? today
 
     // Seksi 2
-    if (rfcData.kategori_id)        form.kategori_id        = rfcData.kategori_id
+    form.kategori_id = rfcData.kategori_id ?? null
     if (rfcData.jenis_perubahan) {
       if (Array.isArray(rfcData.jenis_perubahan)) {
         form.jenis_perubahan = rfcData.jenis_perubahan
@@ -682,37 +911,42 @@ onMounted(() => {
     }
 
     // Seksi 3
-    if (rfcData.deskripsi_perubahan) form.deskripsi_perubahan = rfcData.deskripsi_perubahan
-    if (rfcData.latar_belakang)      form.latar_belakang      = rfcData.latar_belakang
-    if (rfcData.rincian_perubahan)   form.rincian_perubahan   = rfcData.rincian_perubahan
+    form.deskripsi_perubahan = rfcData.deskripsi_perubahan ?? ''
+    form.latar_belakang      = rfcData.latar_belakang      ?? ''
+    form.rincian_perubahan   = rfcData.rincian_perubahan   ?? ''
 
     // Seksi 4
-    if (rfcData.urgensi)                 form.urgensi                 = rfcData.urgensi
-    if (rfcData.risiko_tidak_dilakukan)  form.risiko_tidak_dilakukan  = rfcData.risiko_tidak_dilakukan
-    if (rfcData.kriteria_risiko)         form.kriteria_risiko         = rfcData.kriteria_risiko
-    if (rfcData.keterangan_risiko)       form.keterangan_risiko       = rfcData.keterangan_risiko
-    if (rfcData.rencana_pemulihan)       form.rencana_pemulihan       = rfcData.rencana_pemulihan
+    form.urgensi                = rfcData.urgensi                ?? 'sedang'
+    form.risiko_tidak_dilakukan = rfcData.risiko_tidak_dilakukan ?? ''
+    form.kriteria_risiko        = rfcData.kriteria_risiko        ?? ''
+    form.keterangan_risiko      = rfcData.keterangan_risiko      ?? ''
+    form.rencana_pemulihan      = rfcData.rencana_pemulihan      ?? ''
 
     // Seksi 5
-    if (rfcData.solusi_diharapkan)       form.solusi_diharapkan       = rfcData.solusi_diharapkan
-    if (rfcData.risiko_perubahan)        form.risiko_perubahan        = rfcData.risiko_perubahan
-    if (rfcData.alternatif_perubahan)    form.alternatif_perubahan    = rfcData.alternatif_perubahan
-    if (rfcData.biaya_perubahan)         form.biaya_perubahan         = rfcData.biaya_perubahan
-    if (rfcData.waktu_perubahan)         form.waktu_perubahan         = rfcData.waktu_perubahan
+    form.solusi_diharapkan    = rfcData.solusi_diharapkan    ?? ''
+    form.risiko_perubahan     = rfcData.risiko_perubahan     ?? ''
+    form.alternatif_perubahan = rfcData.alternatif_perubahan ?? ''
+    form.biaya_perubahan      = rfcData.biaya_perubahan      ?? ''
+    form.waktu_perubahan      = rfcData.waktu_perubahan      ?? ''
 
     // Seksi 6
-    if (rfcData.nama_aplikasi)           form.nama_aplikasi           = rfcData.nama_aplikasi
-    if (rfcData.deskripsi_aplikasi)      form.deskripsi_aplikasi      = rfcData.deskripsi_aplikasi
-    if (rfcData.alamat_aplikasi)         form.alamat_aplikasi         = rfcData.alamat_aplikasi
-    if (rfcData.alamat_repository)       form.alamat_repository       = rfcData.alamat_repository
+    form.nama_aplikasi      = rfcData.nama_aplikasi      ?? ''
+    form.deskripsi_aplikasi = rfcData.deskripsi_aplikasi ?? ''
+    form.alamat_aplikasi    = rfcData.alamat_aplikasi    ?? ''
+    form.alamat_repository  = rfcData.alamat_repository  ?? ''
 
-    // Seksi 7 — tanda tangan existing (URL dari storage)
-    if (rfcData.tanda_tangan)            form.tanda_tangan            = rfcData.tanda_tangan
+    // Seksi 7 — tanda tangan existing
+    form.tanda_tangan = rfcData.tanda_tangan ?? null
+
+    // Seksi 7 — Penanggung Jawab OPD
+    form.nama_penanggung_jawab          = rfcData.nama_penanggung_jawab ?? ''
+    form.nip_penanggung_jawab           = rfcData.nip_penanggung_jawab  ?? ''
+    form.tanda_tangan_penanggung_jawab  = rfcData.tanda_tangan_penanggung_jawab ?? null
 
     // Override opd_id dari opdUser jika ada
     if (props.opdUser) form.opd_id = props.opdUser.id
 
-    // Lampiran existing — tampilkan file yang sudah diupload sebelumnya
+    // Lampiran existing
     if (rfcData.lampiran_existing && rfcData.lampiran_existing.length > 0) {
       existingFiles.value = rfcData.lampiran_existing
     }
@@ -740,11 +974,34 @@ onMounted(() => {
         })
     }
 
+    // Load tanda tangan Penanggung Jawab OPD jika ada URL
+    if (rfcData.tanda_tangan_penanggung_jawab && rfcData.tanda_tangan_penanggung_jawab.startsWith('/')) {
+      ttdPjLoading.value = true
+      fetch(rfcData.tanda_tangan_penanggung_jawab)
+        .then(r => {
+          if (!r.ok) throw new Error('not found')
+          return r.blob()
+        })
+        .then(blob => {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            form.tanda_tangan_penanggung_jawab = reader.result
+            ttdPjLoading.value = false
+          }
+          reader.readAsDataURL(blob)
+        })
+        .catch(() => {
+          ttdPjLoading.value = false
+          form.tanda_tangan_penanggung_jawab = null
+        })
+    }
+
   } else {
     // Mode create: auto-isi dari profil user yang login
     if (props.userProfile) {
       form.nama_pemohon = props.userProfile.nama_lengkap ?? ''
       form.nip          = props.userProfile.nip ?? ''
+      form.unit_kerja   = props.userProfile.unit_kerja ?? ''
       form.nomor_kontak = props.userProfile.nomor_kontak ?? ''
       form.email_dinas  = props.userProfile.email ?? ''
       form.opd_id       = props.userProfile.opd_id ?? null
@@ -855,6 +1112,7 @@ function buildFormData(simpanDraf = false) {
 
 // -- Simpan Draf ---------------------------------------------------------------
 async function simpanDraf() {
+  if (isPerluRevisi.value) return
   isSavingDraf.value = true
   try {
     let res
@@ -898,7 +1156,10 @@ function validate() {
   if (!form.deskripsi_perubahan?.trim()){ errors.deskripsi_perubahan = 'Wajib diisi.'; valid = false }
   if (!form.latar_belakang?.trim())     { errors.latar_belakang = 'Wajib diisi.'; valid = false }
   if (!form.rincian_perubahan?.trim())  { errors.rincian_perubahan = 'Wajib diisi.'; valid = false }
-  if (!form.tanda_tangan)               { errors.tanda_tangan = 'Tanda tangan digital wajib dibuat.'; valid = false }
+  if (!form.tanda_tangan)               { errors.tanda_tangan = 'Tanda tangan digital pemohon wajib dibuat.'; valid = false }
+  if (!form.nama_penanggung_jawab?.trim()) { errors.nama_penanggung_jawab = 'Nama Kepala Bidang OPD wajib diisi.'; valid = false }
+  if (!form.nip_penanggung_jawab?.trim())  { errors.nip_penanggung_jawab = 'NIP Kepala Bidang OPD wajib diisi.'; valid = false }
+  if (!form.tanda_tangan_penanggung_jawab) { errors.tanda_tangan_penanggung_jawab = 'Tanda tangan Kepala Bidang OPD wajib dibuat.'; valid = false }
 
   return valid
 }
@@ -918,8 +1179,8 @@ async function handleSubmit() {
       res = await axios.post(`/rfc/${props.rfc.id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      // Redirect ke detail RFC
-      window.location.href = `/rfc/${props.rfc.kode_pelacakan || res.data?.kode_pelacakan}`
+      // Redirect ke workspace RFC
+      window.location.href = `/rfc/${props.rfc.kode_pelacakan || res.data?.kode_pelacakan}/workspace`
     } else {
       // Mode create: POST ke /rfc
       res = await axios.post('/rfc', buildFormData(false), {

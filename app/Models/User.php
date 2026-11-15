@@ -31,8 +31,10 @@ class User extends Authenticatable
         'nama_lengkap',
         'peran_id',
         'opd_id',
+        'unit_kerja',
         'status_aktivasi',
         'email_diverifikasi_pada',
+        'modal_aktivasi_dilihat_pada',
     ];
 
     protected $hidden = [
@@ -41,10 +43,11 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'email_verified_at'       => 'datetime',
-        'password'                => 'hashed',
-        'diverifikasi_pada'       => 'datetime',
-        'email_diverifikasi_pada' => 'datetime',
+        'email_verified_at'           => 'datetime',
+        'password'                    => 'hashed',
+        'diverifikasi_pada'           => 'datetime',
+        'email_diverifikasi_pada'     => 'datetime',
+        'modal_aktivasi_dilihat_pada' => 'datetime',
     ];
 
     // ─── Relasi 3NF ──────────────────────────────────────────────────────────

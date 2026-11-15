@@ -29,6 +29,11 @@ class KategoriRfc extends Model
         return $this->hasMany(PermohonanRfc::class, 'kategori_id');
     }
 
+    public function permohonan(): HasMany
+    {
+        return $this->hasMany(PermohonanRfc::class, 'kategori_id');
+    }
+
     public function scopeAktif($query)
     {
         return $query->where('aktif', true);
