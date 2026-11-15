@@ -1,11 +1,11 @@
 <template>
-  <AppLayout title="Analytics & Reports">
+  <AppLayout title="Analisis & Laporan">
     <div class="py-6">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-6">
-          <h1 class="text-2xl font-bold text-gray-900">Analytics & Reports</h1>
-          <p class="mt-1 text-sm text-gray-600">Visualisasi data dan statistik RFC</p>
+          <h1 class="text-2xl font-bold text-gray-900">Analisis & Laporan</h1>
+          <p class="mt-1 text-sm text-gray-600">Visualisasi data dan statistik permohonan RFC Diskominfo Jawa Barat</p>
         </div>
 
         <!-- Date Range Filter -->

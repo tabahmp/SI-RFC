@@ -112,7 +112,7 @@
               </tr>
               <tr v-for="rfc in rfcTerbaru" :key="rfc.id" class="hover:bg-slate-50 transition-colors">
                 <td class="px-5 py-3">
-                  <Link :href="`/rfc/${rfc.kode_pelacakan}`" class="font-mono font-bold text-[#0757A8] hover:underline">
+                  <Link :href="`/rfc/${rfc.kode_pelacakan}/workspace`" class="font-mono font-bold text-[#0757A8] hover:underline" title="Buka Workspace">
                     {{ rfc.kode_pelacakan }}
                   </Link>
                 </td>
