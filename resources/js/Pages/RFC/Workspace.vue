@@ -734,6 +734,17 @@
                   <p class="text-[11px] text-slate-400 mt-1">Format PDF maks. 10MB. Berkas harus telah ditandatangani oleh pemohon dan teknisi.</p>
                 </div>
 
+                <!-- Tanda Tangan Digital Teknisi Pelaksana -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">
+                    Tanda Tangan Digital Teknisi Pelaksana <span class="text-red-500">*</span>
+                  </label>
+                  <p class="text-[11px] text-slate-500 mb-2">
+                    Bubuhkan tanda tangan digital Anda untuk pengesahan Berita Acara Serah Terima (BAST) dan pembuktian penyelesaian perubahan TI.
+                  </p>
+                  <SignaturePad v-model="formBast.tanda_tangan" />
+                </div>
+
                 <div class="flex justify-end pt-2">
                   <button
                     type="submit"
@@ -1168,6 +1179,10 @@ async function submitEksekusi() {
 async function submitBast() {
   if (!fileBast.value) {
     showAlert('File dokumen BAST (PDF) harus dipilih.', 'error')
+    return
+  }
+  if (!formBast.tanda_tangan) {
+    showAlert('Tanda tangan digital teknisi pelaksana wajib dibubuhkan.', 'error')
     return
   }
   isSubmitting.value = true
