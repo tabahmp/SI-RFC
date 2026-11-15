@@ -84,6 +84,9 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
     Route::middleware('peran:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard',          [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/akun',               [AdminController::class, 'kelolaAkun'])->name('akun');
+        Route::post('/akun',              [AdminController::class, 'simpanAkun'])->name('akun.simpan');
+        Route::patch('/akun/{id}',        [AdminController::class, 'perbaruiAkun'])->name('akun.perbarui');
+        Route::delete('/akun/{id}',       [AdminController::class, 'hapusAkun'])->name('akun.hapus');
         Route::patch('/akun/{id}/aktivasi',[AdminController::class, 'aktivasiAkun'])->name('akun.aktivasi');
         Route::patch('/akun/{id}/nonaktif',[AdminController::class, 'nonaktifkanAkun'])->name('akun.nonaktif');
         Route::patch('/akun/{id}/tolak',  [AdminController::class, 'tolakAkun'])->name('akun.tolak');

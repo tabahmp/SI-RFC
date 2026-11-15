@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriRfc;
 use App\Models\Opd;
+use App\Models\Peran;
 use App\Models\PermohonanRfc;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -80,6 +82,148 @@ class AdminController extends Controller
         return Inertia::render('Admin/KelolaAkun', [
             'pengguna'    => $pengguna,
             'filterAktif' => $request->only(['peran', 'status', 'search']),
+            'daftarPeran' => Peran::orderBy('id')->get(['id', 'nama_peran', 'deskripsi']),
+            'daftarOpd'   => Opd::aktif()->orderBy('nama_opd')->get(['id', 'kode_opd', 'nama_opd']),
+            'authUserId'  => auth()->id(),
+        ]);
+    }
+
+    public function simpanAkun(Request $request)
+    {
+        $request->validate([
+            'nama_lengkap'    => ['required', 'string', 'max:255'],
+            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password'        => ['required', 'string', 'min:8'],
+            'peran_id'        => ['required', 'exists:peran,id'],
+            'opd_id'          => ['nullable', 'exists:opd,id'],
+            'nip'             => ['nullable', 'string', 'max:30'],
+            'nomor_kontak'    => ['nullable', 'string', 'max:20'],
+            'unit_kerja'      => ['nullable', 'string', 'max:255'],
+            'status_aktivasi' => ['required', 'in:aktif,tertunda,nonaktif'],
+        ], [
+            'nama_lengkap.required'    => 'Nama lengkap wajib diisi.',
+            'email.required'           => 'Email dinas wajib diisi.',
+            'email.email'              => 'Format email tidak valid.',
+            'email.unique'             => 'Email sudah terdaftar.',
+            'password.required'        => 'Kata sandi wajib diisi.',
+            'password.min'             => 'Kata sandi minimal 8 karakter.',
+            'peran_id.required'        => 'Peran akun wajib dipilih.',
+            'status_aktivasi.required' => 'Status akun wajib dipilih.',
+        ]);
+
+        $peran = Peran::find($request->peran_id);
+        $opd = $request->opd_id ? Opd::find($request->opd_id) : null;
+        $isAktif = $request->status_aktivasi === 'aktif';
+
+        $user = User::create([
+            'name'                    => $request->nama_lengkap,
+            'nama_lengkap'            => $request->nama_lengkap,
+            'email'                   => $request->email,
+            'password'                => Hash::make($request->password),
+            'peran_id'                => $peran?->id,
+            'role'                    => $peran?->nama_peran,
+            'opd_id'                  => $opd?->id,
+            'asal_opd'                => $opd?->nama_opd,
+            'nip'                     => $request->nip,
+            'nomor_kontak'            => $request->nomor_kontak,
+            'unit_kerja'              => $request->unit_kerja,
+            'status_aktivasi'         => $request->status_aktivasi,
+            'status_registrasi'       => $isAktif ? 'terverifikasi' : ($request->status_aktivasi === 'tertunda' ? 'menunggu_verifikasi' : 'ditolak'),
+            'email_diverifikasi_pada' => $isAktif ? now() : null,
+            'diverifikasi_pada'       => $isAktif ? now() : null,
+            'diverifikasi_oleh'       => $isAktif ? (auth()->user()->nama_lengkap ?: auth()->user()->name) : null,
+        ]);
+
+        return response()->json([
+            'message' => 'Akun pengguna berhasil ditambahkan.',
+            'user'    => $this->formatPengguna($user->fresh('peran', 'opd')),
+        ]);
+    }
+
+    public function perbaruiAkun(Request $request, int $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'nama_lengkap'    => ['required', 'string', 'max:255'],
+            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'password'        => ['nullable', 'string', 'min:8'],
+            'peran_id'        => ['required', 'exists:peran,id'],
+            'opd_id'          => ['nullable', 'exists:opd,id'],
+            'nip'             => ['nullable', 'string', 'max:30'],
+            'nomor_kontak'    => ['nullable', 'string', 'max:20'],
+            'unit_kerja'      => ['nullable', 'string', 'max:255'],
+            'status_aktivasi' => ['required', 'in:aktif,tertunda,nonaktif'],
+        ], [
+            'nama_lengkap.required'    => 'Nama lengkap wajib diisi.',
+            'email.required'           => 'Email dinas wajib diisi.',
+            'email.email'              => 'Format email tidak valid.',
+            'email.unique'             => 'Email sudah terdaftar oleh pengguna lain.',
+            'password.min'             => 'Kata sandi minimal 8 karakter.',
+            'peran_id.required'        => 'Peran akun wajib dipilih.',
+            'status_aktivasi.required' => 'Status akun wajib dipilih.',
+        ]);
+
+        // Proteksi akun admin yang sedang login
+        if ($user->id === auth()->id()) {
+            if ($request->status_aktivasi !== 'aktif') {
+                return response()->json(['message' => 'Tidak dapat menonaktifkan akun sendiri.'], 422);
+            }
+            $adminPeran = Peran::where('nama_peran', 'admin')->first();
+            if ($adminPeran && (int) $request->peran_id !== $adminPeran->id) {
+                return response()->json(['message' => 'Tidak dapat mengubah peran akun admin yang sedang aktif.'], 422);
+            }
+        }
+
+        $peran = Peran::find($request->peran_id);
+        $opd = $request->opd_id ? Opd::find($request->opd_id) : null;
+        $isAktif = $request->status_aktivasi === 'aktif';
+
+        $updateData = [
+            'name'              => $request->nama_lengkap,
+            'nama_lengkap'      => $request->nama_lengkap,
+            'email'             => $request->email,
+            'peran_id'          => $peran?->id,
+            'role'              => $peran?->nama_peran,
+            'opd_id'            => $opd?->id,
+            'asal_opd'          => $opd?->nama_opd,
+            'nip'               => $request->nip,
+            'nomor_kontak'      => $request->nomor_kontak,
+            'unit_kerja'        => $request->unit_kerja,
+            'status_aktivasi'   => $request->status_aktivasi,
+            'status_registrasi' => $isAktif ? 'terverifikasi' : ($request->status_aktivasi === 'tertunda' ? 'menunggu_verifikasi' : 'ditolak'),
+        ];
+
+        if ($isAktif && ! $user->email_diverifikasi_pada) {
+            $updateData['email_diverifikasi_pada'] = now();
+            $updateData['diverifikasi_pada'] = now();
+            $updateData['diverifikasi_oleh'] = auth()->user()->nama_lengkap ?: auth()->user()->name;
+        }
+
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        $user->update($updateData);
+
+        return response()->json([
+            'message' => 'Data akun berhasil diperbarui.',
+            'user'    => $this->formatPengguna($user->fresh('peran', 'opd')),
+        ]);
+    }
+
+    public function hapusAkun(int $id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            return response()->json(['message' => 'Tidak dapat menghapus akun Anda sendiri.'], 422);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Akun pengguna berhasil dihapus.',
         ]);
     }
 
@@ -281,8 +425,11 @@ class AdminController extends Controller
             'id'              => $user->id,
             'nama_lengkap'    => $user->nama_lengkap ?: $user->name,
             'email'           => $user->email,
-            'nip'             => $user->nip ?? '-',
-            'nomor_kontak'    => $user->nomor_kontak ?? '-',
+            'nip'             => $user->nip,
+            'nomor_kontak'    => $user->nomor_kontak,
+            'unit_kerja'      => $user->unit_kerja,
+            'peran_id'        => $user->peran_id,
+            'opd_id'          => $user->opd_id,
             'peran'           => $user->peran?->nama_peran ?? $user->role ?? '-',
             'opd'             => $user->opd?->nama_opd ?? $user->asal_opd ?? '-',
             'status_aktivasi' => $user->status_aktivasi_efektif,
