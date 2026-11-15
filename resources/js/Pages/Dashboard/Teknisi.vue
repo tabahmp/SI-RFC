@@ -215,9 +215,6 @@
         <!-- 2 Kolom: Riwayat Implementasi Selesai & Distribusi Kategori -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- 2 Kolom: Riwayat Implementasi Selesai & Distribusi Kategori -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
           <!-- Kolom Kiri: Riwayat Implementasi Selesai (Lebar 2/3) -->
           <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
