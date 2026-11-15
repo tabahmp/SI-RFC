@@ -41,3 +41,51 @@ input::-webkit-credentials-auto-fill-button {
   position: absolute;
   right: 0;
 }
+
+/* ============================================================
+   GLOBAL PRINT STYLING — HILANGKAN SEMUA ELEMEN APLIKASI
+   Mencegah halaman kosong / gap 100vh akibat navbar & sidebar
+   ============================================================ */
+@media print {
+  header,
+  aside,
+  nav,
+  .no-print,
+  button,
+  .btn,
+  footer {
+    display: none !important;
+    position: static !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  #app,
+  .min-h-screen,
+  main,
+  div {
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+}
