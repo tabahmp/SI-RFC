@@ -7,20 +7,20 @@
         <div class="max-w-5xl mx-auto">
           <nav class="flex items-center gap-1 text-xs text-slate-500 mb-2">
             <Link href="/dashboard" class="hover:text-[#0757a8]">Beranda</Link>
-            <span>�</span>
+            <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5 text-slate-400" />
             <Link href="/dashboard/pemohon" class="hover:text-[#0757a8]">Dashboard</Link>
-            <span>�</span>
+            <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5 text-slate-400" />
             <span class="text-slate-700 font-medium">Formulir Permohonan Baru</span>
           </nav>
           <div class="flex flex-wrap items-center gap-2 mb-3">
             <span class="inline-flex items-center gap-1.5 bg-[#0757a8] text-white text-xs font-semibold px-3 py-1 rounded-full tracking-wide">
-              FORMULIR PERUBAHAN TI � FR-015 � SMKI ISO/IEC 27001
+              FORMULIR PERUBAHAN TI · FR-015 · SMKI ISO/IEC 27001
             </span>
           </div>
           <h1 class="text-xl font-bold text-slate-900">
             {{ isPerluRevisi ? `Perbaikan Permohonan (${rfc?.kode_pelacakan || ''})` : (mode === 'edit' ? 'Edit Draf Permohonan RFC' : 'Formulir Permohonan Request for Change (RFC)') }}
           </h1>
-          <p class="text-sm text-slate-500 mt-0.5">Diskominfo Prov. Jawa Barat � Bidang APTIKA</p>
+          <p class="text-sm text-slate-500 mt-0.5">Diskominfo Prov. Jawa Barat · Bidang APTIKA</p>
         </div>
       </div>
 
@@ -136,7 +136,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 1 � INFORMASI PEMOHON (BIRU)
+             SEKSI 1 — INFORMASI PEMOHON (BIRU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -163,7 +163,10 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Unit Kerja / Bidang <span class="text-red-500">*</span></label>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-sm font-medium text-slate-700">Unit Kerja / Bidang <span class="text-red-500">*</span></label>
+                <span v-if="userProfile?.unit_kerja" class="text-[10px] font-semibold text-[#0757A8] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Terisi Otomatis</span>
+              </div>
               <input v-model="form.unit_kerja" type="text" placeholder="Nama unit kerja atau bidang" required
                 class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0757a8]/30 focus:border-[#0757a8] transition" />
               <p v-if="errors.unit_kerja" class="mt-1 text-xs text-red-500">{{ errors.unit_kerja }}</p>
@@ -217,7 +220,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 2 � KATEGORI & JENIS PERUBAHAN (HIJAU)
+             SEKSI 2 — KATEGORI & JENIS PERUBAHAN (HIJAU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#16834A] px-6 py-4 bg-green-50/60">
@@ -260,7 +263,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 3 � DATA PERUBAHAN (KUNING)
+             SEKSI 3 — DATA PERUBAHAN (KUNING)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#F9C031] px-6 py-4 bg-yellow-50/60">
@@ -297,7 +300,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 4 � ANALISIS RISIKO SMKI (KUNING � header saja)
+             SEKSI 4 — ANALISIS RISIKO SMKI (KUNING — header saja)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -305,7 +308,7 @@
               <span class="w-6 h-6 rounded-full bg-[#0757A8] text-white text-xs flex items-center justify-center font-bold flex-shrink-0">4</span>
               Analisis Risiko SMKI
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Sesuai standar ISO/IEC 27001 � Sistem Manajemen Keamanan Informasi</p>
+            <p class="text-xs text-slate-500 mt-0.5">Sesuai standar ISO/IEC 27001 · Sistem Manajemen Keamanan Informasi</p>
           </div>
           <!-- Body putih biasa (bukan amber) -->
           <div class="px-6 py-5 space-y-5">
@@ -358,7 +361,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 5 � TEKNIS & SOLUSI (BIRU)
+             SEKSI 5 — TEKNIS & SOLUSI (BIRU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#16834A] px-6 py-4 bg-green-50/60">
@@ -404,7 +407,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 6 � IDENTITAS APLIKASI / SISTEM (HIJAU)
+             SEKSI 6 — IDENTITAS APLIKASI / SISTEM (HIJAU)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#F9C031] px-6 py-4 bg-yellow-50/60">
@@ -444,7 +447,7 @@
         </div>
 
         <!-- -------------------------------------------------------
-             SEKSI 7 � LAMPIRAN & TANDA TANGAN (KUNING)
+             SEKSI 7 — LAMPIRAN & TANDA TANGAN (KUNING)
         ------------------------------------------------------- -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="border-l-4 border-[#0757A8] px-6 py-4 bg-blue-50/60">
@@ -998,6 +1001,7 @@ onMounted(() => {
     if (props.userProfile) {
       form.nama_pemohon = props.userProfile.nama_lengkap ?? ''
       form.nip          = props.userProfile.nip ?? ''
+      form.unit_kerja   = props.userProfile.unit_kerja ?? ''
       form.nomor_kontak = props.userProfile.nomor_kontak ?? ''
       form.email_dinas  = props.userProfile.email ?? ''
       form.opd_id       = props.userProfile.opd_id ?? null
