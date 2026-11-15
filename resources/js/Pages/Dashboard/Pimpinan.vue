@@ -22,66 +22,6 @@
             }}
           </p>
         </div>
-
-        <!-- Tombol Switch View Langsung di Halaman (Dihilangkan pada halaman Manajemen Keputusan) -->
-        <div v-if="currentView !== 'keputusan'" class="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl border border-slate-200">
-          <Link
-            href="/dashboard/pimpinan?view=ringkasan"
-            :class="[
-              'px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5',
-              currentView === 'ringkasan'
-                ? 'bg-[#0757A8] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            ]"
-          >
-            <Icon icon="lucide:layout-grid" class="w-4 h-4" />
-            <span>Ringkasan</span>
-          </Link>
-
-          <Link
-            href="/dashboard/pimpinan?view=keputusan"
-            :class="[
-              'px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5',
-              currentView === 'keputusan'
-                ? 'bg-[#0757A8] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            ]"
-          >
-            <Icon icon="lucide:scale" class="w-4 h-4" />
-            <span>Menunggu Keputusan</span>
-            <span
-              v-if="countMenunggu > 0"
-              :class="[
-                'px-2 py-0.5 rounded-full text-[10px] font-black',
-                currentView === 'keputusan' ? 'bg-amber-400 text-amber-950' : 'bg-amber-100 text-amber-800'
-              ]"
-            >
-              {{ countMenunggu }}
-            </span>
-          </Link>
-
-          <Link
-            href="/dashboard/pimpinan?view=ditunda"
-            :class="[
-              'px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5',
-              currentView === 'ditunda'
-                ? 'bg-[#0757A8] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            ]"
-          >
-            <Icon icon="lucide:clock" class="w-4 h-4" />
-            <span>RFC Ditunda</span>
-            <span
-              v-if="countDitunda > 0"
-              :class="[
-                'px-2 py-0.5 rounded-full text-[10px] font-black',
-                currentView === 'ditunda' ? 'bg-amber-400 text-amber-950' : 'bg-amber-100 text-amber-800'
-              ]"
-            >
-              {{ countDitunda }}
-            </span>
-          </Link>
-        </div>
       </div>
 
       <!-- Flash Message Berhasil -->
@@ -208,7 +148,7 @@
                     <th class="py-2.5 px-3">Perangkat Daerah</th>
                     <th class="py-2.5 px-3 text-center">Keputusan</th>
                     <th class="py-2.5 px-3">Tanggal Sah</th>
-                    <th class="py-2.5 px-3 text-right">Dokumen</th>
+                    <th class="py-2.5 px-3 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -235,14 +175,15 @@
                     <td class="py-3 px-3 text-slate-600 whitespace-nowrap">
                       {{ r.diputuskan_pada || '-' }}
                     </td>
-                    <td class="py-3 px-3 text-right">
+                    <td class="py-3 px-3 text-right whitespace-nowrap">
                       <Link
                         v-if="r.kode_pelacakan"
-                        :href="`/rfc/${r.kode_pelacakan}/dokumen`"
-                        class="inline-flex items-center gap-1 text-[#0757A8] hover:underline font-bold"
+                        :href="`/rfc/${r.kode_pelacakan}/workspace`"
+                        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs"
+                        title="Buka Workspace RFC"
                       >
-                        <Icon icon="lucide:file-text" class="w-3.5 h-3.5" />
-                        <span>FR-015</span>
+                        <span>Buka Workspace</span>
+                        <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                       </Link>
                     </td>
                   </tr>
