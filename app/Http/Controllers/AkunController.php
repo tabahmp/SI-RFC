@@ -48,12 +48,24 @@ class AkunController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'password_lama'        => ['required'],
-            'password'             => ['required', 'min:8', 'confirmed'],
-            'password_confirmation'=> ['required'],
+            'password_lama'         => ['required'],
+            'password'              => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[A-Z]/',        // Minimal 1 huruf kapital
+                'regex:/[0-9]/',        // Minimal 1 angka
+                'regex:/[^A-Za-z0-9]/', // Minimal 1 simbol unik
+                'confirmed',
+            ],
+            'password_confirmation' => ['required'],
         ], [
-            'password.min'       => 'Kata sandi minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'password_lama.required'         => 'Kata sandi saat ini wajib diisi.',
+            'password.required'              => 'Kata sandi baru wajib diisi.',
+            'password.min'                   => 'Kata sandi baru minimal 8 karakter.',
+            'password.regex'                 => 'Kata sandi baru harus mengandung huruf kapital (A-Z), angka (0-9), dan simbol unik (@$!%*?&#).',
+            'password.confirmed'             => 'Konfirmasi kata sandi baru tidak cocok.',
+            'password_confirmation.required' => 'Konfirmasi kata sandi baru wajib diisi.',
         ]);
 
         if (! Hash::check($request->password_lama, $user->password)) {
