@@ -5,7 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import { Icon } from '@iconify/vue'
 
 createInertiaApp({
-  title: title => `${title} — SI-RFC`,
+  title: title => title ? `${title} — Request for Change` : 'Request for Change',
   resolve: name => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
   setup({ el, App, props, plugin }) {
     const app = createApp({ render: () => h(App, props) })
