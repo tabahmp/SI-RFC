@@ -58,6 +58,7 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
         Route::patch('/rfc/{id}/ajukan',          [PermohonanRfcController::class, 'ajukanDraf'])->name('rfc.ajukan');
         Route::delete('/rfc/{id}/draf',           [PermohonanRfcController::class, 'hapusDraf'])->name('rfc.hapus.draf');
         Route::patch('/rfc/{id}/revisi-pemohon',  [PermohonanRfcController::class, 'revisiPemohon'])->name('rfc.revisi');
+        Route::post('/pemohon/tandai-modal-aktivasi-dilihat', [PermohonanRfcController::class, 'tandaiModalAktivasiDilihat'])->name('pemohon.tandai-modal-aktivasi-dilihat');
     });
 
     // ─── VERIFIKATOR ────────────────────────────────────────────────────────

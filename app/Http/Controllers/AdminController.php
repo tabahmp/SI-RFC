@@ -87,11 +87,12 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update([
-            'status_aktivasi'        => 'aktif',
-            'status_registrasi'      => 'terverifikasi',
-            'email_diverifikasi_pada'=> now(),
-            'diverifikasi_pada'      => now(),
-            'diverifikasi_oleh'      => auth()->user()->nama_lengkap ?: auth()->user()->name,
+            'status_aktivasi'             => 'aktif',
+            'status_registrasi'           => 'terverifikasi',
+            'email_diverifikasi_pada'     => now(),
+            'diverifikasi_pada'           => now(),
+            'diverifikasi_oleh'           => auth()->user()->nama_lengkap ?: auth()->user()->name,
+            'modal_aktivasi_dilihat_pada' => null,
         ]);
 
         // Kirim notifikasi in-app ke user

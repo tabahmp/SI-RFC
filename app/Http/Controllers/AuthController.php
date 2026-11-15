@@ -141,6 +141,12 @@ class AuthController extends Controller
         Auth::login($user, $remember);
         $request->session()->regenerate();
 
+        if ($namaPeran === 'pemohon' && $statusEfektif === 'aktif') {
+            if (is_null($user->modal_aktivasi_dilihat_pada)) {
+                $request->session()->flash('tampilkan_modal_aktivasi', true);
+            }
+        }
+
         return match ($namaPeran) {
             'admin'       => redirect()->route('admin.dashboard'),
             'verifikator' => redirect()->route('dashboard.verifikator'),

@@ -27,7 +27,7 @@
         <div class="flex items-start gap-3 p-4 rounded-xl bg-[#FFFBEB] border border-[#FDE68A]">
           <Icon icon="lucide:info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
           <p class="text-xs text-[#92400E] leading-relaxed">
-            <strong>Tersimpan sebagai draf</strong> � Nomor RFC diterbitkan setelah seluruh isian wajib dan tanda tangan pemohon dikirim ke verifikator.
+            <strong>Tersimpan sebagai draf</strong> · Nomor RFC diterbitkan setelah seluruh isian wajib dan tanda tangan pemohon dikirim ke verifikator.
           </p>
         </div>
 
@@ -46,7 +46,7 @@
                 <div class="flex items-center gap-1.5 mt-3 text-xs text-[#64748B]">
                   <Icon icon="lucide:layers" class="w-3.5 h-3.5 text-[#0757A8]" />
                   <span class="font-semibold text-[#0F172A]">{{ d.langkah_terisi }} dari 7 seksi</span>
-                  <span class="text-[#CBD5E1]">�</span>
+                  <span class="text-[#CBD5E1]">·</span>
                   <span>{{ d.seksi_terakhir }}</span>
                 </div>
                 <div class="flex items-center gap-1.5 mt-2 text-[11px] text-[#94A3B8]">
@@ -143,7 +143,7 @@
               activeStatusFilter === tab.value
                 ? 'bg-[#EAF2FD] text-[#0757A8] font-bold shadow-xs'
                 : 'bg-white text-[#64748B] border border-[#DFE7F1] hover:bg-slate-50']"
-          >{{ tab.label }} � {{ tab.count }}</button>
+          >{{ tab.label }} ({{ tab.count }})</button>
         </div>
 
         <!-- Filter bar -->
@@ -206,6 +206,10 @@
                   <td class="py-3.5 px-5 max-w-xs">
                     <div class="font-semibold text-slate-800 truncate">{{ t.nama_aplikasi || 'Permohonan RFC' }}</div>
                     <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{{ t.deskripsi }}</div>
+                    <div v-if="t.status_terkini === 'perlu_revisi' && t.catatan_revisi" class="mt-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 rounded-md px-2 py-0.5 inline-flex items-center gap-1 max-w-full">
+                      <Icon icon="lucide:alert-circle" class="w-3 h-3 text-amber-600 flex-shrink-0" />
+                      <span class="truncate"><strong>Revisi:</strong> {{ t.catatan_revisi }}</span>
+                    </div>
                   </td>
                   <td class="py-3.5 px-5">
                     <span :class="['px-2 py-0.5 rounded-md text-[10px] font-bold', urgensiKelas(t.urgensi)]">{{ t.urgensi_label }}</span>
@@ -213,16 +217,24 @@
                   <td class="py-3.5 px-5">
                     <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold', statusKelas(t.status_terkini)]">{{ t.status_label }}</span>
                   </td>
-                  <td class="py-3.5 px-5 text-right">
-                    <Link v-if="t.status_terkini === 'perlu_revisi'" :href="`/rfc/${t.id}/edit`"
-                      class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:underline">
-                      <span>Perbaiki</span>
-                      <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5" />
+                  <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                    <Link v-if="t.status_terkini === 'draf'" :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Lanjutkan mengisi draf">
+                      <span>Lanjutkan draf</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                     </Link>
-                    <Link v-else :href="`/rfc/${t.kode_pelacakan}`"
-                      class="inline-flex items-center gap-1 text-xs font-bold text-[#0757A8] hover:underline">
-                      <span>Detail</span>
-                      <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5" />
+                    <Link v-else-if="t.status_terkini === 'perlu_revisi'" :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all shadow-xs flex-shrink-0"
+                      title="Perbaiki formulir permohonan">
+                      <span>Perbaiki</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </Link>
+                    <Link v-else :href="`/rfc/${t.kode_pelacakan}/workspace`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Buka Workspace RFC">
+                      <span>Buka Workspace</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                     </Link>
                   </td>
                 </tr>
@@ -348,6 +360,10 @@
                   <td class="py-3.5 px-5 max-w-xs">
                     <div class="font-semibold text-slate-800 truncate">{{ t.nama_aplikasi || 'Permohonan RFC' }}</div>
                     <div class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{{ t.deskripsi }}</div>
+                    <div v-if="t.status_terkini === 'perlu_revisi' && t.catatan_revisi" class="mt-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 rounded-md px-2 py-0.5 inline-flex items-center gap-1 max-w-full">
+                      <Icon icon="lucide:alert-circle" class="w-3 h-3 text-amber-600 flex-shrink-0" />
+                      <span class="truncate"><strong>Revisi:</strong> {{ t.catatan_revisi }}</span>
+                    </div>
                   </td>
                   <td class="py-3.5 px-5">
                     <span :class="['px-2 py-0.5 rounded-md text-[10px] font-bold', urgensiKelas(t.urgensi)]">{{ t.urgensi_label }}</span>
@@ -355,10 +371,32 @@
                   <td class="py-3.5 px-5">
                     <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold', statusKelas(t.status_terkini)]">{{ t.status_label }}</span>
                   </td>
-                  <td class="py-3.5 px-5 text-right">
-                    <Link :href="`/rfc/${t.kode_pelacakan}`"
-                      class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-[#0757A8] hover:bg-blue-50 transition-colors">
-                      <Icon icon="lucide:chevron-right" class="w-4 h-4" />
+                  <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                    <!-- Jika Draf: lanjutkan draf -->
+                    <Link v-if="t.status_terkini === 'draf'"
+                      :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Lanjutkan mengisi draf">
+                      <span>Lanjutkan draf</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </Link>
+
+                    <!-- Jika Perlu Revisi: perbaiki formulir -->
+                    <Link v-else-if="t.status_terkini === 'perlu_revisi'"
+                      :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all shadow-xs flex-shrink-0"
+                      title="Perbaiki permohonan">
+                      <span>Perbaiki</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </Link>
+
+                    <!-- Ketika telah berhasil diajukan/dikirimkan: buka workspace -->
+                    <Link v-else
+                      :href="`/rfc/${t.kode_pelacakan}/workspace`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Buka Workspace RFC">
+                      <span>Buka Workspace</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                     </Link>
                   </td>
                 </tr>
@@ -401,6 +439,12 @@
       @konfirmasi="ajukanDraf"
       @batal="showModalAjukan = false"
     />
+
+    <!-- Modal Sambutan Akun Aktif & Siap Mengajukan -->
+    <AkunAktifModal
+      v-model="showAktivasiModal"
+      :data-akun="dataAkunAktivasi"
+    />
   </AppLayout>
 </template>
 
@@ -409,14 +453,23 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Link, usePage, router } from '@inertiajs/vue3'
 import AppLayout      from '@/Layouts/AppLayout.vue'
 import KonfirmasiModal from '@/Components/KonfirmasiModal.vue'
+import AkunAktifModal from '@/Components/AkunAktifModal.vue'
 import axios          from 'axios'
 
 const props = defineProps({
-  rfc:         { type: Array,  default: () => [] },   // semua RFC milik user
-  countDraf:   { type: Number, default: 0 },
-  countAktif:  { type: Number, default: 0 },
-  countSelesai:{ type: Number, default: 0 },
-  initialView: { type: String, default: 'ringkasan' },
+  rfc:                    { type: Array,   default: () => [] },   // semua RFC milik user
+  countDraf:              { type: Number,  default: 0 },
+  countAktif:             { type: Number,  default: 0 },
+  countSelesai:           { type: Number,  default: 0 },
+  initialView:            { type: String,  default: 'ringkasan' },
+  tampilkanModalAktivasi: { type: Boolean, default: false },
+  dataAkunAktivasi:       { type: Object,  default: () => ({}) },
+})
+
+const showAktivasiModal = ref(props.tampilkanModalAktivasi)
+
+watch(() => props.tampilkanModalAktivasi, (val) => {
+  if (val) showAktivasiModal.value = true
 })
 
 const page        = usePage()
