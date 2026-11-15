@@ -79,10 +79,19 @@ class PasswordResetController extends Controller
         $request->validate([
             'token'                 => ['required'],
             'email'                 => ['required', 'email'],
-            'password'              => ['required', 'min:8', 'confirmed'],
+            'password'              => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[A-Z]/',        // Minimal 1 huruf kapital
+                'regex:/[0-9]/',        // Minimal 1 angka
+                'regex:/[^A-Za-z0-9]/', // Minimal 1 simbol unik
+                'confirmed',
+            ],
             'password_confirmation' => ['required'],
         ], [
             'password.min'       => 'Kata sandi minimal 8 karakter.',
+            'password.regex'     => 'Kata sandi harus mengandung huruf kapital (A-Z), angka (0-9), dan simbol unik (@$!%*?&#).',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 

@@ -114,6 +114,8 @@
                 <input
                   v-model="form.email"
                   type="email"
+                  name="email"
+                  autocomplete="username email"
                   placeholder="nama@instansi.go.id"
                   required
                   class="w-full pl-10 pr-3.5 py-2.5 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#71839B]"
@@ -131,6 +133,8 @@
                 <input
                   v-model="form.password"
                   :type="showPassword ? 'text' : 'password'"
+                  name="password"
+                  autocomplete="current-password"
                   placeholder="Masukkan kata sandi"
                   required
                   class="w-full pl-10 pr-10 py-2.5 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#71839B]"
@@ -138,7 +142,7 @@
                 <button
                   type="button"
                   @click="showPassword = !showPassword"
-                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#718AAB] hover:text-[#344965] transition-colors"
+                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#718AAB] hover:text-[#344965] transition-colors cursor-pointer"
                 >
                   <Icon :icon="showPassword ? 'lucide:eye-off' : 'lucide:eye'" class="w-4 h-4" />
                 </button>
@@ -147,13 +151,15 @@
 
             <!-- Ingat Saya & Lupa Kata Sandi -->
             <div class="flex items-center justify-between text-xs pt-0.5">
-              <label class="flex items-center gap-2 cursor-pointer text-[#70829D] font-medium select-none">
+              <label for="remember-me" class="flex items-center gap-2 cursor-pointer text-[#70829D] hover:text-[#2D405E] font-medium select-none">
                 <input
+                  id="remember-me"
+                  name="remember"
                   v-model="form.remember"
                   type="checkbox"
-                  class="w-4 h-4 rounded border-[#8C98A6] text-[#0757A8] focus:ring-[#0757A8]"
+                  class="w-4 h-4 rounded border-[#8C98A6] accent-[#0757A8] cursor-pointer focus:ring-2 focus:ring-[#0757A8]/20 transition-all"
                 />
-                <span>Ingat saya</span>
+                <span :class="{ 'text-[#0757A8] font-semibold': form.remember }">Ingat saya</span>
               </label>
 
               <Link href="/forgot-password" class="text-[#0757A8] hover:text-[#063D78] font-semibold transition-colors">
@@ -261,6 +267,18 @@ function generateCaptcha() {
 
 onMounted(() => {
   generateCaptcha()
+
+  // Muat email dan status centang 'Ingat saya' dari localStorage jika sebelumnya disimpan
+  try {
+    const savedRemember = localStorage.getItem('si_rfc_remember_me')
+    const savedEmail = localStorage.getItem('si_rfc_remember_email')
+    if (savedRemember === 'true' && savedEmail) {
+      form.email = savedEmail
+      form.remember = true
+    }
+  } catch (e) {
+    console.warn('Gagal membaca preferensi login lokal:', e)
+  }
 })
 
 function submitLogin() {
@@ -271,6 +289,19 @@ function submitLogin() {
     errorMessage.value = 'Kode Captcha tidak sesuai. Silakan coba kembali.'
     generateCaptcha()
     return
+  }
+
+  // Simpan atau bersihkan preferensi 'Ingat saya' di penyimpanan browser
+  try {
+    if (form.remember) {
+      localStorage.setItem('si_rfc_remember_me', 'true')
+      localStorage.setItem('si_rfc_remember_email', form.email.trim())
+    } else {
+      localStorage.removeItem('si_rfc_remember_me')
+      localStorage.removeItem('si_rfc_remember_email')
+    }
+  } catch (e) {
+    console.warn('Gagal menyimpan preferensi login lokal:', e)
   }
 
   loading.value = true
