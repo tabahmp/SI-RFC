@@ -66,7 +66,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-for="item in opd?.data" :key="item.id" class="hover:bg-slate-50 transition-colors">
-                <td class="px-5 py-3 font-mono font-bold text-slate-700">{{ item.kode_opd }}</td>
+                <td class="px-5 py-3 font-bold text-slate-700">{{ item.kode_opd }}</td>
                 <td class="px-5 py-3 text-slate-700">{{ item.nama_opd }}</td>
                 <td class="px-5 py-3 text-slate-500">{{ item.telepon ?? '-' }}</td>
                 <td class="px-5 py-3">

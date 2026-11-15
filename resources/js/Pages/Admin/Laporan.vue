@@ -114,7 +114,7 @@
               <tr v-for="(item, idx) in rfc?.data" :key="item.id" class="hover:bg-slate-50 transition-colors">
                 <td class="px-4 py-3 text-slate-400">{{ (rfc.from ?? 0) + idx }}</td>
                 <td class="px-4 py-3">
-                  <Link :href="`/rfc/${item.kode_pelacakan}`" class="font-mono font-bold text-[#0757A8] hover:underline">{{ item.kode_pelacakan }}</Link>
+                  <Link :href="`/rfc/${item.kode_pelacakan}/workspace`" class="font-bold text-[#0757A8] hover:underline" title="Buka Workspace">{{ item.kode_pelacakan }}</Link>
                 </td>
                 <td class="px-4 py-3 text-slate-700">{{ item.nama_pemohon }}</td>
                 <td class="px-4 py-3 text-slate-500 max-w-[140px]"><span class="line-clamp-2">{{ item.opd }}</span></td>

@@ -2,30 +2,6 @@
   <AppLayout>
     <div class="max-w-[1440px] mx-auto space-y-6">
 
-      <!-- SUB-NAVIGASI -->
-      <div class="flex flex-wrap items-center justify-between border-b border-slate-200 pb-3 gap-3">
-        <div class="flex flex-wrap items-center gap-2">
-          <button @click="activeTab = 'ringkasan'" :class="tabClass('ringkasan')">
-            <Icon icon="lucide:layout-grid" class="w-4 h-4" />
-            <span>Ringkasan & Prioritas</span>
-          </button>
-          <button @click="activeTab = 'antrean'" :class="tabClass('antrean')">
-            <Icon icon="lucide:shield-check" class="w-4 h-4" />
-            <span>Antrean Telaah</span>
-            <span :class="activeTab === 'antrean' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'"
-              class="px-2 py-0.5 rounded-md text-[10px] font-extrabold">{{ countAntrean }}</span>
-          </button>
-          <button @click="activeTab = 'sla'" :class="tabClass('sla')">
-            <Icon icon="lucide:clock" class="w-4 h-4" />
-            <span>Pemantauan SLA</span>
-          </button>
-        </div>
-        <span class="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200 flex items-center gap-1.5">
-          <Icon icon="lucide:shield-check" class="w-4 h-4" />
-          <span>Verifikator APTIKA</span>
-        </span>
-      </div>
-
       <!-- VIEW: RINGKASAN -->
       <div v-if="activeTab === 'ringkasan'" class="space-y-6">
         <div>
@@ -169,7 +145,7 @@
               <tbody class="divide-y divide-slate-100">
                 <tr v-for="rfc in filteredAntrean" :key="rfc.id" class="hover:bg-slate-50/80 transition-colors">
                   <td class="py-3.5 px-4">
-                    <div class="font-bold text-[#0757A8] font-mono">{{ rfc.kode_pelacakan }}</div>
+                    <div class="font-bold text-[#0757A8]">{{ rfc.kode_pelacakan }}</div>
                     <div class="text-[11px] text-slate-500">{{ rfc.opd }} · {{ rfc.created_at_human }}</div>
                   </td>
                   <td class="py-3.5 px-4 max-w-xs">
@@ -250,7 +226,7 @@
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-for="rfc in slaKritis" :key="rfc.id" class="bg-red-50/50 hover:bg-red-50">
-                  <td class="py-3.5 px-4 font-mono font-bold text-red-700">{{ rfc.kode_pelacakan }}</td>
+                  <td class="py-3.5 px-4 font-bold text-red-700">{{ rfc.kode_pelacakan }}</td>
                   <td class="py-3.5 px-4">
                     <div class="font-bold text-slate-800">{{ rfc.deskripsi }}</div>
                     <div class="text-[11px] text-slate-500">{{ rfc.opd }}</div>
@@ -261,7 +237,7 @@
                     </span>
                   </td>
                   <td class="py-3.5 px-4">
-                    <SlaTimer :deadline="rfc.target_sla" class="font-mono font-bold text-red-600" />
+                    <SlaTimer :deadline="rfc.target_sla" class="font-bold text-red-600" />
                   </td>
                   <td class="py-3.5 px-4 text-right">
                     <Link :href="`/rfc/${rfc.kode_pelacakan}/workspace`"

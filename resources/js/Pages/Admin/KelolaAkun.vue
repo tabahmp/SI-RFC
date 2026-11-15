@@ -85,7 +85,7 @@
                   <div class="font-semibold text-slate-800">{{ user.nama_lengkap }}</div>
                   <div class="text-slate-400">{{ user.email }}</div>
                 </td>
-                <td class="px-5 py-3 text-slate-500 font-mono">{{ user.nip }}</td>
+                <td class="px-5 py-3 text-slate-500">{{ user.nip }}</td>
                 <td class="px-5 py-3 text-slate-500 max-w-[160px]">
                   <span class="line-clamp-2">{{ user.opd }}</span>
                 </td>
