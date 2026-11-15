@@ -37,8 +37,6 @@
           <!-- Tombol Unduh PDF FR-015 Resmi (via backend generator DOCX→PDF) -->
           <a
             :href="`/rfc/${rfcData.kode_pelacakan}/dokumen?download=1`"
-            target="_blank"
-            rel="noopener noreferrer"
             class="px-4 py-2 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer no-underline"
           >
             <Icon icon="lucide:download" class="w-4 h-4" />
@@ -84,8 +82,7 @@
                     <img
                       src="/images/assets/logo_fr015_jabar.png"
                       alt="Logo Pemprov Jabar"
-                      style="max-height: 48px; max-width: 54px; width: auto; height: auto; display: block; margin: 0 auto; object-fit: contain;"
-                      @error="$event.target.src = '/images/assets/logo_diskominfo_jabar.png'"
+                      style="max-height: 48px; max-width: 50px; width: auto; height: auto; display: block; margin: 0 auto; object-fit: contain;"
                     />
                   </td>
 
@@ -407,8 +404,7 @@
                     <img
                       src="/images/assets/logo_fr015_jabar.png"
                       alt="Logo Pemprov Jabar"
-                      style="max-height: 48px; max-width: 54px; width: auto; height: auto; display: block; margin: 0 auto; object-fit: contain;"
-                      @error="$event.target.src = '/images/assets/logo_diskominfo_jabar.png'"
+                      style="max-height: 48px; max-width: 50px; width: auto; height: auto; display: block; margin: 0 auto; object-fit: contain;"
                     />
                   </td>
 
@@ -442,23 +438,6 @@
                         </tr>
                       </tbody>
                     </table>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- JUDUL SEKSI PENGESAHAN -->
-            <table
-              cellpadding="0"
-              cellspacing="0"
-              style="width: 190mm; border-collapse: collapse; border: 1.5px solid #000; border-top: none; table-layout: fixed; margin: 0;"
-            >
-              <tbody>
-                <tr class="section-header">
-                  <td
-                    style="border: 1px solid #000; padding: 5px 8px; font-weight: bold; font-size: 9pt; background: #E5E7EB; text-transform: uppercase; letter-spacing: 0.5px;"
-                  >
-                    PENGESAHAN & PERSETUJUAN PERUBAHAN TI (NO. RFC: {{ rfcData.kode_pelacakan || '-' }})
                   </td>
                 </tr>
               </tbody>
