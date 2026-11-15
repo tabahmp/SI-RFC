@@ -46,17 +46,43 @@ class PermohonanRfcController extends Controller
 
         $rfcList = $rfcQuery->get()->map(fn ($rfc) => $this->formatRfcRingkas($rfc));
 
+        $user->loadMissing('opd');
+        $tampilkanModalAktivasi = session('tampilkan_modal_aktivasi', false)
+            || (is_null($user->modal_aktivasi_dilihat_pada) && $user->status_aktivasi === 'aktif')
+            || $request->boolean('preview_aktivasi', false);
+
         return Inertia::render('Dashboard/Pemohon', [
-            'rfc'         => $rfcList,
-            'filters'     => $request->only(['status', 'kategori_id', 'urgensi', 'search', 'tanggal_mulai', 'tanggal_akhir']),
-            'kategoriList'=> \App\Models\KategoriRfc::aktif()->get(['id', 'nama_kategori']),
-            'countDraf'   => PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'draf')->count(),
-            'countAktif'  => PermohonanRfc::where('pengguna_id', $user->id)
+            'rfc'                    => $rfcList,
+            'filters'                => $request->only(['status', 'kategori_id', 'urgensi', 'search', 'tanggal_mulai', 'tanggal_akhir']),
+            'kategoriList'           => \App\Models\KategoriRfc::aktif()->get(['id', 'nama_kategori']),
+            'countDraf'              => PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'draf')->count(),
+            'countAktif'             => PermohonanRfc::where('pengguna_id', $user->id)
                                            ->whereNotIn('status_terkini', ['draf', 'selesai', 'ditolak_verifikator', 'ditolak_pimpinan'])
                                            ->count(),
-            'countSelesai'=> PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'selesai')->count(),
-            'initialView' => $request->query('view', 'ringkasan'),
+            'countSelesai'           => PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'selesai')->count(),
+            'initialView'            => $request->query('view', 'ringkasan'),
+            'tampilkanModalAktivasi' => $tampilkanModalAktivasi,
+            'dataAkunAktivasi'       => [
+                'nama'              => $user->nama_lengkap ?: $user->name,
+                'email'             => $user->email,
+                'opd'               => $user->opd?->nama_opd ?? $user->asal_opd ?? 'Pemerintah Provinsi Jawa Barat',
+                'unit_kerja'        => $user->unit_kerja ?? 'Unit Kerja / Bidang Pemohon',
+                'diverifikasi_oleh' => $user->diverifikasi_oleh ?? 'Administrator SI-RFC',
+                'diverifikasi_pada' => $user->diverifikasi_pada ? $user->diverifikasi_pada->isoFormat('D MMMM Y, HH:mm') . ' WIB' : 'Baru saja',
+            ],
         ]);
+    }
+
+    /**
+     * Tandai modal aktivasi akun telah dilihat oleh pemohon.
+     */
+    public function tandaiModalAktivasiDilihat(Request $request)
+    {
+        $user = auth()->user();
+        if ($user) {
+            $user->update(['modal_aktivasi_dilihat_pada' => now()]);
+        }
+        return response()->json(['success' => true]);
     }
 
     public function dashboardVerifikator(Request $request)
@@ -108,47 +134,124 @@ class PermohonanRfcController extends Controller
     public function dashboardPimpinan(Request $request)
     {
         $menunggu = PermohonanRfc::where('status_terkini', 'menunggu_persetujuan')
-            ->with('pengguna', 'opd', 'kategori')
+            ->with(['pengguna', 'opd', 'kategori', 'revisi.verifikator'])
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(fn ($rfc) => $this->formatRfcRingkas($rfc));
+            ->map(function ($rfc) {
+                $item = $this->formatRfcRingkas($rfc);
+                $revisiTerakhir = $rfc->revisi->sortByDesc('id')->first();
+                $item['catatan_verifikator'] = $revisiTerakhir?->catatan_revisi;
+                $item['nama_verifikator']    = $revisiTerakhir?->verifikator?->nama_lengkap ?? $revisiTerakhir?->verifikator?->name;
+                $item['target_sla']          = $rfc->target_sla?->toIso8601String();
+                $item['sisa_sla']            = $rfc->target_sla ? now()->diffForHumans($rfc->target_sla, ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) : null;
+                $item['sla_terlewat']        = $rfc->target_sla ? now()->greaterThan($rfc->target_sla) : false;
+                return $item;
+            });
+
+        $riwayatKeputusan = \App\Models\PersetujuanRfc::with(['rfc.opd', 'rfc.pengguna', 'rfc.kategori'])
+            ->orderByDesc('diputuskan_pada')
+            ->limit(20)
+            ->get()
+            ->map(fn ($p) => [
+                'id'                    => $p->id,
+                'rfc_id'                => $p->rfc_id,
+                'kode_pelacakan'        => $p->rfc?->kode_pelacakan,
+                'deskripsi'             => $p->rfc?->deskripsi_perubahan,
+                'opd'                   => $p->rfc?->opd?->nama_opd,
+                'pemohon'               => $p->rfc?->nama_pemohon,
+                'urgensi'               => $p->rfc?->urgensi,
+                'keputusan'             => $p->keputusan,
+                'catatan_keputusan'     => $p->catatan_keputusan,
+                'diputuskan_pada'       => $p->diputuskan_pada?->format('d/m/Y H:i'),
+                'diputuskan_pada_human' => $p->diputuskan_pada?->diffForHumans(),
+                'status_terkini'        => $p->rfc?->status_terkini,
+            ]);
+
+        $distribusiKategori = \App\Models\KategoriRfc::withCount('permohonanRfc')
+            ->orderByDesc('permohonan_rfc_count')
+            ->limit(6)
+            ->get(['id', 'nama_kategori', 'permohonan_rfc_count'])
+            ->map(fn ($k) => [
+                'id'               => $k->id,
+                'nama_kategori'    => $k->nama_kategori,
+                'permohonan_count' => $k->permohonan_rfc_count,
+            ]);
+
+        $ditunda = PermohonanRfc::where('status_terkini', 'ditunda')
+            ->with(['pengguna', 'opd', 'kategori', 'revisi.verifikator', 'persetujuan'])
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($rfc) {
+                $item = $this->formatRfcRingkas($rfc);
+                $persetujuan = $rfc->persetujuan;
+                $item['jadwal_tinjau_ulang'] = $persetujuan?->jadwal_tinjau_ulang?->format('d/m/Y');
+                $item['jadwal_tinjau_raw']   = $persetujuan?->jadwal_tinjau_ulang?->toDateString();
+                $item['catatan_tunda']       = $persetujuan?->catatan_keputusan;
+                $item['sudah_jatuh_tempo']   = $persetujuan?->jadwal_tinjau_ulang ? now()->startOfDay()->greaterThanOrEqualTo($persetujuan->jadwal_tinjau_ulang->startOfDay()) : true;
+                return $item;
+            });
 
         return Inertia::render('Dashboard/Pimpinan', [
-            'menungguKeputusan' => $menunggu,
-            'countMenunggu'     => $menunggu->count(),
-            'statistik'         => $this->statistikBulanIni(),
-            'initialView'       => $request->query('view', 'ringkasan'),
+            'menungguKeputusan'  => $menunggu,
+            'countMenunggu'      => $menunggu->count(),
+            'tiketDitunda'       => $ditunda,
+            'countDitunda'       => $ditunda->count(),
+            'riwayatKeputusan'   => $riwayatKeputusan,
+            'distribusiKategori' => $distribusiKategori,
+            'statistik'          => $this->statistikBulanIni(),
+            'initialView'        => $request->query('view', 'ringkasan'),
         ]);
     }
 
     public function dashboardTeknisi(Request $request)
     {
         $antrian = PermohonanRfc::whereIn('status_terkini', ['disetujui', 'sedang_dikerjakan'])
-            ->with('opd', 'kategori')
+            ->with(['opd', 'kategori', 'pengguna'])
             ->orderBy('created_at')
             ->get()
             ->map(fn ($rfc) => $this->formatRfcRingkas($rfc));
 
         $hasilSelesai = PermohonanRfc::where('status_terkini', 'selesai')
-            ->with('opd', 'kategori', 'eksekusi.teknisi')
+            ->with(['opd', 'kategori', 'eksekusi.teknisi', 'dokumenBast', 'pengguna'])
             ->orderByDesc('updated_at')
             ->limit(30)
             ->get()
             ->map(function ($rfc) {
-                $eks = $rfc->eksekusi->first();
+                $eks  = $rfc->eksekusi->first();
+                $bast = $rfc->dokumenBast;
+
+                $pathUrl = null;
+                if ($bast?->path_file) {
+                    $clean   = preg_replace('#^(public/)+#', '', $bast->path_file);
+                    $pathUrl = str_starts_with($clean, 'http') ? $clean : asset('storage/' . $clean);
+                }
 
                 return array_merge($this->formatRfcRingkas($rfc), [
-                    'hasil_pengerjaan' => $eks?->hasil_pengerjaan,
-                    'uraian_pekerjaan' => $eks?->uraian_pekerjaan,
-                    'teknisi'          => $eks?->teknisi?->nama_lengkap ?: $eks?->teknisi?->name,
-                    'selesai_pada'     => $eks?->selesai_pada?->format('d/m/Y H:i'),
+                    'hasil_pengerjaan'   => $eks?->hasil_pengerjaan,
+                    'uraian_pekerjaan'   => $eks?->uraian_pekerjaan,
+                    'teknisi'            => $eks?->teknisi?->nama_lengkap ?: $eks?->teknisi?->name,
+                    'selesai_pada'       => $eks?->selesai_pada?->format('d/m/Y H:i'),
+                    'nomor_dokumen_bast' => $bast?->nomor_dokumen,
+                    'path_file_bast'     => $pathUrl,
+                    'tanggal_bast'       => $bast?->dibuat_pada?->format('d/m/Y H:i'),
                 ]);
             });
 
+        $distribusiKategori = \App\Models\KategoriRfc::aktif()
+            ->withCount('permohonanRfc')
+            ->get()
+            ->map(fn ($k) => [
+                'id'               => $k->id,
+                'nama_kategori'    => $k->nama_kategori,
+                'permohonan_count' => $k->permohonan_rfc_count,
+            ]);
+
         return Inertia::render('Dashboard/Teknisi', [
-            'antrian'      => $antrian,
-            'hasilSelesai' => $hasilSelesai,
-            'initialView'  => $request->query('view', 'ringkasan'),
+            'antrian'            => $antrian,
+            'hasilSelesai'       => $hasilSelesai,
+            'distribusiKategori' => $distribusiKategori,
+            'statistik'          => $this->statistikBulanIni(),
+            'initialView'        => $request->query('view', 'ringkasan'),
         ]);
     }
 
@@ -175,6 +278,7 @@ class PermohonanRfcController extends Controller
             'userProfile'  => $user ? [
                 'nama_lengkap' => $user->nama_lengkap ?? $user->name,
                 'nip'          => $user->nip,
+                'unit_kerja'   => $user->unit_kerja,
                 'nomor_kontak' => $user->nomor_kontak,
                 'email'        => $user->email,
                 'opd_id'       => $user->opd_id,
@@ -191,18 +295,51 @@ class PermohonanRfcController extends Controller
      */
     public function edit(int $id)
     {
-        $rfc = PermohonanRfc::where('pengguna_id', auth()->id())->findOrFail($id);
+        $rfc = PermohonanRfc::with(['revisi.verifikator', 'histories.pengguna'])
+            ->where('pengguna_id', auth()->id())
+            ->findOrFail($id);
         
         if (!in_array($rfc->status_terkini, ['draf', 'perlu_revisi'])) {
-            return redirect()->route('rfc.show', $rfc->kode_pelacakan)
+            return redirect()->route('rfc.workspace', $rfc->kode_pelacakan)
                 ->with('error', 'RFC dengan status ini tidak dapat diedit.');
         }
+
+        // Ambil catatan revisi verifikator terbaru
+        $revisiAktif = $rfc->revisi->where('status_revisi', 'menunggu_perbaikan')->sortByDesc('id')->first()
+            ?? $rfc->revisi->sortByDesc('id')->first();
+
+        $catatanRevisiData = $revisiAktif ? [
+            'id'              => $revisiAktif->id,
+            'catatan'         => $revisiAktif->catatan_revisi,
+            'verifikator'     => $revisiAktif->verifikator?->nama_lengkap ?? $revisiAktif->verifikator?->name ?? 'Verifikator Diskominfo Jabar',
+            'nip_verifikator' => $revisiAktif->verifikator?->nip ?? '-',
+            'tanggal'         => $revisiAktif->created_at?->translatedFormat('d F Y, H:i') ?? $revisiAktif->created_at?->format('d/m/Y H:i'),
+            'tanggal_human'   => $revisiAktif->created_at?->diffForHumans(),
+            'status_revisi'   => $revisiAktif->status_revisi,
+        ] : null;
+
+        $riwayatRevisi = $rfc->revisi->sortByDesc('id')->map(fn ($r) => [
+            'id'             => $r->id,
+            'catatan'        => $r->catatan_revisi,
+            'verifikator'    => $r->verifikator?->nama_lengkap ?? $r->verifikator?->name ?? 'Verifikator Diskominfo Jabar',
+            'nip_verifikator'=> $r->verifikator?->nip ?? '-',
+            'tanggal'        => $r->created_at?->translatedFormat('d F Y, H:i') ?? $r->created_at?->format('d/m/Y H:i'),
+            'status_revisi'  => $r->status_revisi,
+        ])->values()->all();
         
         return Inertia::render('RFC/Create', [
-            'mode' => 'edit',
+            'mode'          => 'edit',
+            'catatanRevisi' => $catatanRevisiData,
+            'riwayatRevisi' => $riwayatRevisi,
             'rfc' => [
                 'id'                     => $rfc->id,
                 'kode_pelacakan'         => $rfc->kode_pelacakan,
+                'status_terkini'         => $rfc->status_terkini,
+                'catatan_verifikator'    => $catatanRevisiData['catatan'] ?? null,
+                'nama_verifikator'       => $catatanRevisiData['verifikator'] ?? null,
+                'tanggal_revisi'         => $catatanRevisiData['tanggal'] ?? null,
+                'catatanRevisi'          => $catatanRevisiData,
+                'riwayatRevisi'          => $riwayatRevisi,
                 // Seksi 1
                 'nama_pemohon'           => $rfc->nama_pemohon,
                 'nip'                    => $rfc->nip,
@@ -238,6 +375,9 @@ class PermohonanRfcController extends Controller
                 'alamat_repository'      => $rfc->alamat_repository,
                 // Seksi 7
                 'tanda_tangan'           => $rfc->tanda_tangan_pemohon ? Storage::url($rfc->tanda_tangan_pemohon) : null,
+                'nama_penanggung_jawab'  => $rfc->nama_penanggung_jawab,
+                'nip_penanggung_jawab'   => $rfc->nip_penanggung_jawab,
+                'tanda_tangan_penanggung_jawab' => $rfc->tanda_tangan_penanggung_jawab ? Storage::url($rfc->tanda_tangan_penanggung_jawab) : null,
                 // Lampiran existing
                 'lampiran_existing'      => collect(
                     is_array($rfc->path_lampiran)
@@ -258,6 +398,7 @@ class PermohonanRfcController extends Controller
             'userProfile'  => auth()->user() ? [
                 'nama_lengkap' => auth()->user()->nama_lengkap ?? auth()->user()->name,
                 'nip'          => auth()->user()->nip,
+                'unit_kerja'   => auth()->user()->unit_kerja,
                 'nomor_kontak' => auth()->user()->nomor_kontak,
                 'email'        => auth()->user()->email,
                 'opd_id'       => auth()->user()->opd_id,
@@ -278,6 +419,10 @@ class PermohonanRfcController extends Controller
         }
 
         $simpanDraf = $request->boolean('simpan_draf', false);
+
+        if ($rfc->status_terkini === 'perlu_revisi' && $simpanDraf) {
+            return response()->json(['message' => 'Permohonan dengan status Perlu Revisi tidak dapat disimpan sebagai draf.'], 422);
+        }
 
         if ($simpanDraf) {
             $validated = $request->validate([
@@ -312,20 +457,51 @@ class PermohonanRfcController extends Controller
                 'alamat_aplikasi'        => ['nullable', 'string'],
                 'alamat_repository'      => ['nullable', 'string'],
                 // Seksi 7
-                'tanda_tangan'           => ['nullable', 'string'],
+                'tanda_tangan'                  => ['nullable', 'string'],
+                'nama_penanggung_jawab'         => ['nullable', 'string', 'max:255'],
+                'nip_penanggung_jawab'          => ['nullable', 'string', 'max:50'],
+                'tanda_tangan_penanggung_jawab' => ['nullable', 'string'],
             ]);
         } else {
             $validated = $request->validate([
-                'kategori_id'          => ['required', 'exists:kategori_rfc,id'],
-                'unit_kerja'           => ['required', 'string', 'max:255'],
-                'nomor_kontak'         => ['required', 'string', 'max:50'],
-                'email_dinas'          => ['required', 'email'],
-                'tanggal_permohonan'   => ['required', 'date'],
-                'jenis_perubahan'      => ['required', 'array', 'min:1'],
-                'deskripsi_perubahan'  => ['required', 'string'],
-                'latar_belakang'       => ['required', 'string'],
-                'rincian_perubahan'    => ['required', 'string'],
-                'urgensi'              => ['required', 'in:rendah,sedang,tinggi,kritis'],
+                // Seksi 1
+                'nama_pemohon'                  => ['nullable', 'string', 'max:255'],
+                'nip'                           => ['nullable', 'string', 'max:50'],
+                'opd_id'                        => ['nullable', 'exists:opd,id'],
+                'kategori_id'                   => ['required', 'exists:kategori_rfc,id'],
+                'unit_kerja'                    => ['required', 'string', 'max:255'],
+                'nomor_surat'                   => ['nullable', 'string', 'max:100'],
+                'nomor_kontak'                  => ['required', 'string', 'max:50'],
+                'email_dinas'                   => ['required', 'email'],
+                'tanggal_permohonan'            => ['required', 'date'],
+                // Seksi 2
+                'jenis_perubahan'               => ['required', 'array', 'min:1'],
+                // Seksi 3
+                'deskripsi_perubahan'           => ['required', 'string'],
+                'latar_belakang'                => ['required', 'string'],
+                'rincian_perubahan'             => ['required', 'string'],
+                // Seksi 4
+                'urgensi'                       => ['required', 'in:rendah,sedang,tinggi,kritis'],
+                'risiko_tidak_dilakukan'        => ['nullable', 'string'],
+                'kriteria_risiko'               => ['nullable', 'string'],
+                'keterangan_risiko'             => ['nullable', 'string'],
+                'rencana_pemulihan'             => ['nullable', 'string'],
+                // Seksi 5
+                'solusi_diharapkan'             => ['nullable', 'string'],
+                'risiko_perubahan'              => ['nullable', 'string'],
+                'alternatif_perubahan'          => ['nullable', 'string'],
+                'biaya_perubahan'               => ['nullable', 'string', 'max:100'],
+                'waktu_perubahan'               => ['nullable', 'string', 'max:100'],
+                // Seksi 6
+                'nama_aplikasi'                 => ['nullable', 'string'],
+                'deskripsi_aplikasi'            => ['nullable', 'string'],
+                'alamat_aplikasi'               => ['nullable', 'string'],
+                'alamat_repository'             => ['nullable', 'string'],
+                // Seksi 7
+                'tanda_tangan'                  => ['nullable', 'string'],
+                'nama_penanggung_jawab'         => ['nullable', 'string', 'max:255'],
+                'nip_penanggung_jawab'          => ['nullable', 'string', 'max:50'],
+                'tanda_tangan_penanggung_jawab' => ['nullable', 'string'],
             ]);
 
             if (!$rfc->tanda_tangan_pemohon && !str_starts_with((string) $request->input('tanda_tangan', ''), 'data:image')) {
@@ -345,11 +521,18 @@ class PermohonanRfcController extends Controller
             }
         }
 
-        // Tanda tangan
+        // Tanda tangan Pemohon
         $ttdPath = $rfc->tanda_tangan_pemohon;
         if ($request->filled('tanda_tangan') && str_starts_with($request->tanda_tangan, 'data:image')) {
             if ($ttdPath && Storage::exists($ttdPath)) Storage::delete($ttdPath);
             $ttdPath = $this->simpanBase64Image($request->tanda_tangan, 'tanda_tangan');
+        }
+
+        // Tanda tangan Penanggung Jawab OPD (Kabid)
+        $ttdKabidPath = $rfc->tanda_tangan_penanggung_jawab;
+        if ($request->filled('tanda_tangan_penanggung_jawab') && str_starts_with($request->tanda_tangan_penanggung_jawab, 'data:image')) {
+            if ($ttdKabidPath && Storage::exists($ttdKabidPath)) Storage::delete($ttdKabidPath);
+            $ttdKabidPath = $this->simpanBase64Image($request->tanda_tangan_penanggung_jawab, 'tanda_tangan');
         }
 
         $statusLama = $rfc->status_terkini;
@@ -359,10 +542,16 @@ class PermohonanRfcController extends Controller
         }
 
         $rfc->update(array_merge($validated, [
-            'path_lampiran'        => $pathLampiran ?: null,
-            'tanda_tangan_pemohon' => $ttdPath,
-            'status_terkini'       => $statusBaru,
+            'path_lampiran'                 => $pathLampiran ?: null,
+            'tanda_tangan_pemohon'          => $ttdPath,
+            'tanda_tangan_penanggung_jawab' => $ttdKabidPath,
+            'status_terkini'                => $statusBaru,
         ]));
+
+        // Sinkronkan unit kerja ke profil user jika ada pengisian/perubahan
+        if (!empty($validated['unit_kerja']) && $user && $user->unit_kerja !== $validated['unit_kerja']) {
+            $user->update(['unit_kerja' => $validated['unit_kerja']]);
+        }
 
         if ($statusLama === 'perlu_revisi' && $statusBaru === 'diajukan') {
             RevisiRfc::where('rfc_id', $rfc->id)
@@ -371,7 +560,7 @@ class PermohonanRfcController extends Controller
         }
 
         $keterangan = $statusBaru === 'diajukan' && $statusLama !== 'diajukan'
-            ? 'Permohonan RFC diajukan ke verifikator'
+            ? ($statusLama === 'perlu_revisi' ? 'Perbaikan permohonan RFC telah diajukan kembali ke verifikator' : 'Permohonan RFC diajukan ke verifikator')
             : 'RFC diperbarui';
         $rfc->tambahHistory($user, $user->nama_lengkap ?: $user->name, 'pemohon', $statusBaru, $keterangan, null, $statusLama);
 
@@ -425,7 +614,10 @@ class PermohonanRfcController extends Controller
                 'alamat_aplikasi'        => ['nullable', 'string'],
                 'alamat_repository'      => ['nullable', 'string'],
                 // Seksi 7
-                'tanda_tangan'           => ['nullable', 'string'],
+                'tanda_tangan'                  => ['nullable', 'string'],
+                'nama_penanggung_jawab'         => ['nullable', 'string', 'max:255'],
+                'nip_penanggung_jawab'          => ['nullable', 'string', 'max:50'],
+                'tanda_tangan_penanggung_jawab' => ['nullable', 'string'],
             ]);
         } else {
             $validated = $request->validate([
@@ -445,11 +637,18 @@ class PermohonanRfcController extends Controller
                 'keterangan_risiko'    => ['nullable', 'string'],
                 'rencana_pemulihan'    => ['nullable', 'string'],
                 'solusi_diharapkan'    => ['nullable', 'string'],
+                'risiko_perubahan'     => ['nullable', 'string'],
+                'alternatif_perubahan' => ['nullable', 'string'],
+                'biaya_perubahan'      => ['nullable', 'string', 'max:100'],
+                'waktu_perubahan'      => ['nullable', 'string', 'max:100'],
                 'nama_aplikasi'        => ['nullable', 'string'],
                 'deskripsi_aplikasi'   => ['nullable', 'string'],
                 'alamat_aplikasi'      => ['nullable', 'string'],
                 'alamat_repository'    => ['nullable', 'string'],
-                'tanda_tangan'         => ['nullable', 'string'],
+                'tanda_tangan'                  => ['nullable', 'string'],
+                'nama_penanggung_jawab'         => ['nullable', 'string', 'max:255'],
+                'nip_penanggung_jawab'          => ['nullable', 'string', 'max:50'],
+                'tanda_tangan_penanggung_jawab' => ['nullable', 'string'],
             ]);
 
             // Tanda tangan wajib saat submit
@@ -478,49 +677,64 @@ class PermohonanRfcController extends Controller
             $pathLampiran[] = $file->storeAs('public/lampiran', $safeName);
         }
 
-        // Simpan tanda tangan
+        // Simpan tanda tangan Pemohon
         $ttdPath = null;
         $ttdInput = $request->input('tanda_tangan');
         if ($ttdInput && str_starts_with($ttdInput, 'data:image')) {
             $ttdPath = $this->simpanBase64Image($ttdInput, 'tanda_tangan');
         }
 
+        // Simpan tanda tangan Penanggung Jawab OPD (Kabid)
+        $ttdKabidPath = null;
+        $ttdKabidInput = $request->input('tanda_tangan_penanggung_jawab');
+        if ($ttdKabidInput && str_starts_with($ttdKabidInput, 'data:image')) {
+            $ttdKabidPath = $this->simpanBase64Image($ttdKabidInput, 'tanda_tangan');
+        }
+
         $statusTerkini = $simpanDraf ? 'draf' : 'diajukan';
 
         $rfc = PermohonanRfc::create([
-            'kode_pelacakan'         => PermohonanRfc::generateKodePelacakan(),
-            'pengguna_id'            => $user->id,
-            'opd_id'                 => $user->opd_id,
-            'kategori_id'            => $validated['kategori_id'] ?? null,
-            'nama_pemohon'           => $user->nama_lengkap ?: $user->name,
-            'nip'                    => $user->nip,
-            'unit_kerja'             => $validated['unit_kerja'] ?? '',
-            'nomor_surat'            => $validated['nomor_surat'] ?? null,
-            'nomor_kontak'           => $validated['nomor_kontak'] ?? $user->nomor_kontak ?? '',
-            'email_dinas'            => $validated['email_dinas'] ?? $user->email,
-            'tanggal_permohonan'     => $validated['tanggal_permohonan'] ?? now()->toDateString(),
-            'jenis_perubahan'        => $validated['jenis_perubahan'] ?? null,
-            'deskripsi_perubahan'    => $validated['deskripsi_perubahan'] ?? null,
-            'latar_belakang'         => $validated['latar_belakang'] ?? null,
-            'rincian_perubahan'      => $validated['rincian_perubahan'] ?? null,
-            'urgensi'                => $validated['urgensi'] ?? 'sedang',
-            'risiko_tidak_dilakukan' => $validated['risiko_tidak_dilakukan'] ?? null,
-            'kriteria_risiko'        => $validated['kriteria_risiko'] ?? null,
-            'keterangan_risiko'      => $validated['keterangan_risiko'] ?? null,
-            'rencana_pemulihan'      => $validated['rencana_pemulihan'] ?? null,
-            'solusi_diharapkan'      => $validated['solusi_diharapkan'] ?? null,
-            'risiko_perubahan'       => $validated['risiko_perubahan'] ?? null,
-            'alternatif_perubahan'   => $validated['alternatif_perubahan'] ?? null,
-            'biaya_perubahan'        => $validated['biaya_perubahan'] ?? null,
-            'waktu_perubahan'        => $validated['waktu_perubahan'] ?? null,
-            'nama_aplikasi'          => $validated['nama_aplikasi'] ?? null,
-            'deskripsi_aplikasi'     => $validated['deskripsi_aplikasi'] ?? null,
-            'alamat_aplikasi'        => $validated['alamat_aplikasi'] ?? null,
-            'alamat_repository'      => $validated['alamat_repository'] ?? null,
-            'path_lampiran'          => $pathLampiran ?: null,
-            'tanda_tangan_pemohon'   => $ttdPath,
-            'status_terkini'         => $statusTerkini,
+            'kode_pelacakan'                => PermohonanRfc::generateKodePelacakan(),
+            'pengguna_id'                   => $user->id,
+            'opd_id'                        => $user->opd_id,
+            'kategori_id'                   => $validated['kategori_id'] ?? null,
+            'nama_pemohon'                  => $user->nama_lengkap ?: $user->name,
+            'nip'                           => $user->nip,
+            'unit_kerja'                    => $validated['unit_kerja'] ?? '',
+            'nomor_surat'                   => $validated['nomor_surat'] ?? null,
+            'nomor_kontak'                  => $validated['nomor_kontak'] ?? $user->nomor_kontak ?? '',
+            'email_dinas'                   => $validated['email_dinas'] ?? $user->email,
+            'tanggal_permohonan'            => $validated['tanggal_permohonan'] ?? now()->toDateString(),
+            'jenis_perubahan'               => $validated['jenis_perubahan'] ?? null,
+            'deskripsi_perubahan'           => $validated['deskripsi_perubahan'] ?? null,
+            'latar_belakang'                => $validated['latar_belakang'] ?? null,
+            'rincian_perubahan'             => $validated['rincian_perubahan'] ?? null,
+            'urgensi'                       => $validated['urgensi'] ?? 'sedang',
+            'risiko_tidak_dilakukan'        => $validated['risiko_tidak_dilakukan'] ?? null,
+            'kriteria_risiko'               => $validated['kriteria_risiko'] ?? null,
+            'keterangan_risiko'             => $validated['keterangan_risiko'] ?? null,
+            'rencana_pemulihan'             => $validated['rencana_pemulihan'] ?? null,
+            'solusi_diharapkan'             => $validated['solusi_diharapkan'] ?? null,
+            'risiko_perubahan'              => $validated['risiko_perubahan'] ?? null,
+            'alternatif_perubahan'          => $validated['alternatif_perubahan'] ?? null,
+            'biaya_perubahan'               => $validated['biaya_perubahan'] ?? null,
+            'waktu_perubahan'               => $validated['waktu_perubahan'] ?? null,
+            'nama_aplikasi'                 => $validated['nama_aplikasi'] ?? null,
+            'deskripsi_aplikasi'            => $validated['deskripsi_aplikasi'] ?? null,
+            'alamat_aplikasi'               => $validated['alamat_aplikasi'] ?? null,
+            'alamat_repository'             => $validated['alamat_repository'] ?? null,
+            'path_lampiran'                 => $pathLampiran ?: null,
+            'tanda_tangan_pemohon'          => $ttdPath,
+            'nama_penanggung_jawab'         => $validated['nama_penanggung_jawab'] ?? null,
+            'nip_penanggung_jawab'          => $validated['nip_penanggung_jawab'] ?? null,
+            'tanda_tangan_penanggung_jawab' => $ttdKabidPath,
+            'status_terkini'                => $statusTerkini,
         ]);
+
+        // Sinkronkan unit kerja ke profil user jika ada pengisian/perubahan
+        if (!empty($validated['unit_kerja']) && $user && $user->unit_kerja !== $validated['unit_kerja']) {
+            $user->update(['unit_kerja' => $validated['unit_kerja']]);
+        }
 
         $keterangan = $simpanDraf ? 'Permohonan RFC disimpan sebagai draf' : 'Permohonan RFC diajukan';
         $rfc->tambahHistory($user, $user->nama_lengkap ?: $user->name, 'pemohon', $statusTerkini, $keterangan);
@@ -704,6 +918,7 @@ class PermohonanRfcController extends Controller
             'catatan_keputusan'   => ['required_unless:keputusan,disetujui', 'nullable', 'string'],
             'teknisi_id'          => ['required_if:keputusan,disetujui', 'nullable', 'exists:users,id'],
             'jadwal_tinjau_ulang' => ['required_if:keputusan,ditunda', 'nullable', 'date'],
+            'tanda_tangan'        => ['nullable', 'string'],
         ]);
 
         $statusBaru = match ($validated['keputusan']) {
@@ -718,14 +933,21 @@ class PermohonanRfcController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
+        // Tanda tangan pimpinan jika disertakan
+        $ttdPimpinan = null;
+        if ($request->filled('tanda_tangan') && str_starts_with($request->tanda_tangan, 'data:image')) {
+            $ttdPimpinan = $this->simpanBase64Image($request->tanda_tangan, 'tanda_tangan');
+        }
+
         // Simpan ke tabel persetujuan_rfc
         PersetujuanRfc::create([
-            'rfc_id'              => $rfc->id,
-            'pimpinan_id'         => $user->id,
-            'keputusan'           => $validated['keputusan'],
-            'catatan_keputusan'   => $validated['catatan_keputusan'],
-            'jadwal_tinjau_ulang' => $validated['jadwal_tinjau_ulang'] ?? null,
-            'diputuskan_pada'     => now(),
+            'rfc_id'                => $rfc->id,
+            'pimpinan_id'           => $user->id,
+            'keputusan'             => $validated['keputusan'],
+            'catatan_keputusan'     => $validated['catatan_keputusan'],
+            'tanda_tangan_pimpinan' => $ttdPimpinan,
+            'jadwal_tinjau_ulang'   => $validated['jadwal_tinjau_ulang'] ?? null,
+            'diputuskan_pada'       => now(),
         ]);
 
         $statusLama = $rfc->status_terkini;
@@ -812,11 +1034,11 @@ class PermohonanRfcController extends Controller
             'tanda_tangan'   => ['nullable', 'string'],
         ]);
 
-        // Upload file BAST
+        // Upload file BAST (simpan di disk public agar dapat diunduh)
         $pathFile = null;
         if ($request->hasFile('file_bast')) {
             $request->validate(['file_bast' => ['file', 'mimes:pdf,docx,zip', 'max:10240']]);
-            $pathFile = $request->file('file_bast')->store('public/bast');
+            $pathFile = $request->file('file_bast')->store('bast', 'public');
         }
 
         if (! $pathFile) {
@@ -865,44 +1087,199 @@ class PermohonanRfcController extends Controller
         // Authorization check
         $this->authorizeRfcAccess($rfc);
 
-        return Inertia::render('RFC/Show', [
-            'rfc'       => $this->formatRfcLengkap($rfc),
-            'histories' => $rfc->histories->map(fn ($h) => $this->formatHistory($h)),
-        ]);
+        // Jika status masih draf: tidak boleh membuka halaman detail.
+        // Detail hanya dapat dibuka ketika pemohon telah berhasil mengirimkan permohonan RFC.
+        if ($rfc->status_terkini === 'draf') {
+            if (auth()->id() === $rfc->pengguna_id) {
+                return redirect()->route('rfc.edit', $rfc->id)
+                    ->with('info', 'Permohonan masih berstatus draf. Silakan lanjutkan pengisian formulir.');
+            }
+            return redirect()->route('dashboard')
+                ->with('error', 'Permohonan RFC ini masih berstatus draf dan belum diajukan.');
+        }
+
+        return redirect()->route('rfc.workspace', $rfc->kode_pelacakan);
     }
 
     public function workspace(string $kode)
     {
         $rfc  = $this->loadRfcLengkap($kode);
         $user = auth()->user();
-        
+
         // Authorization check
         $this->authorizeRfcAccess($rfc);
 
         $namaPeran = $user->peran?->nama_peran ?? $user->role ?? '';
+
+        // Jika pemohon membuka workspace untuk RFC draf/perlu_revisi,
+        // redirect ke form edit yang sesuai
+        if ($namaPeran === 'pemohon') {
+            if (in_array($rfc->status_terkini, ['draf', 'perlu_revisi'])) {
+                return redirect()->route('rfc.edit', $rfc->id)
+                    ->with('info', 'Silakan lanjutkan pengisian formulir RFC.');
+            }
+        }
 
         return Inertia::render('RFC/Workspace', [
             'rfc'       => $this->formatRfcLengkap($rfc),
             'histories' => $rfc->histories->map(fn ($h) => $this->formatHistory($h)),
             'izin'      => [
                 'bisa_telaah'    => $namaPeran === 'verifikator' && $rfc->status_terkini === 'diajukan',
-                'bisa_keputusan' => $namaPeran === 'pimpinan'    && $rfc->status_terkini === 'menunggu_persetujuan',
+                'bisa_keputusan' => $namaPeran === 'pimpinan'    && in_array($rfc->status_terkini, ['menunggu_persetujuan', 'ditunda']),
                 'bisa_eksekusi'  => $namaPeran === 'teknisi'     && $rfc->status_terkini === 'disetujui',
                 'bisa_bast'      => $namaPeran === 'teknisi'     && $rfc->status_terkini === 'sedang_dikerjakan',
             ],
         ]);
     }
 
-    public function dokumen(string $kode)
+    public function dokumen(Request $request, string $kode)
     {
         $rfc = $this->loadRfcLengkap($kode);
-        
+
         // Authorization check
         $this->authorizeRfcAccess($rfc);
+
+        // Jika status masih draf: tidak boleh membuka dokumen resmi FR-015
+        if ($rfc->status_terkini === 'draf') {
+            return redirect()->route('rfc.edit', $rfc->id)
+                ->with('error', 'Dokumen FR-015 baru dapat diakses setelah permohonan diajukan.');
+        }
+
+        // ── DOWNLOAD PDF via Python generator ──────────────────────────────
+        if ($request->boolean('download')) {
+            return $this->downloadPdfFr015($rfc);
+        }
 
         return Inertia::render('RFC/Document', [
             'rfc' => $this->formatRfcLengkap($rfc),
         ]);
+    }
+
+    /**
+     * Generate dan kirim unduhan PDF FR-015 resmi via Python + docx2pdf.
+     */
+    private function downloadPdfFr015(PermohonanRfc $rfc): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\Response
+    {
+        $kode     = $rfc->kode_pelacakan;
+        $basePath = base_path();
+
+        // Siapkan data JSON untuk generator
+        $eksekusi    = $rfc->eksekusi->first();
+        $bast        = $rfc->dokumenBast;
+        $persetujuan = $rfc->persetujuan;
+
+        // Normalisasi path TTD: strip prefix public/ berulang ke path absolut
+        $normalizeTtdPath = function (?string $p) use ($basePath): ?string {
+            if (! $p) return null;
+            // Jika path mengandung prefiks "public/public/", hapus duplikasi
+            $cleaned = preg_replace('#^(public/)+#', 'public/', ltrim($p, '/'));
+            // Coba direktori storage/app/public
+            $abs = $basePath . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $cleaned);
+            if (file_exists($abs)) return $abs;
+            // Fallback: coba tanpa awalan public/
+            $cleaned2 = preg_replace('#^public/#', '', $cleaned);
+            $abs2 = $basePath . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $cleaned2);
+            if (file_exists($abs2)) return $abs2;
+            return null;
+        };
+
+        $jenis = $rfc->jenis_perubahan ?? [];
+        if (is_string($jenis)) {
+            $jenis = json_decode($jenis, true) ?: [];
+        }
+
+        // Lamp: tampilkan jumlah + nama file lampiran
+        $lampiranArr = $rfc->path_lampiran ?? [];
+        if (is_string($lampiranArr)) {
+            $lampiranArr = json_decode($lampiranArr, true) ?: [];
+        }
+        $lampiranText = count($lampiranArr) > 0
+            ? count($lampiranArr) . ' berkas terlampir'
+            : '-';
+
+        $data = [
+            'no_rfc'              => $rfc->kode_pelacakan,
+            'pemohon_nama'        => $rfc->nama_pemohon,
+            'pemohon_nip'         => $rfc->nip ?? '-',
+            'unit_kerja'          => $rfc->unit_kerja ?? '-',
+            'perangkat_daerah'    => $rfc->opd?->nama_opd ?? '-',
+            'no_surat'            => $rfc->nomor_surat ?? '-',
+            'kontak'              => $rfc->nomor_kontak ?? '-',
+            'email'               => $rfc->email_dinas ?? '-',
+            'jenis_perubahan'     => $jenis,
+            'sistem_aplikasi'     => $rfc->nama_aplikasi ?? '-',
+            'perubahan_diharapkan' => $rfc->deskripsi_perubahan ?? '-',
+            'latar_belakang'      => $rfc->latar_belakang ?? '-',
+            'rincian'             => $rfc->rincian_perubahan ?? '-',
+            'kriteria_risiko'     => $rfc->kriteria_risiko ?? '',
+            'keterangan_risiko'   => $rfc->keterangan_risiko ?? '-',
+            'rencana_pemulihan'   => $rfc->rencana_pemulihan ?? '-',
+            'solusi'              => $rfc->solusi_diharapkan ?? '-',
+            'risiko_perubahan'    => $rfc->risiko_perubahan ?? '-',
+            'alternatif'          => $rfc->alternatif_perubahan ?? '-',
+            'biaya'               => $rfc->biaya_perubahan ?? '-',
+            'waktu'               => $rfc->waktu_perubahan ?? '-',
+            'lampiran'            => $lampiranText,
+            // Tanggal & TTD Pemohon
+            'tgl_dibuat'          => $rfc->tanggal_permohonan?->format('d/m/Y') ?? ($rfc->created_at?->format('d/m/Y') ?? '-'),
+            'ttd_pemohon_path'    => $normalizeTtdPath($rfc->tanda_tangan_pemohon),
+            // Koordinator (verifikator yang menerima)
+            'tgl_diterima'        => $rfc->revisi->first()?->created_at?->format('d/m/Y') ?? $rfc->created_at?->format('d/m/Y') ?? '-',
+            'ttd_koordinator_path' => null, // Verifikator tidak ada TTD di sistem saat ini
+            'koordinator_nama'    => 'Koordinator Agen',
+            'koordinator_nip'     => '-',
+            // Penanggung Jawab (Kabid OPD)
+            'tgl_disetujui'       => $rfc->updated_at?->format('d/m/Y') ?? '-',
+            'penanggung_jabatan'  => $rfc->jabatan_penanggung_jawab ?? $rfc->nama_penanggung_jawab ?? '-',
+            'ttd_penanggung_path' => $normalizeTtdPath($rfc->tanda_tangan_penanggung_jawab),
+            'penanggung_nama'     => $rfc->nama_penanggung_jawab ?? '-',
+            'penanggung_nip'      => $rfc->nip_penanggung_jawab ?? '-',
+            // Teknisi/Agen
+            'tgl_dilaksanakan'    => $eksekusi?->selesai_pada?->format('d/m/Y') ?? $eksekusi?->dimulai_pada?->format('d/m/Y') ?? '-',
+            'status_pelaksanaan'  => $eksekusi?->status_eksekusi === 'selesai' ? '✓ SELESAI DIKERJAKAN' : ($eksekusi?->status_eksekusi ?? ''),
+            'bast'                => $bast ? 'BAST: ' . ($bast->nomor_dokumen ?? 'Terlampir') : '',
+            'ttd_agen_path'       => $normalizeTtdPath($bast?->tanda_tangan_teknisi),
+            'agen_nama'           => $eksekusi?->teknisi?->nama_lengkap ?? $eksekusi?->teknisi?->name ?? '-',
+            'agen_nip'            => $eksekusi?->teknisi?->nip ?? '-',
+            // Data persetujuan pimpinan (koordinator agen = pimpinan di sini)
+            'tgl_diterima'        => $persetujuan?->diputuskan_pada?->format('d/m/Y') ?? $rfc->updated_at?->format('d/m/Y') ?? '-',
+            'koordinator_nama'    => $persetujuan?->pimpinan?->nama_lengkap ?? $persetujuan?->pimpinan?->name ?? 'Koordinator Agen',
+            'koordinator_nip'     => $persetujuan?->pimpinan?->nip ?? '-',
+            'ttd_koordinator_path' => $normalizeTtdPath($persetujuan?->tanda_tangan_pimpinan),
+        ];
+
+        // Tulis JSON sementara
+        $tmpDir  = storage_path('app/pdf_rfc');
+        if (! is_dir($tmpDir)) mkdir($tmpDir, 0755, true);
+
+        $jsonPath = $tmpDir . DIRECTORY_SEPARATOR . $kode . '_data.json';
+        $pdfPath  = $tmpDir . DIRECTORY_SEPARATOR . 'FR-015_' . $kode . '.pdf';
+
+        file_put_contents($jsonPath, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+
+        $scriptPath = $basePath . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'Services' . DIRECTORY_SEPARATOR . 'generate_fr015_pdf.py';
+
+        // Jalankan generator Python
+        $cmd    = escapeshellarg('python') . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($jsonPath) . ' ' . escapeshellarg($pdfPath);
+        $output = [];
+        $code   = 0;
+        exec($cmd . ' 2>&1', $output, $code);
+
+        // Bersihkan file JSON sementara
+        @unlink($jsonPath);
+
+        if ($code !== 0 || ! file_exists($pdfPath)) {
+            \Log::error("FR-015 PDF generator gagal untuk {$kode}", ['output' => implode("\n", $output)]);
+            return response('Gagal generate PDF FR-015. Silakan hubungi administrator.', 500)
+                ->header('Content-Type', 'text/plain');
+        }
+
+        $fileName = "FR-015_{$kode}.pdf";
+
+        return response()->download($pdfPath, $fileName, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ])->deleteFileAfterSend(false);
     }
     
     /**
@@ -1009,6 +1386,8 @@ class PermohonanRfcController extends Controller
             'status_terkini'  => $rfc->status_terkini,
             'status_label'    => $rfc->status_terkini_label,
             'warna_badge'     => $rfc->warna_badge,
+            'catatan_revisi'  => $rfc->revisi?->sortByDesc('id')->first()?->catatan_revisi,
+            'nama_verifikator'=> $rfc->revisi?->sortByDesc('id')->first()?->verifikator?->nama_lengkap ?? $rfc->revisi?->sortByDesc('id')->first()?->verifikator?->name,
             'target_sla'      => $rfc->target_sla?->toIso8601String(),
             'created_at'      => $rfc->created_at->format('d/m/Y H:i'),
             'created_at_human'=> $rfc->created_at->diffForHumans(),
@@ -1051,9 +1430,12 @@ class PermohonanRfcController extends Controller
             'deskripsi_aplikasi'     => $rfc->deskripsi_aplikasi,
             'alamat_aplikasi'        => $rfc->alamat_aplikasi,
             'alamat_repository'      => $rfc->alamat_repository,
-            // Lampiran
+            // Lampiran & Tanda Tangan
             'lampiran_urls'          => collect($rfc->path_lampiran ?? [])->map(fn ($p) => Storage::url($p))->values()->all(),
             'tanda_tangan_url'       => $rfc->tanda_tangan_pemohon ? Storage::url($rfc->tanda_tangan_pemohon) : null,
+            'nama_penanggung_jawab'  => $rfc->nama_penanggung_jawab,
+            'nip_penanggung_jawab'   => $rfc->nip_penanggung_jawab,
+            'tanda_tangan_penanggung_jawab_url' => $rfc->tanda_tangan_penanggung_jawab ? Storage::url($rfc->tanda_tangan_penanggung_jawab) : null,
             // Verifikasi
             'revisi'                 => $rfc->revisi->map(fn ($r) => [
                 'id'              => $r->id,
@@ -1064,10 +1446,13 @@ class PermohonanRfcController extends Controller
             ])->all(),
             // Keputusan
             'persetujuan'            => $persetujuan ? [
-                'keputusan'         => $persetujuan->keputusan,
-                'catatan_keputusan' => $persetujuan->catatan_keputusan,
-                'pimpinan'          => $persetujuan->pimpinan?->nama_lengkap ?? $persetujuan->pimpinan?->name,
-                'diputuskan_pada'   => $persetujuan->diputuskan_pada?->format('d/m/Y H:i'),
+                'keputusan'                 => $persetujuan->keputusan,
+                'catatan_keputusan'         => $persetujuan->catatan_keputusan,
+                'pimpinan'                  => $persetujuan->pimpinan?->nama_lengkap ?? $persetujuan->pimpinan?->name,
+                'pimpinan_nip'              => $persetujuan->pimpinan?->nip ?? '-',
+                'tanda_tangan_pimpinan_url' => $persetujuan->tanda_tangan_pimpinan ? Storage::url($persetujuan->tanda_tangan_pimpinan) : null,
+                'diputuskan_pada'           => $persetujuan->diputuskan_pada?->format('d/m/Y H:i'),
+                'diputuskan_pada_tanggal'   => $persetujuan->diputuskan_pada?->translatedFormat('d F Y') ?? $persetujuan->diputuskan_pada?->format('d/m/Y'),
             ] : null,
             // Eksekusi
             'eksekusi'               => $eksekusiAktif ? [
@@ -1079,10 +1464,14 @@ class PermohonanRfcController extends Controller
             ] : null,
             // BAST
             'bast'                   => $bast ? [
-                'nomor_dokumen'       => $bast->nomor_dokumen,
-                'catatan'             => $bast->catatan,
-                'path_file_url'       => Storage::url($bast->path_file),
-                'dibuat_pada'         => $bast->dibuat_pada?->format('d/m/Y H:i'),
+                'nomor_dokumen'            => $bast->nomor_dokumen,
+                'catatan'                  => $bast->catatan,
+                'path_file_url'            => $bast->path_file ? (str_starts_with($bast->path_file, 'http') ? $bast->path_file : url('/storage/' . preg_replace('#^(public/)+#', '', $bast->path_file))) : null,
+                'nama_teknisi'             => $eksekusiAktif?->teknisi?->nama_lengkap ?? $eksekusiAktif?->teknisi?->name ?? 'Teknisi Diskominfo',
+                'nip_teknisi'              => $eksekusiAktif?->teknisi?->nip ?? '-',
+                'tanda_tangan_teknisi_url' => $bast->tanda_tangan_teknisi ? Storage::url($bast->tanda_tangan_teknisi) : null,
+                'dibuat_pada'              => $bast->dibuat_pada?->format('d/m/Y H:i'),
+                'dibuat_pada_tanggal'      => $bast->dibuat_pada?->translatedFormat('d F Y') ?? $bast->dibuat_pada?->format('d/m/Y'),
             ] : null,
         ]);
     }
@@ -1162,12 +1551,12 @@ class PermohonanRfcController extends Controller
             switch ($statusBaru) {
                 case 'perlu_revisi':
                     if ($pemohon) {
-                        $service->kirim($pemohon->id, 'RFC Perlu Revisi', "RFC {$rfc->kode_pelacakan} dikembalikan untuk diperbaiki.", "/rfc/{$rfc->kode_pelacakan}");
+                        $service->kirim($pemohon->id, 'RFC Perlu Revisi', "RFC {$rfc->kode_pelacakan} dikembalikan untuk diperbaiki.", "/rfc/{$rfc->kode_pelacakan}/workspace");
                     }
                     break;
                 case 'ditolak_verifikator':
                     if ($pemohon) {
-                        $service->kirim($pemohon->id, 'RFC Ditolak', "RFC {$rfc->kode_pelacakan} ditolak pada tahap verifikasi.", "/rfc/{$rfc->kode_pelacakan}");
+                        $service->kirim($pemohon->id, 'RFC Ditolak', "RFC {$rfc->kode_pelacakan} ditolak pada tahap verifikasi.", "/rfc/{$rfc->kode_pelacakan}/workspace");
                     }
                     break;
                 case 'menunggu_persetujuan':
@@ -1175,18 +1564,18 @@ class PermohonanRfcController extends Controller
                     break;
                 case 'disetujui':
                     if ($pemohon) {
-                        $service->kirim($pemohon->id, 'RFC Disetujui', "RFC {$rfc->kode_pelacakan} telah disetujui oleh Pimpinan.", "/rfc/{$rfc->kode_pelacakan}");
+                        $service->kirim($pemohon->id, 'RFC Disetujui', "RFC {$rfc->kode_pelacakan} telah disetujui oleh Pimpinan.", "/rfc/{$rfc->kode_pelacakan}/workspace");
                     }
                     $service->kirimKePeran('teknisi', 'Tugas Baru Tersedia', "RFC {$rfc->kode_pelacakan} siap untuk dikerjakan.", "/rfc/{$rfc->kode_pelacakan}/workspace");
                     break;
                 case 'sedang_dikerjakan':
                     if ($pemohon) {
-                        $service->kirim($pemohon->id, 'RFC Sedang Dikerjakan', "RFC {$rfc->kode_pelacakan} sedang dalam proses pengerjaan oleh tim teknisi.", "/rfc/{$rfc->kode_pelacakan}");
+                        $service->kirim($pemohon->id, 'RFC Sedang Dikerjakan', "RFC {$rfc->kode_pelacakan} sedang dalam proses pengerjaan oleh tim teknisi.", "/rfc/{$rfc->kode_pelacakan}/workspace");
                     }
                     break;
                 case 'selesai':
                     if ($pemohon) {
-                        $service->kirim($pemohon->id, 'RFC Selesai', "RFC {$rfc->kode_pelacakan} telah selesai dikerjakan. BAST telah diterbitkan.", "/rfc/{$rfc->kode_pelacakan}");
+                        $service->kirim($pemohon->id, 'RFC Selesai', "RFC {$rfc->kode_pelacakan} telah selesai dikerjakan. BAST telah diterbitkan.", "/rfc/{$rfc->kode_pelacakan}/workspace");
                     }
                     break;
             }
