@@ -23,8 +23,8 @@
           </p>
         </div>
 
-        <!-- Tombol Switch View Langsung di Halaman -->
-        <div class="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl border border-slate-200">
+        <!-- Tombol Switch View Langsung di Halaman (Dihilangkan pada halaman Manajemen Keputusan) -->
+        <div v-if="currentView !== 'keputusan'" class="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl border border-slate-200">
           <Link
             href="/dashboard/pimpinan?view=ringkasan"
             :class="[
@@ -406,9 +406,6 @@
                 {{ filteredMenunggu.length }} Permohonan
               </span>
             </div>
-            <div class="text-xs text-slate-500 hidden sm:block">
-              Klik <strong>"Beri Keputusan"</strong> untuk membuka lembar persetujuan dan tanda tangan digital.
-            </div>
           </div>
 
           <!-- TABEL RAPI, SIMETRIS & LEGA -->
@@ -480,34 +477,15 @@
 
                   <!-- Tombol Aksi -->
                   <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
-                    <div class="flex items-center justify-end gap-1.5">
-                      <!-- Tombol Putuskan (Buka Modal) -->
-                      <button
-                        type="button"
-                        @click="bukaModalKeputusan(t)"
-                        class="px-3.5 py-1.5 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all"
-                        title="Beri persetujuan, penundaan, atau penolakan"
+                    <div class="flex items-center justify-end">
+                      <Link
+                        :href="`/rfc/${t.kode_pelacakan}/workspace`"
+                        class="px-3.5 py-1.5 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-sm transition-all duration-200"
+                        title="Buka Workspace untuk memberikan keputusan"
                       >
                         <Icon icon="lucide:check-circle-2" class="w-3.5 h-3.5" />
                         <span>Beri Keputusan</span>
-                      </button>
-
-                      <!-- Tombol FR-015 -->
-                      <Link
-                        :href="`/rfc/${t.kode_pelacakan}/dokumen`"
-                        class="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0757A8] transition-colors"
-                        title="Lihat Dokumen Resmi FR-015"
-                      >
-                        <Icon icon="lucide:file-text" class="w-3.5 h-3.5" />
-                      </Link>
-
-                      <!-- Tombol Workspace -->
-                      <Link
-                        :href="`/rfc/${t.kode_pelacakan}/workspace`"
-                        class="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0757A8] transition-colors"
-                        title="Buka Workspace RFC"
-                      >
-                        <Icon icon="lucide:external-link" class="w-3.5 h-3.5" />
+                        <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </td>
