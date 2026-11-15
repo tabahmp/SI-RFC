@@ -37,18 +37,22 @@
             $logoRfcSrc = file_exists($logoRfcPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoRfcPath)) : asset('images/assets/logo_rfc_asli.png');
             $logoDiskominfoSrc = file_exists($logoDiskominfoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoDiskominfoPath)) : asset('images/assets/logo_diskominfo_jabar.png');
           @endphp
-          <td style="vertical-align: middle; width: 48px; padding-right: 8px;">
-            <img src="{{ $logoRfcSrc }}" alt="Logo RFC" style="height: 38px; width: auto; max-width: 48px; display: block; border: 0;" />
+          <!-- Logo RFC -->
+          <td style="vertical-align: middle; width: 40px; padding-right: 12px;">
+            <img src="{{ $logoRfcSrc }}" alt="Logo RFC" style="height: 38px; width: auto; display: block; border: 0;" />
           </td>
-          <td style="vertical-align: middle; width: 1px; padding-right: 8px;">
-            <div style="width: 1px; height: 32px; background: rgba(255, 255, 255, 0.35);"></div>
+          <!-- Logo Diskominfo Jabar (Proporsi Landscape Ideal) -->
+          <td style="vertical-align: middle; width: 105px; padding-right: 16px;">
+            <img src="{{ $logoDiskominfoSrc }}" alt="Logo Diskominfo" style="height: 30px; width: auto; display: block; border: 0;" />
           </td>
-          <td style="vertical-align: middle; width: 44px; padding-right: 14px;">
-            <img src="{{ $logoDiskominfoSrc }}" alt="Logo Diskominfo" style="height: 32px; width: auto; max-width: 44px; display: block; border: 0;" />
+          <!-- Pembatas Vertikal -->
+          <td style="vertical-align: middle; width: 1px; padding-right: 16px;">
+            <div style="width: 1.5px; height: 34px; background: rgba(255, 255, 255, 0.35);"></div>
           </td>
+          <!-- Teks SI-RFC -->
           <td style="vertical-align: middle;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2;">SI-RFC</h1>
-            <p style="color: #A9C9E8; margin: 3px 0 0; font-size: 11px; line-height: 1.3;">Sistem Informasi Request for Change — Diskominfo Prov. Jawa Barat</p>
+            <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.2;">SI-RFC</h1>
+            <p style="color: #CFE2FE; margin: 3px 0 0; font-size: 11px; line-height: 1.3;">Sistem Informasi Request for Change — Diskominfo Prov. Jawa Barat</p>
           </td>
         </tr>
       </table>

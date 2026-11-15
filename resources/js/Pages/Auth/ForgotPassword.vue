@@ -22,24 +22,19 @@
           <span>Kembali ke halaman masuk</span>
         </Link>
 
-        <!-- Logo RFC & Diskominfo Jabar -->
-        <div class="flex items-center gap-3 mb-4">
+        <!-- Logo RFC & Diskominfo Jabar (Ideal & Bersih tanpa teks) -->
+        <div class="flex items-center gap-3.5 mb-5">
           <img
             src="/images/assets/logo_rfc_asli.png"
-            alt="Logo RFC"
-            class="h-9 w-auto object-contain flex-shrink-0"
+            alt="Logo Request for Change"
+            class="h-10 w-auto object-contain flex-shrink-0"
           />
-          <div class="h-6 w-[1px] bg-slate-200"></div>
+          <div class="h-7 w-[1.5px] bg-slate-200"></div>
           <img
             src="/images/assets/logo_diskominfo_jabar.png"
             alt="Logo Diskominfo Jabar"
-            class="h-7 w-auto object-contain flex-shrink-0"
+            class="h-8 w-auto object-contain flex-shrink-0"
           />
-          <div class="h-6 w-[1px] bg-slate-200"></div>
-          <div>
-            <div class="font-extrabold text-[#073B70] text-sm leading-tight">SI-RFC</div>
-            <div class="text-[10px] text-slate-400 leading-tight">Diskominfo Jabar</div>
-          </div>
         </div>
 
         <!-- Header -->
