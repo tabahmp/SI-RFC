@@ -213,16 +213,24 @@
                   <td class="py-3.5 px-5">
                     <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold', statusKelas(t.status_terkini)]">{{ t.status_label }}</span>
                   </td>
-                  <td class="py-3.5 px-5 text-right">
-                    <Link v-if="t.status_terkini === 'perlu_revisi'" :href="`/rfc/${t.id}/edit`"
-                      class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:underline">
-                      <span>Perbaiki</span>
-                      <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5" />
+                  <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                    <Link v-if="t.status_terkini === 'draf'" :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Lanjutkan mengisi draf">
+                      <span>Lanjutkan draf</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                     </Link>
-                    <Link v-else :href="`/rfc/${t.kode_pelacakan}`"
-                      class="inline-flex items-center gap-1 text-xs font-bold text-[#0757A8] hover:underline">
-                      <span>Detail</span>
-                      <Icon icon="lucide:chevron-right" class="w-3.5 h-3.5" />
+                    <Link v-else-if="t.status_terkini === 'perlu_revisi'" :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all shadow-xs flex-shrink-0"
+                      title="Perbaiki formulir permohonan">
+                      <span>Perbaiki</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </Link>
+                    <Link v-else :href="`/rfc/${t.kode_pelacakan}/workspace`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Buka Workspace RFC">
+                      <span>Buka Workspace</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                     </Link>
                   </td>
                 </tr>
@@ -355,10 +363,32 @@
                   <td class="py-3.5 px-5">
                     <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold', statusKelas(t.status_terkini)]">{{ t.status_label }}</span>
                   </td>
-                  <td class="py-3.5 px-5 text-right">
-                    <Link :href="`/rfc/${t.kode_pelacakan}`"
-                      class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 hover:text-[#0757A8] hover:bg-blue-50 transition-colors">
-                      <Icon icon="lucide:chevron-right" class="w-4 h-4" />
+                  <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                    <!-- Jika Draf: lanjutkan draf -->
+                    <Link v-if="t.status_terkini === 'draf'"
+                      :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Lanjutkan mengisi draf">
+                      <span>Lanjutkan draf</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </Link>
+
+                    <!-- Jika Perlu Revisi: perbaiki formulir -->
+                    <Link v-else-if="t.status_terkini === 'perlu_revisi'"
+                      :href="`/rfc/${t.id}/edit`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-all shadow-xs flex-shrink-0"
+                      title="Perbaiki permohonan">
+                      <span>Perbaiki</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </Link>
+
+                    <!-- Ketika telah berhasil diajukan/dikirimkan: buka workspace -->
+                    <Link v-else
+                      :href="`/rfc/${t.kode_pelacakan}/workspace`"
+                      class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
+                      title="Buka Workspace RFC">
+                      <span>Buka Workspace</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
                     </Link>
                   </td>
                 </tr>
