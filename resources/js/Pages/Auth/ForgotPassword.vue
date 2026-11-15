@@ -12,7 +12,7 @@
         <div class="w-1/4 bg-[#16834A]"></div>
       </div>
 
-      <!-- Tombol Kembali -->
+      <!-- Tombol Kembali & Logo Aplikasi -->
       <div>
         <Link
           href="/login"
@@ -21,6 +21,26 @@
           <Icon icon="lucide:arrow-left" class="w-4 h-4" />
           <span>Kembali ke halaman masuk</span>
         </Link>
+
+        <!-- Logo RFC & Diskominfo Jabar -->
+        <div class="flex items-center gap-3 mb-4">
+          <img
+            src="/images/assets/logo_rfc_asli.png"
+            alt="Logo RFC"
+            class="h-9 w-auto object-contain flex-shrink-0"
+          />
+          <div class="h-6 w-[1px] bg-slate-200"></div>
+          <img
+            src="/images/assets/logo_diskominfo_jabar.png"
+            alt="Logo Diskominfo Jabar"
+            class="h-7 w-auto object-contain flex-shrink-0"
+          />
+          <div class="h-6 w-[1px] bg-slate-200"></div>
+          <div>
+            <div class="font-extrabold text-[#073B70] text-sm leading-tight">SI-RFC</div>
+            <div class="text-[10px] text-slate-400 leading-tight">Diskominfo Jabar</div>
+          </div>
+        </div>
 
         <!-- Header -->
         <div class="space-y-1">
