@@ -31,6 +31,7 @@ class User extends Authenticatable
         'nama_lengkap',
         'peran_id',
         'opd_id',
+        'unit_kerja',
         'status_aktivasi',
         'email_diverifikasi_pada',
     ];

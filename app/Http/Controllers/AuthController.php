@@ -47,6 +47,7 @@ class AuthController extends Controller
             'nip'          => ['required', 'string', 'max:50'],
             'nomor_kontak' => ['required', 'string', 'max:50'],
             'opd_id'       => ['required', 'exists:opd,id'],
+            'unit_kerja'   => ['required', 'string', 'max:255'],
             'email'        => ['required', 'email', 'max:255', 'unique:users,email'],
             'password'     => ['required', 'string', 'min:8', 'confirmed'],
             'pernyataan'   => ['accepted'],
@@ -56,6 +57,7 @@ class AuthController extends Controller
             'pernyataan.accepted'=> 'Anda harus menyetujui pernyataan kebenaran data kedinasan.',
             'opd_id.required'    => 'Silakan pilih Perangkat Daerah / OPD Anda.',
             'opd_id.exists'      => 'OPD yang dipilih tidak valid.',
+            'unit_kerja.required'=> 'Unit Kerja / Bidang wajib diisi.',
         ]);
 
         $peranPemohon = Peran::where('nama_peran', 'pemohon')->first();
@@ -71,6 +73,7 @@ class AuthController extends Controller
             'asal_opd'           => $opd?->nama_opd,
             'peran_id'           => $peranPemohon?->id,
             'opd_id'             => $validated['opd_id'],
+            'unit_kerja'         => $validated['unit_kerja'],
             'role'               => 'pemohon',
             'status_aktivasi'    => 'tertunda',
             'status_registrasi'  => 'menunggu_verifikasi',

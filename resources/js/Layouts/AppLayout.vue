@@ -74,12 +74,12 @@
         </button>
       </div>
 
-      <!-- AREA MENU NAVIGASI (SCROLLABLE & BERSIH) -->
-      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-5 relative z-10 scrollbar-thin scrollbar-thumb-white/10">
+      <!-- AREA MENU NAVIGASI (BEBAS SCROLLBAR & BERSIH) -->
+      <div class="flex-1 overflow-y-auto px-4 py-2.5 space-y-4 relative z-10 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
         <!-- KELOMPOK 1: NAVIGASI -->
         <div>
-          <div class="text-[10px] font-bold tracking-widest text-[#8DB4DE]/75 uppercase px-3 mb-2.5">
+          <div class="text-[10px] font-bold tracking-widest text-[#8DB4DE]/75 uppercase px-3 mb-2">
             NAVIGASI
           </div>
 
@@ -164,13 +164,13 @@
       </div>
 
       <!-- BAGIAN BAWAH SIDEBAR: ILUSTRASI GEDUNG SATE & GRADASI MENYATU LEMBUT -->
-      <div class="relative w-full overflow-hidden select-none pointer-events-none mt-auto pt-4">
+      <div class="relative w-full overflow-hidden select-none pointer-events-none mt-auto pt-1">
         <!-- Gedung Sate Monokrom Biru Tua dengan Mask Gradasi Halus -->
         <div class="relative">
           <img
             src="/images/assets/gedung_sate.png"
             alt="Gedung Sate"
-            class="w-full h-auto object-contain object-bottom opacity-80 relative z-0"
+            class="w-full max-h-24 h-auto object-contain object-bottom opacity-75 relative z-0"
             style="mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%); -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);"
           />
         </div>
