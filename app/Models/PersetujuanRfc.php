@@ -18,6 +18,7 @@ class PersetujuanRfc extends Model
         'pimpinan_id',
         'keputusan',
         'catatan_keputusan',
+        'tanda_tangan_pimpinan',
         'diputuskan_pada',
     ];
 
