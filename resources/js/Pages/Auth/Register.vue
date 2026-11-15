@@ -102,11 +102,18 @@
               </div>
             </div>
 
-            <!-- Baris 3: Email Dinas -->
-            <div>
-              <label class="block text-[11px] font-bold text-[#475569] mb-1">Email dinas</label>
-              <input v-model="form.email" type="email" placeholder="nama@instansi.go.id" required
-                class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
+            <!-- Baris 3: Unit Kerja / Bidang & Email Dinas -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-[#475569] mb-1">Unit Kerja / Bidang</label>
+                <input v-model="form.unit_kerja" type="text" placeholder="Contoh: Bidang APTIKA" required
+                  class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-[#475569] mb-1">Email dinas (@*.jabarprov.go.id)</label>
+                <input v-model="form.email" type="email" placeholder="nama@diskominfo.jabarprov.go.id" required
+                  class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
+              </div>
             </div>
 
             <!-- Baris 4: Kata Sandi & Konfirmasi -->
@@ -282,6 +289,7 @@ const form = reactive({
   nip: '',
   nomor_kontak: '',
   opd_id: '',           // FK ke tabel opd
+  unit_kerja: '',
   email: '',
   password: '',
   password_confirmation: '',
@@ -315,6 +323,7 @@ function submitRegister() {
     nip:                   form.nip,
     nomor_kontak:          form.nomor_kontak,
     opd_id:                form.opd_id,
+    unit_kerja:            form.unit_kerja,
     email:                 form.email,
     password:              form.password,
     password_confirmation: form.password_confirmation,

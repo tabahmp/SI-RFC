@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ResetKataSandi;
 use App\Models\User;
+use App\Rules\EmailJabarprov;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -27,7 +28,7 @@ class PasswordResetController extends Controller
     public function kirimLink(Request $request)
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', new EmailJabarprov],
         ], [
             'email.required' => 'Alamat email wajib diisi.',
             'email.email'    => 'Format email tidak valid.',
@@ -78,11 +79,20 @@ class PasswordResetController extends Controller
     {
         $request->validate([
             'token'                 => ['required'],
-            'email'                 => ['required', 'email'],
-            'password'              => ['required', 'min:8', 'confirmed'],
+            'email'                 => ['required', 'email', new EmailJabarprov],
+            'password'              => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[A-Z]/',        // Minimal 1 huruf kapital
+                'regex:/[0-9]/',        // Minimal 1 angka
+                'regex:/[^A-Za-z0-9]/', // Minimal 1 simbol unik
+                'confirmed',
+            ],
             'password_confirmation' => ['required'],
         ], [
             'password.min'       => 'Kata sandi minimal 8 karakter.',
+            'password.regex'     => 'Kata sandi harus mengandung huruf kapital (A-Z), angka (0-9), dan simbol unik (@$!%*?&#).',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 

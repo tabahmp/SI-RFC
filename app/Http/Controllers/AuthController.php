@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Peran;
 use App\Models\User;
+use App\Rules\EmailJabarprov;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -47,7 +48,8 @@ class AuthController extends Controller
             'nip'          => ['required', 'string', 'max:50'],
             'nomor_kontak' => ['required', 'string', 'max:50'],
             'opd_id'       => ['required', 'exists:opd,id'],
-            'email'        => ['required', 'email', 'max:255', 'unique:users,email'],
+            'unit_kerja'   => ['required', 'string', 'max:255'],
+            'email'        => ['required', 'email', 'max:255', new EmailJabarprov, 'unique:users,email'],
             'password'     => ['required', 'string', 'min:8', 'confirmed'],
             'pernyataan'   => ['accepted'],
         ], [
@@ -56,6 +58,7 @@ class AuthController extends Controller
             'pernyataan.accepted'=> 'Anda harus menyetujui pernyataan kebenaran data kedinasan.',
             'opd_id.required'    => 'Silakan pilih Perangkat Daerah / OPD Anda.',
             'opd_id.exists'      => 'OPD yang dipilih tidak valid.',
+            'unit_kerja.required'=> 'Unit Kerja / Bidang wajib diisi.',
         ]);
 
         $peranPemohon = Peran::where('nama_peran', 'pemohon')->first();
@@ -71,6 +74,7 @@ class AuthController extends Controller
             'asal_opd'           => $opd?->nama_opd,
             'peran_id'           => $peranPemohon?->id,
             'opd_id'             => $validated['opd_id'],
+            'unit_kerja'         => $validated['unit_kerja'],
             'role'               => 'pemohon',
             'status_aktivasi'    => 'tertunda',
             'status_registrasi'  => 'menunggu_verifikasi',
@@ -102,8 +106,12 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => ['required', 'email'],
+            'email'    => ['required', 'email', new EmailJabarprov],
             'password' => ['required'],
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email'    => 'Format email tidak valid.',
+            'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
         $remember = $request->boolean('remember', false);
@@ -137,6 +145,12 @@ class AuthController extends Controller
 
         Auth::login($user, $remember);
         $request->session()->regenerate();
+
+        if ($namaPeran === 'pemohon' && $statusEfektif === 'aktif') {
+            if (is_null($user->modal_aktivasi_dilihat_pada)) {
+                $request->session()->flash('tampilkan_modal_aktivasi', true);
+            }
+        }
 
         return match ($namaPeran) {
             'admin'       => redirect()->route('admin.dashboard'),

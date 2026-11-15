@@ -75,7 +75,7 @@
             <input
               v-model="email"
               type="email"
-              placeholder="nama@instansi.go.id"
+              placeholder="nama@diskominfo.jabarprov.go.id"
               required
               class="w-full h-11 pl-9 pr-3 text-xs sm:text-sm text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#94A3B8]"
             />

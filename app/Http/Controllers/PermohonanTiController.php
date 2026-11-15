@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PermohonanTi;
+use App\Rules\EmailJabarprov;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -300,7 +301,7 @@ class PermohonanTiController extends Controller
             'unit_kerja' => 'required|string|max:255',
             'perangkat_daerah' => 'nullable|string|max:255',
             'nomor_kontak' => 'required|string|max:100',
-            'email_dinas' => 'required|email|max:255',
+            'email_dinas' => ['required', 'email', 'max:255', new EmailJabarprov],
             'tanggal_permohonan' => 'required|date',
             'jenis_perubahan' => 'required|array|min:1',
             'perubahan_diharapkan' => 'required|string',

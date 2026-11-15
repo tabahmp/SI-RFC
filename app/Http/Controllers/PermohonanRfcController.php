@@ -10,6 +10,7 @@ use App\Models\PermohonanRfc;
 use App\Models\PersetujuanRfc;
 use App\Models\RevisiRfc;
 use App\Models\User;
+use App\Rules\EmailJabarprov;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -431,7 +432,7 @@ class PermohonanRfcController extends Controller
                 'unit_kerja'             => ['nullable', 'string', 'max:255'],
                 'nomor_surat'            => ['nullable', 'string', 'max:100'],
                 'nomor_kontak'           => ['nullable', 'string', 'max:50'],
-                'email_dinas'            => ['nullable', 'email'],
+                'email_dinas'            => ['nullable', 'email', new EmailJabarprov],
                 'tanggal_permohonan'     => ['nullable', 'date'],
                 // Seksi 2
                 'jenis_perubahan'        => ['nullable', 'array'],
@@ -472,7 +473,7 @@ class PermohonanRfcController extends Controller
                 'unit_kerja'                    => ['required', 'string', 'max:255'],
                 'nomor_surat'                   => ['nullable', 'string', 'max:100'],
                 'nomor_kontak'                  => ['required', 'string', 'max:50'],
-                'email_dinas'                   => ['required', 'email'],
+                'email_dinas'                   => ['required', 'email', new EmailJabarprov],
                 'tanggal_permohonan'            => ['required', 'date'],
                 // Seksi 2
                 'jenis_perubahan'               => ['required', 'array', 'min:1'],
@@ -588,7 +589,7 @@ class PermohonanRfcController extends Controller
                 'unit_kerja'             => ['nullable', 'string', 'max:255'],
                 'nomor_surat'            => ['nullable', 'string', 'max:100'],
                 'nomor_kontak'           => ['nullable', 'string', 'max:50'],
-                'email_dinas'            => ['nullable', 'email'],
+                'email_dinas'            => ['nullable', 'email', new EmailJabarprov],
                 'tanggal_permohonan'     => ['nullable', 'date'],
                 // Seksi 2
                 'jenis_perubahan'        => ['nullable', 'array'],
@@ -625,7 +626,7 @@ class PermohonanRfcController extends Controller
                 'unit_kerja'           => ['required', 'string', 'max:255'],
                 'nomor_surat'          => ['nullable', 'string', 'max:100'],
                 'nomor_kontak'         => ['required', 'string', 'max:50'],
-                'email_dinas'          => ['required', 'email'],
+                'email_dinas'          => ['required', 'email', new EmailJabarprov],
                 'tanggal_permohonan'   => ['required', 'date'],
                 'jenis_perubahan'      => ['required', 'array', 'min:1'],
                 'deskripsi_perubahan'  => ['required', 'string'],
