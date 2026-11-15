@@ -349,12 +349,24 @@
                   </div>
                 </td>
               </tr>
+            </tbody>
+          </table>
 
-              <!-- =========================================================================
-                   BAGIAN PERSETUJUAN & TANDA TANGAN DIGITAL (ROW 18 & ROW 19 ASLI TEMPLATE)
-                   ========================================================================= -->
-
-              <!-- Row 18: Pemohon (Kiri) & Koordinator Agen (Kanan) -->
+          <!-- =========================================================================
+               BAGIAN PERSETUJUAN & TANDA TANGAN DIGITAL: PRESISI KE TENGAH (95mm | 95mm = 50% | 50%)
+               ========================================================================= -->
+          <table
+            class="fr015-ttd-table"
+            cellpadding="0"
+            cellspacing="0"
+            style="width: 190mm; border-collapse: collapse; border: 1.5px solid #000; border-top: none; table-layout: fixed; font-size: 9.5pt; margin: 0;"
+          >
+            <colgroup>
+              <col style="width: 95mm;" />
+              <col style="width: 95mm;" />
+            </colgroup>
+            <tbody>
+              <!-- Row 18: Pemohon (Kiri 50%) & Koordinator Agen (Kanan 50%) -->
               <tr style="page-break-inside: avoid; break-inside: avoid;">
                 <!-- KIRI: Pemohon (DIBUAT OLEH) -->
                 <td style="width: 95mm; border: 1px solid #000; padding: 10px 12px; vertical-align: top; background: #ffffff;">
