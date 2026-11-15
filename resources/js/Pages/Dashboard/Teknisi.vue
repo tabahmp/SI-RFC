@@ -447,39 +447,15 @@
 
                   <!-- Tombol Aksi -->
                   <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
-                    <div class="flex items-center justify-end gap-1.5">
-                      <!-- Tombol Mulai Pengerjaan jika disetujui -->
-                      <button
-                        v-if="t.status_terkini === 'disetujui'"
-                        type="button"
-                        @click="mulaiEksekusi(t)"
-                        :disabled="isSubmitting"
-                        class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 shadow-xs transition-all disabled:opacity-50"
-                        title="Mulai pengerjaan tugas"
-                      >
-                        <Icon icon="lucide:play" class="w-3.5 h-3.5" />
-                        <span>Mulai</span>
-                      </button>
-
-                      <!-- Tombol Workspace (Utama) -->
-                      <Link
-                        :href="`/rfc/${t.kode_pelacakan}/workspace`"
-                        class="px-3 py-1.5 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold flex items-center gap-1 shadow-xs transition-all"
-                        title="Buka Workspace untuk eksekusi & BAST"
-                      >
-                        <Icon icon="lucide:terminal" class="w-3.5 h-3.5" />
-                        <span>Workspace</span>
-                      </Link>
-
-                      <!-- Tombol FR-015 -->
-                      <Link
-                        :href="`/rfc/${t.kode_pelacakan}/dokumen`"
-                        class="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0757A8] transition-colors"
-                        title="Lihat Dokumen Resmi FR-015"
-                      >
-                        <Icon icon="lucide:file-text" class="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
+                    <!-- Tombol Buka Workspace (Utama) -->
+                    <Link
+                      :href="`/rfc/${t.kode_pelacakan}/workspace`"
+                      class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs"
+                      title="Buka Workspace RFC"
+                    >
+                      <span>Buka Workspace</span>
+                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
+                    </Link>
                   </td>
                 </tr>
               </tbody>
