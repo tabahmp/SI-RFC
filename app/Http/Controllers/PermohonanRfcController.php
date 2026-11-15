@@ -191,18 +191,51 @@ class PermohonanRfcController extends Controller
      */
     public function edit(int $id)
     {
-        $rfc = PermohonanRfc::where('pengguna_id', auth()->id())->findOrFail($id);
+        $rfc = PermohonanRfc::with(['revisi.verifikator', 'histories.pengguna'])
+            ->where('pengguna_id', auth()->id())
+            ->findOrFail($id);
         
         if (!in_array($rfc->status_terkini, ['draf', 'perlu_revisi'])) {
-            return redirect()->route('rfc.show', $rfc->kode_pelacakan)
+            return redirect()->route('rfc.workspace', $rfc->kode_pelacakan)
                 ->with('error', 'RFC dengan status ini tidak dapat diedit.');
         }
+
+        // Ambil catatan revisi verifikator terbaru
+        $revisiAktif = $rfc->revisi->where('status_revisi', 'menunggu_perbaikan')->sortByDesc('id')->first()
+            ?? $rfc->revisi->sortByDesc('id')->first();
+
+        $catatanRevisiData = $revisiAktif ? [
+            'id'              => $revisiAktif->id,
+            'catatan'         => $revisiAktif->catatan_revisi,
+            'verifikator'     => $revisiAktif->verifikator?->nama_lengkap ?? $revisiAktif->verifikator?->name ?? 'Verifikator Diskominfo Jabar',
+            'nip_verifikator' => $revisiAktif->verifikator?->nip ?? '-',
+            'tanggal'         => $revisiAktif->created_at?->translatedFormat('d F Y, H:i') ?? $revisiAktif->created_at?->format('d/m/Y H:i'),
+            'tanggal_human'   => $revisiAktif->created_at?->diffForHumans(),
+            'status_revisi'   => $revisiAktif->status_revisi,
+        ] : null;
+
+        $riwayatRevisi = $rfc->revisi->sortByDesc('id')->map(fn ($r) => [
+            'id'             => $r->id,
+            'catatan'        => $r->catatan_revisi,
+            'verifikator'    => $r->verifikator?->nama_lengkap ?? $r->verifikator?->name ?? 'Verifikator Diskominfo Jabar',
+            'nip_verifikator'=> $r->verifikator?->nip ?? '-',
+            'tanggal'        => $r->created_at?->translatedFormat('d F Y, H:i') ?? $r->created_at?->format('d/m/Y H:i'),
+            'status_revisi'  => $r->status_revisi,
+        ])->values()->all();
         
         return Inertia::render('RFC/Create', [
-            'mode' => 'edit',
+            'mode'          => 'edit',
+            'catatanRevisi' => $catatanRevisiData,
+            'riwayatRevisi' => $riwayatRevisi,
             'rfc' => [
                 'id'                     => $rfc->id,
                 'kode_pelacakan'         => $rfc->kode_pelacakan,
+                'status_terkini'         => $rfc->status_terkini,
+                'catatan_verifikator'    => $catatanRevisiData['catatan'] ?? null,
+                'nama_verifikator'       => $catatanRevisiData['verifikator'] ?? null,
+                'tanggal_revisi'         => $catatanRevisiData['tanggal'] ?? null,
+                'catatanRevisi'          => $catatanRevisiData,
+                'riwayatRevisi'          => $riwayatRevisi,
                 // Seksi 1
                 'nama_pemohon'           => $rfc->nama_pemohon,
                 'nip'                    => $rfc->nip,
@@ -237,7 +270,10 @@ class PermohonanRfcController extends Controller
                 'alamat_aplikasi'        => $rfc->alamat_aplikasi,
                 'alamat_repository'      => $rfc->alamat_repository,
                 // Seksi 7
-                'tanda_tangan'           => $rfc->tanda_tangan_pemohon ? Storage::url($rfc->tanda_tangan_pemohon) : null,
+                'tanda_tangan'                  => $rfc->tanda_tangan_pemohon ? Storage::url($rfc->tanda_tangan_pemohon) : null,
+                'nama_penanggung_jawab'         => $rfc->nama_penanggung_jawab,
+                'nip_penanggung_jawab'          => $rfc->nip_penanggung_jawab,
+                'tanda_tangan_penanggung_jawab' => $rfc->tanda_tangan_penanggung_jawab ? Storage::url($rfc->tanda_tangan_penanggung_jawab) : null,
                 // Lampiran existing
                 'lampiran_existing'      => collect(
                     is_array($rfc->path_lampiran)
@@ -1009,6 +1045,8 @@ class PermohonanRfcController extends Controller
             'status_terkini'  => $rfc->status_terkini,
             'status_label'    => $rfc->status_terkini_label,
             'warna_badge'     => $rfc->warna_badge,
+            'catatan_revisi'  => $rfc->revisi?->sortByDesc('id')->first()?->catatan_revisi,
+            'nama_verifikator'=> $rfc->revisi?->sortByDesc('id')->first()?->verifikator?->nama_lengkap ?? $rfc->revisi?->sortByDesc('id')->first()?->verifikator?->name,
             'target_sla'      => $rfc->target_sla?->toIso8601String(),
             'created_at'      => $rfc->created_at->format('d/m/Y H:i'),
             'created_at_human'=> $rfc->created_at->diffForHumans(),

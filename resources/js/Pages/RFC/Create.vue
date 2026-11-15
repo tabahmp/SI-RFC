@@ -24,15 +24,104 @@
         </div>
       </div>
 
-      <!-- Banner informatif saat status Perlu Revisi -->
+      <!-- Banner Catatan Revisi dari Verifikator (Mencolok, Jelas & Informatif) -->
       <div v-if="isPerluRevisi" class="max-w-5xl mx-auto px-4 mt-6">
-        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm flex items-start gap-3 shadow-xs">
-          <Icon icon="lucide:alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <div class="font-bold text-amber-950">Mode Perbaikan Permohonan RFC</div>
-            <div class="text-xs text-amber-800 mt-1 leading-relaxed">
-              Permohonan ini berstatus <strong>Perlu Revisi</strong> dari verifikator. Silakan periksa dan perbaiki isian formulir sesuai catatan revisi, kemudian klik tombol <strong>Kirim Perbaikan RFC</strong>. Tombol <em>Simpan sebagai Draf</em> dinonaktifkan karena permohonan ini telah terdaftar resmi dan memiliki nomor pelacakan.
+        <div class="rounded-2xl bg-gradient-to-br from-amber-50 via-white to-amber-50/70 border-2 border-amber-300 shadow-md overflow-hidden">
+          
+          <!-- Header Bar -->
+          <div class="px-5 py-3.5 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center flex-shrink-0 shadow-inner">
+                <Icon icon="lucide:alert-triangle" class="w-5 h-5 text-amber-100" />
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-white text-amber-900 tracking-wider">
+                    Perlu Revisi
+                  </span>
+                  <span class="font-mono text-xs font-bold text-amber-100">{{ rfc?.kode_pelacakan || '-' }}</span>
+                </div>
+                <h3 class="text-sm font-bold text-white mt-0.5">Formulir Dikembalikan oleh Verifikator</h3>
+              </div>
             </div>
+
+            <!-- Info Pengirim Revisi -->
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <div class="text-right text-[11px] leading-tight">
+                <div class="font-bold text-white flex items-center gap-1 sm:justify-end">
+                  <Icon icon="lucide:user-check" class="w-3.5 h-3.5 text-amber-200" />
+                  <span>{{ namaVerifikator }}</span>
+                </div>
+                <div v-if="tanggalRevisi" class="text-amber-200 text-[10px] mt-0.5">
+                  {{ tanggalRevisi }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Body Kartu: Pesan Inti Verifikator -->
+          <div class="p-5 sm:p-6 space-y-4">
+            
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-black uppercase tracking-wider text-amber-950 flex items-center gap-1.5">
+                  <Icon icon="lucide:message-square-quote" class="w-4 h-4 text-amber-600" />
+                  <span>Catatan & Instruksi Perbaikan Verifikator:</span>
+                </label>
+                <span class="text-[11px] font-semibold text-amber-700">Wajib Diperbaiki</span>
+              </div>
+
+              <!-- Kotak Pesan Revisi yang Jelas & Kontras -->
+              <div class="p-4 sm:p-5 rounded-xl bg-white border-2 border-amber-300 shadow-xs relative">
+                <div class="absolute -top-3 left-4 px-2 py-0.5 bg-amber-100 border border-amber-300 rounded text-[10px] font-bold text-amber-900">
+                  Pesan Verifikator
+                </div>
+                <p v-if="pesanVerifikator" class="text-sm text-slate-800 leading-relaxed font-semibold whitespace-pre-line">
+                  {{ pesanVerifikator }}
+                </p>
+                <p v-else class="text-sm text-slate-500 italic">
+                  (Tidak ada catatan teks tertulis. Silakan tinjau kelengkapan isian formulir, dokumen lampiran, atau kriteria risiko Anda.)
+                </p>
+              </div>
+            </div>
+
+            <!-- Petunjuk Pemohon & Tombol Riwayat Revisi -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+              <div class="flex items-start gap-2 text-xs text-amber-900">
+                <Icon icon="lucide:info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <span class="leading-relaxed">
+                  Perbaiki poin yang diminta pada formulir di bawah ini, lalu klik tombol <strong>"Kirim Perbaikan RFC"</strong>.
+                </span>
+              </div>
+
+              <!-- Tombol toggle riwayat jika ada lebih dari 1 catatan revisi -->
+              <button
+                v-if="daftarRiwayatRevisi.length > 1"
+                type="button"
+                @click="showRiwayat = !showRiwayat"
+                class="text-xs font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 self-start sm:self-auto py-1 px-2.5 rounded-lg bg-amber-100/70 hover:bg-amber-100 border border-amber-200 transition-colors whitespace-nowrap"
+              >
+                <Icon :icon="showRiwayat ? 'lucide:chevron-up' : 'lucide:chevron-down'" class="w-3.5 h-3.5" />
+                <span>{{ showRiwayat ? 'Tutup Riwayat Revisi' : `Lihat Riwayat Revisi (${daftarRiwayatRevisi.length})` }}</span>
+              </button>
+            </div>
+
+            <!-- List Riwayat Revisi Sebelumnya (Jika Dibuka) -->
+            <div v-if="showRiwayat && daftarRiwayatRevisi.length > 1" class="mt-3 pt-3 border-t border-amber-200 space-y-2.5 animate-in fade-in duration-150">
+              <div class="text-[11px] font-bold text-amber-950 uppercase tracking-wider">Riwayat Catatan Sebelumnya:</div>
+              <div
+                v-for="(r, idx) in daftarRiwayatRevisi.slice(1)"
+                :key="r.id || idx"
+                class="p-3 rounded-lg bg-amber-50/70 border border-amber-200/80 text-xs text-slate-700 space-y-1"
+              >
+                <div class="flex items-center justify-between text-[11px] text-amber-800 font-semibold">
+                  <span>{{ r.verifikator }}</span>
+                  <span class="text-slate-500">{{ r.tanggal }}</span>
+                </div>
+                <p class="text-slate-800 font-medium whitespace-pre-line">{{ r.catatan }}</p>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -669,17 +758,46 @@ import { Icon }            from '@iconify/vue'
 import axios               from 'axios'
 
 const props = defineProps({
-  kategoriList: { type: Array, default: () => [] },
-  opdList:      { type: Array, default: () => [] },
-  opdUser:      { type: Object, default: null },
-  userProfile:  { type: Object, default: null },
-  mode:         { type: String, default: 'create' },
-  rfc:          { type: Object, default: null },
+  kategoriList:  { type: Array, default: () => [] },
+  opdList:       { type: Array, default: () => [] },
+  opdUser:       { type: Object, default: null },
+  userProfile:   { type: Object, default: null },
+  mode:          { type: String, default: 'create' },
+  rfc:           { type: Object, default: null },
+  catatanRevisi: { type: Object, default: null },
+  riwayatRevisi: { type: Array,  default: () => [] },
 })
 
 const isPerluRevisi = computed(() => {
   return props.rfc?.status_terkini === 'perlu_revisi'
 })
+
+const pesanVerifikator = computed(() => {
+  return props.catatanRevisi?.catatan 
+    || props.rfc?.catatan_verifikator 
+    || props.rfc?.catatanRevisi?.catatan 
+    || null
+})
+
+const namaVerifikator = computed(() => {
+  return props.catatanRevisi?.verifikator 
+    || props.rfc?.nama_verifikator 
+    || props.rfc?.catatanRevisi?.verifikator 
+    || 'Verifikator Diskominfo Jabar'
+})
+
+const tanggalRevisi = computed(() => {
+  return props.catatanRevisi?.tanggal 
+    || props.rfc?.tanggal_revisi 
+    || props.rfc?.catatanRevisi?.tanggal 
+    || null
+})
+
+const daftarRiwayatRevisi = computed(() => {
+  return props.riwayatRevisi?.length ? props.riwayatRevisi : (props.rfc?.riwayatRevisi || [])
+})
+
+const showRiwayat = ref(false)
 
 const page = usePage()
 const today = new Date().toISOString().split('T')[0]

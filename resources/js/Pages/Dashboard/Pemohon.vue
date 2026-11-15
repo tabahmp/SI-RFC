@@ -206,6 +206,10 @@
                   <td class="py-3.5 px-5 max-w-xs">
                     <div class="font-semibold text-slate-800 truncate">{{ t.nama_aplikasi || 'Permohonan RFC' }}</div>
                     <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{{ t.deskripsi }}</div>
+                    <div v-if="t.status_terkini === 'perlu_revisi' && t.catatan_revisi" class="mt-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 rounded-md px-2 py-0.5 inline-flex items-center gap-1 max-w-full">
+                      <Icon icon="lucide:alert-circle" class="w-3 h-3 text-amber-600 flex-shrink-0" />
+                      <span class="truncate"><strong>Revisi:</strong> {{ t.catatan_revisi }}</span>
+                    </div>
                   </td>
                   <td class="py-3.5 px-5">
                     <span :class="['px-2 py-0.5 rounded-md text-[10px] font-bold', urgensiKelas(t.urgensi)]">{{ t.urgensi_label }}</span>
@@ -356,6 +360,10 @@
                   <td class="py-3.5 px-5 max-w-xs">
                     <div class="font-semibold text-slate-800 truncate">{{ t.nama_aplikasi || 'Permohonan RFC' }}</div>
                     <div class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{{ t.deskripsi }}</div>
+                    <div v-if="t.status_terkini === 'perlu_revisi' && t.catatan_revisi" class="mt-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 rounded-md px-2 py-0.5 inline-flex items-center gap-1 max-w-full">
+                      <Icon icon="lucide:alert-circle" class="w-3 h-3 text-amber-600 flex-shrink-0" />
+                      <span class="truncate"><strong>Revisi:</strong> {{ t.catatan_revisi }}</span>
+                    </div>
                   </td>
                   <td class="py-3.5 px-5">
                     <span :class="['px-2 py-0.5 rounded-md text-[10px] font-bold', urgensiKelas(t.urgensi)]">{{ t.urgensi_label }}</span>
