@@ -135,17 +135,6 @@
           </Link>
         </div>
 
-        <!-- Kapsul filter status -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <button v-for="tab in tabStatus" :key="tab.value" type="button"
-            @click="activeStatusFilter = tab.value"
-            :class="['h-[42px] px-3.5 rounded-xl flex items-center justify-center text-[13px] transition-all',
-              activeStatusFilter === tab.value
-                ? 'bg-[#EAF2FD] text-[#0757A8] font-bold shadow-xs'
-                : 'bg-white text-[#64748B] border border-[#DFE7F1] hover:bg-slate-50']"
-          >{{ tab.label }} ({{ tab.count }})</button>
-        </div>
-
         <!-- Filter bar -->
         <div class="bg-white rounded-xl border border-[#DFE7F1] p-4 shadow-xs">
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
@@ -439,6 +428,12 @@
       @konfirmasi="ajukanDraf"
       @batal="showModalAjukan = false"
     />
+
+    <!-- Modal Sambutan Akun Aktif & Siap Mengajukan -->
+    <AkunAktifModal
+      v-model="showAktivasiModal"
+      :data-akun="dataAkunAktivasi"
+    />
   </AppLayout>
 </template>
 
@@ -447,14 +442,23 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Link, usePage, router } from '@inertiajs/vue3'
 import AppLayout      from '@/Layouts/AppLayout.vue'
 import KonfirmasiModal from '@/Components/KonfirmasiModal.vue'
+import AkunAktifModal from '@/Components/AkunAktifModal.vue'
 import axios          from 'axios'
 
 const props = defineProps({
-  rfc:         { type: Array,  default: () => [] },   // semua RFC milik user
-  countDraf:   { type: Number, default: 0 },
-  countAktif:  { type: Number, default: 0 },
-  countSelesai:{ type: Number, default: 0 },
-  initialView: { type: String, default: 'ringkasan' },
+  rfc:                    { type: Array,   default: () => [] },   // semua RFC milik user
+  countDraf:              { type: Number,  default: 0 },
+  countAktif:             { type: Number,  default: 0 },
+  countSelesai:           { type: Number,  default: 0 },
+  initialView:            { type: String,  default: 'ringkasan' },
+  tampilkanModalAktivasi: { type: Boolean, default: false },
+  dataAkunAktivasi:       { type: Object,  default: () => ({}) },
+})
+
+const showAktivasiModal = ref(props.tampilkanModalAktivasi)
+
+watch(() => props.tampilkanModalAktivasi, (val) => {
+  if (val) showAktivasiModal.value = true
 })
 
 const page        = usePage()
