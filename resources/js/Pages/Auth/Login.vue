@@ -116,7 +116,7 @@
                   type="email"
                   name="email"
                   autocomplete="username email"
-                  placeholder="nama@diskominfo.jabarprov.go.id"
+                  placeholder="nama@instansi.go.id"
                   required
                   class="w-full pl-10 pr-3.5 py-2.5 text-sm text-[#344965] bg-white border border-[#DAE3EF] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#71839B]"
                 />

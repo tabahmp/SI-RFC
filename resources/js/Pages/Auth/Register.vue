@@ -110,8 +110,8 @@
                   class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-[#475569] mb-1">Email dinas (@*.jabarprov.go.id)</label>
-                <input v-model="form.email" type="email" placeholder="nama@diskominfo.jabarprov.go.id" required
+                <label class="block text-[11px] font-bold text-[#475569] mb-1">Email dinas</label>
+                <input v-model="form.email" type="email" placeholder="nama@instansi.go.id" required
                   class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
               </div>
             </div>

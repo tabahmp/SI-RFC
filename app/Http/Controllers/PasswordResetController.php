@@ -79,7 +79,7 @@ class PasswordResetController extends Controller
     {
         $request->validate([
             'token'                 => ['required'],
-            'email'                 => ['required', 'email', new EmailJabarprov],
+            'email'                 => ['required', 'email'],
             'password'              => [
                 'required',
                 'string',

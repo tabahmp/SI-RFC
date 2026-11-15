@@ -135,6 +135,17 @@
           </Link>
         </div>
 
+        <!-- Kapsul filter status -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <button v-for="tab in tabStatus" :key="tab.value" type="button"
+            @click="activeStatusFilter = tab.value"
+            :class="['h-[42px] px-3.5 rounded-xl flex items-center justify-center text-[13px] transition-all',
+              activeStatusFilter === tab.value
+                ? 'bg-[#EAF2FD] text-[#0757A8] font-bold shadow-xs'
+                : 'bg-white text-[#64748B] border border-[#DFE7F1] hover:bg-slate-50']"
+          >{{ tab.label }} ({{ tab.count }})</button>
+        </div>
+
         <!-- Filter bar -->
         <div class="bg-white rounded-xl border border-[#DFE7F1] p-4 shadow-xs">
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
@@ -206,7 +217,7 @@
                   <td class="py-3.5 px-5">
                     <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold', statusKelas(t.status_terkini)]">{{ t.status_label }}</span>
                   </td>
-                  <td class="py-3.5 px-5 text-center whitespace-nowrap">
+                  <td class="py-3.5 px-5 text-right whitespace-nowrap">
                     <Link v-if="t.status_terkini === 'draf'" :href="`/rfc/${t.id}/edit`"
                       class="inline-flex items-center justify-center gap-1.5 w-[144px] h-[34px] rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs flex-shrink-0"
                       title="Lanjutkan mengisi draf">
@@ -360,7 +371,7 @@
                   <td class="py-3.5 px-5">
                     <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold', statusKelas(t.status_terkini)]">{{ t.status_label }}</span>
                   </td>
-                  <td class="py-3.5 px-5 text-center whitespace-nowrap">
+                  <td class="py-3.5 px-5 text-right whitespace-nowrap">
                     <!-- Jika Draf: lanjutkan draf -->
                     <Link v-if="t.status_terkini === 'draf'"
                       :href="`/rfc/${t.id}/edit`"

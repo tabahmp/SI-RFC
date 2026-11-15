@@ -473,7 +473,7 @@ class PermohonanRfcController extends Controller
                 'unit_kerja'                    => ['required', 'string', 'max:255'],
                 'nomor_surat'                   => ['nullable', 'string', 'max:100'],
                 'nomor_kontak'                  => ['required', 'string', 'max:50'],
-                'email_dinas'                   => ['required', 'email', new EmailJabarprov],
+                'email_dinas'                   => ['required', 'email'],
                 'tanggal_permohonan'            => ['required', 'date'],
                 // Seksi 2
                 'jenis_perubahan'               => ['required', 'array', 'min:1'],
@@ -1144,11 +1144,6 @@ class PermohonanRfcController extends Controller
         if ($rfc->status_terkini === 'draf') {
             return redirect()->route('rfc.edit', $rfc->id)
                 ->with('error', 'Dokumen FR-015 baru dapat diakses setelah permohonan diajukan.');
-        }
-
-        // ── DOWNLOAD PDF via Python generator ──────────────────────────────
-        if ($request->boolean('download')) {
-            return $this->downloadPdfFr015($rfc);
         }
 
         return Inertia::render('RFC/Document', [

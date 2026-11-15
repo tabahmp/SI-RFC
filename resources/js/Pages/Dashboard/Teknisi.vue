@@ -27,6 +27,69 @@
             }}
           </p>
         </div>
+
+        <!-- Tombol Switch View Langsung di Halaman -->
+        <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto">
+          <!-- Ringkasan -->
+          <Link
+            href="/dashboard/teknisi?view=ringkasan"
+            :class="[
+              'px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap',
+              currentView === 'ringkasan'
+                ? 'bg-[#0757A8] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            ]"
+          >
+            <Icon icon="lucide:layout-grid" class="w-4 h-4" />
+            <span>Ringkasan</span>
+          </Link>
+
+          <!-- Tugas Saya -->
+          <Link
+            href="/dashboard/teknisi?view=tugas"
+            :class="[
+              'px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap',
+              currentView === 'tugas'
+                ? 'bg-[#0757A8] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            ]"
+          >
+            <Icon icon="lucide:code-2" class="w-4 h-4" />
+            <span>Tugas Saya</span>
+            <span
+              v-if="localAntrian.length > 0"
+              :class="[
+                'px-2 py-0.5 rounded-full text-[10px] font-black',
+                currentView === 'tugas' ? 'bg-amber-400 text-amber-950' : 'bg-amber-100 text-amber-800'
+              ]"
+            >
+              {{ localAntrian.length }}
+            </span>
+          </Link>
+
+          <!-- Arsip BAST -->
+          <Link
+            href="/dashboard/teknisi?view=bast"
+            :class="[
+              'px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap',
+              currentView === 'bast'
+                ? 'bg-[#0757A8] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+            ]"
+          >
+            <Icon icon="lucide:archive" class="w-4 h-4" />
+            <span>Arsip BAST</span>
+            <span
+              v-if="hasilSelesai.length > 0"
+              :class="[
+                'px-2 py-0.5 rounded-full text-[10px] font-black',
+                currentView === 'bast' ? 'bg-emerald-400 text-emerald-950' : 'bg-emerald-100 text-emerald-800'
+              ]"
+            >
+              {{ hasilSelesai.length }}
+            </span>
+          </Link>
+        </div>
       </div>
 
       <!-- Flash Message Berhasil -->
@@ -152,6 +215,9 @@
         <!-- 2 Kolom: Riwayat Implementasi Selesai & Distribusi Kategori -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
+        <!-- 2 Kolom: Riwayat Implementasi Selesai & Distribusi Kategori -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
           <!-- Kolom Kiri: Riwayat Implementasi Selesai (Lebar 2/3) -->
           <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -173,12 +239,12 @@
                     <th class="py-2.5 px-3">Perangkat Daerah</th>
                     <th class="py-2.5 px-3">Uraian Pekerjaan</th>
                     <th class="py-2.5 px-3">Tanggal Selesai</th>
-                    <th class="py-2.5 px-3 text-center">Aksi</th>
+                    <th class="py-2.5 px-3 text-right">Dokumen</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                   <tr v-for="r in hasilSelesai" :key="r.id" class="hover:bg-slate-50/70 transition-colors">
-                    <td class="py-3 px-3 font-bold text-[#0757A8] whitespace-nowrap">
+                    <td class="py-3 px-3 font-mono font-bold text-[#0757A8] whitespace-nowrap">
                       {{ r.kode_pelacakan || '-' }}
                     </td>
                     <td class="py-3 px-3">
@@ -193,17 +259,31 @@
                     <td class="py-3 px-3 text-slate-600 whitespace-nowrap">
                       {{ r.selesai_pada || r.created_at || '-' }}
                     </td>
-                    <td class="py-3 px-3 text-center whitespace-nowrap">
-                      <!-- Buka Workspace RFC -->
-                      <Link
-                        v-if="r.kode_pelacakan"
-                        :href="`/rfc/${r.kode_pelacakan}/workspace`"
-                        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs"
-                        title="Buka Workspace RFC"
-                      >
-                        <span>Buka Workspace</span>
-                        <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
-                      </Link>
+                    <td class="py-3 px-3 text-right whitespace-nowrap">
+                      <div class="flex items-center justify-end gap-2">
+                        <!-- FR-015 -->
+                        <Link
+                          v-if="r.kode_pelacakan"
+                          :href="`/rfc/${r.kode_pelacakan}/dokumen`"
+                          class="inline-flex items-center gap-1 text-[#0757A8] hover:underline font-bold"
+                          title="Lihat FR-015"
+                        >
+                          <Icon icon="lucide:file-text" class="w-3.5 h-3.5" />
+                          <span>FR-015</span>
+                        </Link>
+
+                        <!-- BAST Download jika ada -->
+                        <a
+                          v-if="r.path_file_bast"
+                          :href="r.path_file_bast"
+                          target="_blank"
+                          class="inline-flex items-center gap-1 text-emerald-700 hover:underline font-bold"
+                          title="Unduh BAST Resmi"
+                        >
+                          <Icon icon="lucide:download" class="w-3.5 h-3.5" />
+                          <span>BAST</span>
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -249,12 +329,12 @@
                   <Icon icon="lucide:shield-check" class="w-4 h-4" />
                 </div>
                 <div>
-                  <div class="text-xs font-bold text-slate-800">Infomation Technology Infrastructure Library</div>
+                  <div class="text-xs font-bold text-slate-800">SMKI ISO/IEC 27001 & ITIL</div>
                   <div class="text-[10px] text-slate-500">Tata Kelola Implementasi Teknis</div>
                 </div>
               </div>
               <p class="text-[11.5px] text-slate-600 leading-relaxed">
-                Setiap pengerjaan perubahan wajib melewati pengujian kelayakan, dokumentasi, dan penerbitan Berita Acara Serah Terima (BAST) bertanda tangan digital.
+                Setiap pengerjaan perubahan wajib melewati pengujian kelayakan (*testing*), dokumentasi *rollback plan*, dan penerbitan Berita Acara Serah Terima (BAST) bertanda tangan digital.
               </p>
             </div>
           </div>
@@ -382,7 +462,7 @@
                   <th class="py-3.5 px-4 min-w-[260px]">Rincian Perubahan</th>
                   <th class="py-3.5 px-4 w-28 text-center">Urgensi</th>
                   <th class="py-3.5 px-4 w-36 text-center">Status</th>
-                  <th class="py-3.5 px-4 w-52 text-center">Aksi</th>
+                  <th class="py-3.5 px-4 w-52 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-xs">
@@ -392,13 +472,13 @@
                   class="hover:bg-blue-50/30 transition-colors"
                 >
                   <!-- No -->
-                  <td class="py-4 px-4 text-center text-slate-400 font-medium align-middle">
+                  <td class="py-4 px-4 text-center text-slate-400 font-mono font-medium align-middle">
                     {{ index + 1 }}
                   </td>
 
                   <!-- Kode RFC -->
                   <td class="py-4 px-4 align-middle whitespace-nowrap">
-                    <span class="text-xs font-bold text-[#0757A8] tracking-tight">
+                    <span class="font-mono text-xs font-bold text-[#0757A8] tracking-tight">
                       {{ t.kode_pelacakan }}
                     </span>
                   </td>
@@ -446,16 +526,40 @@
                   </td>
 
                   <!-- Tombol Aksi -->
-                  <td class="py-4 px-4 align-middle text-center whitespace-nowrap">
-                    <!-- Tombol Buka Workspace (Utama) -->
-                    <Link
-                      :href="`/rfc/${t.kode_pelacakan}/workspace`"
-                      class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#0757A8] hover:bg-[#063D78] transition-all shadow-xs"
-                      title="Buka Workspace RFC"
-                    >
-                      <span>Buka Workspace</span>
-                      <Icon icon="lucide:arrow-right" class="w-3.5 h-3.5" />
-                    </Link>
+                  <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
+                    <div class="flex items-center justify-end gap-1.5">
+                      <!-- Tombol Mulai Pengerjaan jika disetujui -->
+                      <button
+                        v-if="t.status_terkini === 'disetujui'"
+                        type="button"
+                        @click="mulaiEksekusi(t)"
+                        :disabled="isSubmitting"
+                        class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 shadow-xs transition-all disabled:opacity-50"
+                        title="Mulai pengerjaan tugas"
+                      >
+                        <Icon icon="lucide:play" class="w-3.5 h-3.5" />
+                        <span>Mulai</span>
+                      </button>
+
+                      <!-- Tombol Workspace (Utama) -->
+                      <Link
+                        :href="`/rfc/${t.kode_pelacakan}/workspace`"
+                        class="px-3 py-1.5 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold flex items-center gap-1 shadow-xs transition-all"
+                        title="Buka Workspace untuk eksekusi & BAST"
+                      >
+                        <Icon icon="lucide:terminal" class="w-3.5 h-3.5" />
+                        <span>Workspace</span>
+                      </Link>
+
+                      <!-- Tombol FR-015 -->
+                      <Link
+                        :href="`/rfc/${t.kode_pelacakan}/dokumen`"
+                        class="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-[#0757A8] transition-colors"
+                        title="Lihat Dokumen Resmi FR-015"
+                      >
+                        <Icon icon="lucide:file-text" class="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -509,19 +613,19 @@
                   <th class="py-3.5 px-4 min-w-[200px]">Perangkat Daerah & Pemohon</th>
                   <th class="py-3.5 px-4 min-w-[240px]">Nomor & Tanggal BAST</th>
                   <th class="py-3.5 px-4 min-w-[240px]">Hasil Pekerjaan</th>
-                  <th class="py-3.5 px-4 w-44 text-center">Aksi</th>
+                  <th class="py-3.5 px-4 w-44 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr v-for="(r, idx) in hasilSelesai" :key="r.id" class="hover:bg-slate-50/70 transition-colors">
                   <!-- No -->
-                  <td class="py-4 px-4 text-center text-slate-400 font-medium align-middle">
+                  <td class="py-4 px-4 text-center text-slate-400 font-mono font-medium align-middle">
                     {{ idx + 1 }}
                   </td>
 
                   <!-- Kode RFC -->
                   <td class="py-4 px-4 align-middle whitespace-nowrap">
-                    <span class="text-xs font-bold text-[#0757A8] tracking-tight">
+                    <span class="font-mono text-xs font-bold text-[#0757A8] tracking-tight">
                       {{ r.kode_pelacakan }}
                     </span>
                   </td>
@@ -538,7 +642,7 @@
 
                   <!-- Nomor Dokumen BAST & Tanggal -->
                   <td class="py-4 px-4 align-middle">
-                    <div class="text-xs font-bold text-purple-800">
+                    <div class="font-mono text-xs font-bold text-purple-800">
                       {{ r.nomor_dokumen_bast || 'BAST Telah Terbit' }}
                     </div>
                     <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
@@ -558,8 +662,8 @@
                   </td>
 
                   <!-- Aksi -->
-                  <td class="py-4 px-4 align-middle text-center whitespace-nowrap">
-                    <div class="flex items-center justify-center gap-2">
+                  <td class="py-4 px-4 align-middle text-right whitespace-nowrap">
+                    <div class="flex items-center justify-end gap-2">
                       <!-- Unduh BAST -->
                       <a
                         v-if="r.path_file_bast"
