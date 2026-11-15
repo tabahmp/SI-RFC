@@ -92,7 +92,7 @@
                       <tr>
                         <td style="border: none; padding: 1px 0; font-weight: bold; width: 24mm; white-space: nowrap;">No. Dokumen</td>
                         <td style="border: none; padding: 1px 2px; width: 3mm; text-align: center;">:</td>
-                        <td style="border: none; padding: 1px 0; width: 33mm; font-family: monospace; font-size: 7pt; white-space: nowrap;">FR-015/KOM.03.05/<br>SANDIKAMI</td>
+                        <td style="border: none; padding: 1px 0; width: 33mm; font-size: 7.5pt; white-space: nowrap;">FR-015/KOM.03.05/<br>SANDIKAMI</td>
                       </tr>
                       <tr>
                         <td style="border: none; padding: 1px 0; font-weight: bold;">No. Revisi</td>
@@ -126,13 +126,13 @@
               <!-- Row 0: No. RFC -->
               <tr>
                 <td colspan="2" style="border: 1px solid #000; padding: 4px 8px; font-weight: bold; background: #ffffff; font-size: 9.5pt;">
-                  No. RFC : <span style="font-family: monospace; font-size: 10pt; font-weight: bold; margin-left: 4px;">{{ rfcData.kode_pelacakan || '-' }}</span>
+                  No. RFC : <span style="font-size: 9.5pt; font-weight: bold; margin-left: 4px;">{{ rfcData.kode_pelacakan || '-' }}</span>
                 </td>
               </tr>
 
-              <!-- Row 1: Header Seksi I: Informasi Pemohon -->
+              <!-- Row 1: Header Seksi I: Informasi Pemohon (Center Aligned) -->
               <tr class="section-header">
-                <td colspan="2" style="border: 1px solid #000; padding: 3.5px 8px; font-weight: bold; font-size: 9pt; background: #E5E7EB; text-transform: uppercase; letter-spacing: 0.5px;">
+                <td colspan="2" style="border: 1px solid #000; padding: 3.5px 8px; font-weight: bold; font-size: 9pt; background: #E5E7EB; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; vertical-align: middle;">
                   Informasi Pemohon
                 </td>
               </tr>
@@ -182,9 +182,9 @@
                 </td>
               </tr>
 
-              <!-- Row 6: Header Seksi II: Informasi Data -->
+              <!-- Row 6: Header Seksi II: Informasi Data (Center Aligned) -->
               <tr class="section-header">
-                <td colspan="2" style="border: 1px solid #000; padding: 3.5px 8px; font-weight: bold; font-size: 9pt; background: #E5E7EB; text-transform: uppercase; letter-spacing: 0.5px;">
+                <td colspan="2" style="border: 1px solid #000; padding: 3.5px 8px; font-weight: bold; font-size: 9pt; background: #E5E7EB; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; vertical-align: middle;">
                   Informasi Data
                 </td>
               </tr>
@@ -197,15 +197,15 @@
                 <td style="width: 127mm; border: 1px solid #000; padding: 4.5px 8px; vertical-align: top; background: #ffffff;">
                   <div style="display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: center;">
                     <span style="display: inline-flex; align-items: center; gap: 4px;">
-                      <span style="font-family: monospace; font-size: 10.5pt; font-weight: bold;">{{ hasJenis('permintaan_baru') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 10pt; font-weight: bold;">{{ hasJenis('permintaan_baru') ? '☑' : '☐' }}</span>
                       <span>Permintaan Baru</span>
                     </span>
                     <span style="display: inline-flex; align-items: center; gap: 4px;">
-                      <span style="font-family: monospace; font-size: 10.5pt; font-weight: bold;">{{ hasJenis('peningkatan_sistem') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 10pt; font-weight: bold;">{{ hasJenis('peningkatan_sistem') ? '☑' : '☐' }}</span>
                       <span>Peningkatan Sistem</span>
                     </span>
                     <span style="display: inline-flex; align-items: center; gap: 4px;">
-                      <span style="font-family: monospace; font-size: 10.5pt; font-weight: bold;">{{ hasJenis('perbaikan_sistem') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 10pt; font-weight: bold;">{{ hasJenis('perbaikan_sistem') ? '☑' : '☐' }}</span>
                       <span>Perbaikan Sistem</span>
                     </span>
                   </div>
@@ -254,23 +254,23 @@
                   <div style="font-weight: bold; margin-bottom: 2px;">Kriteria:</div>
                   <div style="display: flex; flex-wrap: wrap; gap: 3px 14px; margin-bottom: 5px; font-size: 8.5pt;">
                     <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-family: monospace; font-size: 10pt; font-weight: bold;">{{ isKriteria('malapetaka') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('malapetaka') ? '☑' : '☐' }}</span>
                       <span>Malapetaka</span>
                     </span>
                     <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-family: monospace; font-size: 10pt; font-weight: bold;">{{ isKriteria('sangat_berat') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('sangat_berat') ? '☑' : '☐' }}</span>
                       <span>Sangat Berat</span>
                     </span>
                     <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-family: monospace; font-size: 10pt; font-weight: bold;">{{ isKriteria('berat') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('berat') ? '☑' : '☐' }}</span>
                       <span>Berat</span>
                     </span>
                     <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-family: monospace; font-size: 10pt; font-weight: bold;">{{ isKriteria('agak_berat') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('agak_berat') ? '☑' : '☐' }}</span>
                       <span>Agak Berat</span>
                     </span>
                     <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-family: monospace; font-size: 10pt; font-weight: bold;">{{ isKriteria('tidak_berat') ? '☑' : '☐' }}</span>
+                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('tidak_berat') ? '☑' : '☐' }}</span>
                       <span>Tidak Berat</span>
                     </span>
                   </div>
@@ -453,7 +453,7 @@
                       <div style="font-size: 7.5pt; font-weight: bold; color: #166534; letter-spacing: 0.5px;">
                         ✓ TERVERIFIKASI KEDINASAN OPD
                       </div>
-                      <div style="font-size: 7pt; color: #15803D; font-family: monospace;">
+                      <div style="font-size: 7pt; color: #15803D;">
                         Disetujui Kepala Bidang Kedinasan
                       </div>
                     </div>
