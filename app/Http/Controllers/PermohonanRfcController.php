@@ -46,17 +46,43 @@ class PermohonanRfcController extends Controller
 
         $rfcList = $rfcQuery->get()->map(fn ($rfc) => $this->formatRfcRingkas($rfc));
 
+        $user->loadMissing('opd');
+        $tampilkanModalAktivasi = session('tampilkan_modal_aktivasi', false)
+            || (is_null($user->modal_aktivasi_dilihat_pada) && $user->status_aktivasi === 'aktif')
+            || $request->boolean('preview_aktivasi', false);
+
         return Inertia::render('Dashboard/Pemohon', [
-            'rfc'         => $rfcList,
-            'filters'     => $request->only(['status', 'kategori_id', 'urgensi', 'search', 'tanggal_mulai', 'tanggal_akhir']),
-            'kategoriList'=> \App\Models\KategoriRfc::aktif()->get(['id', 'nama_kategori']),
-            'countDraf'   => PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'draf')->count(),
-            'countAktif'  => PermohonanRfc::where('pengguna_id', $user->id)
+            'rfc'                    => $rfcList,
+            'filters'                => $request->only(['status', 'kategori_id', 'urgensi', 'search', 'tanggal_mulai', 'tanggal_akhir']),
+            'kategoriList'           => \App\Models\KategoriRfc::aktif()->get(['id', 'nama_kategori']),
+            'countDraf'              => PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'draf')->count(),
+            'countAktif'             => PermohonanRfc::where('pengguna_id', $user->id)
                                            ->whereNotIn('status_terkini', ['draf', 'selesai', 'ditolak_verifikator', 'ditolak_pimpinan'])
                                            ->count(),
-            'countSelesai'=> PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'selesai')->count(),
-            'initialView' => $request->query('view', 'ringkasan'),
+            'countSelesai'           => PermohonanRfc::where('pengguna_id', $user->id)->where('status_terkini', 'selesai')->count(),
+            'initialView'            => $request->query('view', 'ringkasan'),
+            'tampilkanModalAktivasi' => $tampilkanModalAktivasi,
+            'dataAkunAktivasi'       => [
+                'nama'              => $user->nama_lengkap ?: $user->name,
+                'email'             => $user->email,
+                'opd'               => $user->opd?->nama_opd ?? $user->asal_opd ?? 'Pemerintah Provinsi Jawa Barat',
+                'unit_kerja'        => $user->unit_kerja ?? 'Unit Kerja / Bidang Pemohon',
+                'diverifikasi_oleh' => $user->diverifikasi_oleh ?? 'Administrator SI-RFC',
+                'diverifikasi_pada' => $user->diverifikasi_pada ? $user->diverifikasi_pada->isoFormat('D MMMM Y, HH:mm') . ' WIB' : 'Baru saja',
+            ],
         ]);
+    }
+
+    /**
+     * Tandai modal aktivasi akun telah dilihat oleh pemohon.
+     */
+    public function tandaiModalAktivasiDilihat(Request $request)
+    {
+        $user = auth()->user();
+        if ($user) {
+            $user->update(['modal_aktivasi_dilihat_pada' => now()]);
+        }
+        return response()->json(['success' => true]);
     }
 
     public function dashboardVerifikator(Request $request)
@@ -522,6 +548,11 @@ class PermohonanRfcController extends Controller
             'status_terkini'                => $statusBaru,
         ]));
 
+        // Sinkronkan unit kerja ke profil user jika ada pengisian/perubahan
+        if (!empty($validated['unit_kerja']) && $user && $user->unit_kerja !== $validated['unit_kerja']) {
+            $user->update(['unit_kerja' => $validated['unit_kerja']]);
+        }
+
         if ($statusLama === 'perlu_revisi' && $statusBaru === 'diajukan') {
             RevisiRfc::where('rfc_id', $rfc->id)
                 ->where('status_revisi', 'menunggu_perbaikan')
@@ -699,6 +730,11 @@ class PermohonanRfcController extends Controller
             'tanda_tangan_penanggung_jawab' => $ttdKabidPath,
             'status_terkini'                => $statusTerkini,
         ]);
+
+        // Sinkronkan unit kerja ke profil user jika ada pengisian/perubahan
+        if (!empty($validated['unit_kerja']) && $user && $user->unit_kerja !== $validated['unit_kerja']) {
+            $user->update(['unit_kerja' => $validated['unit_kerja']]);
+        }
 
         $keterangan = $simpanDraf ? 'Permohonan RFC disimpan sebagai draf' : 'Permohonan RFC diajukan';
         $rfc->tambahHistory($user, $user->nama_lengkap ?: $user->name, 'pemohon', $statusTerkini, $keterangan);

@@ -893,7 +893,7 @@ onMounted(() => {
     // Seksi 1 — semua field di-assign langsung (nullable pakai ?? '')
     form.nama_pemohon       = rfcData.nama_pemohon       ?? ''
     form.nip                = rfcData.nip                ?? ''
-    form.unit_kerja         = rfcData.unit_kerja         ?? ''
+    form.unit_kerja         = rfcData.unit_kerja || props.userProfile?.unit_kerja || ''
     form.opd_id             = rfcData.opd_id             ?? null
     form.nomor_surat        = rfcData.nomor_surat        ?? ''
     form.nomor_kontak       = rfcData.nomor_kontak       ?? ''
