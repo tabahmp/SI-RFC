@@ -135,17 +135,6 @@
           </Link>
         </div>
 
-        <!-- Kapsul filter status -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <button v-for="tab in tabStatus" :key="tab.value" type="button"
-            @click="activeStatusFilter = tab.value"
-            :class="['h-[42px] px-3.5 rounded-xl flex items-center justify-center text-[13px] transition-all',
-              activeStatusFilter === tab.value
-                ? 'bg-[#EAF2FD] text-[#0757A8] font-bold shadow-xs'
-                : 'bg-white text-[#64748B] border border-[#DFE7F1] hover:bg-slate-50']"
-          >{{ tab.label }} ({{ tab.count }})</button>
-        </div>
-
         <!-- Filter bar -->
         <div class="bg-white rounded-xl border border-[#DFE7F1] p-4 shadow-xs">
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
@@ -516,23 +505,14 @@ const selesaiCount= computed(() => rfcSaya.value.filter(r => r.status_terkini ==
 const persentaseSelesai = computed(() => totalCount.value > 0 ? Math.round((selesaiCount.value / totalCount.value) * 100) : 0)
 
 // -- Filter permohonan ---------------------------------------------------------
-const activeStatusFilter = ref('semua')
-const searchKeyword      = ref('')
-const selectedStatus     = ref('')
-const selectedUrgensi    = ref('')
-
-const tabStatus = computed(() => [
-  { value: 'semua',         label: 'Semua',              count: totalCount.value },
-  { value: 'diajukan',      label: 'Menunggu Verifikasi', count: menungguCount.value },
-  { value: 'perlu_revisi',  label: 'Perlu Revisi',        count: revisiCount.value },
-  { value: 'selesai',       label: 'Selesai',             count: selesaiCount.value },
-])
+const searchKeyword   = ref('')
+const selectedStatus  = ref('')
+const selectedUrgensi = ref('')
 
 const rfcTanpaDraf = computed(() => rfcSaya.value.filter(r => r.status_terkini !== 'draf'))
 
 const filteredTikets = computed(() => {
   return rfcTanpaDraf.value.filter(t => {
-    if (activeStatusFilter.value !== 'semua' && t.status_terkini !== activeStatusFilter.value) return false
     if (selectedStatus.value && t.status_terkini !== selectedStatus.value) return false
     if (selectedUrgensi.value && t.urgensi !== selectedUrgensi.value) return false
     if (searchKeyword.value.trim()) {
@@ -546,7 +526,6 @@ const filteredTikets = computed(() => {
 })
 
 function resetFilter() {
-  activeStatusFilter.value = 'semua'
   searchKeyword.value = ''
   selectedStatus.value = ''
   selectedUrgensi.value = ''
