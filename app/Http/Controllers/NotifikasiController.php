@@ -15,14 +15,28 @@ class NotifikasiController extends Controller
             ->orderByDesc('dibuat_pada')
             ->limit(15)
             ->get()
-            ->map(fn ($n) => [
-                'id'           => $n->id,
-                'judul'        => $n->judul,
-                'pesan'        => $n->pesan,
-                'sudah_dibaca' => $n->sudah_dibaca,
-                'url_tujuan'   => $n->url_tujuan,
-                'dibuat_pada'  => $n->dibuat_pada?->diffForHumans(),
-            ]);
+            ->map(function ($n) {
+                $waktu = $n->dibuat_pada;
+                $teksWaktu = 'Baru saja';
+
+                if ($waktu) {
+                    // Hindari teks "X dari sekarang" jika waktu berada sedikit di masa depan
+                    if ($waktu->isFuture()) {
+                        $teksWaktu = 'Baru saja';
+                    } else {
+                        $teksWaktu = $waktu->diffForHumans();
+                    }
+                }
+
+                return [
+                    'id'           => $n->id,
+                    'judul'        => $n->judul,
+                    'pesan'        => $n->pesan,
+                    'sudah_dibaca' => $n->sudah_dibaca,
+                    'url_tujuan'   => $n->url_tujuan,
+                    'dibuat_pada'  => $teksWaktu,
+                ];
+            });
 
         return response()->json([
             'notifikasi'       => $notifikasi,

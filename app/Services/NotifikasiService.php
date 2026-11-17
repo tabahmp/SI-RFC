@@ -18,6 +18,7 @@ class NotifikasiService
             'pesan'        => $pesan,
             'sudah_dibaca' => false,
             'url_tujuan'   => $urlTujuan,
+            'dibuat_pada'  => now(),
         ]);
     }
 

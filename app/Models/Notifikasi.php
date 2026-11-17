@@ -19,6 +19,7 @@ class Notifikasi extends Model
         'pesan',
         'sudah_dibaca',
         'url_tujuan',
+        'dibuat_pada',
     ];
 
     protected $casts = [

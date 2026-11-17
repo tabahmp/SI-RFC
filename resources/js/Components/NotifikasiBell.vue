@@ -130,8 +130,8 @@ function toggleDropdown() {
   if (showDropdown.value) muatNotifikasi()
 }
 
-async function muatNotifikasi() {
-  loading.value = true
+async function muatNotifikasi(silent = false) {
+  if (!silent) loading.value = true
   try {
     const res = await axios.get('/api/notifikasi')
     daftarNotifikasi.value = res.data.notifikasi ?? []
@@ -141,7 +141,7 @@ async function muatNotifikasi() {
   } catch (e) {
     // silent fail
   } finally {
-    loading.value = false
+    if (!silent) loading.value = false
   }
 }
 
@@ -176,11 +176,10 @@ function klikLuar(e) {
 
 onMounted(() => {
   document.addEventListener('click', klikLuar)
-  // Poll tiap 30 detik
+  // Poll berkala tiap 15 detik agar counter dan waktu notifikasi selalu real-time
   intervalId = setInterval(() => {
-    if (!showDropdown.value) return
-    muatNotifikasi()
-  }, 30000)
+    muatNotifikasi(true)
+  }, 15000)
 })
 
 onUnmounted(() => {
