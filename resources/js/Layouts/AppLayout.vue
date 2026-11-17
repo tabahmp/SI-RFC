@@ -24,27 +24,38 @@
         'lg:fixed lg:top-5 lg:bottom-5 lg:left-5 lg:w-[268px] lg:rounded-[28px]'
       ]"
     >
-      <!-- ORNAMEN GELOMBANG KANAN ATAS (KONTRAS LEBIH TINGGI & TEGAS) -->
+      <!-- ORNAMEN GELOMBANG KANAN ATAS (RAPI, SEJAJAR & HARMONIS) -->
       <svg
-        class="absolute -top-3 -right-3 w-40 h-40 pointer-events-none select-none z-0 opacity-80"
-        viewBox="0 0 160 160"
+        class="absolute top-0 right-0 w-44 h-44 pointer-events-none select-none z-0 opacity-95"
+        viewBox="0 0 180 180"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <linearGradient id="sidebarWaveGold" x1="0" y1="0" x2="160" y2="160" gradientUnits="userSpaceOnUse">
+          <linearGradient id="sidebarWaveGold" x1="25" y1="0" x2="180" y2="115" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.95" />
-            <stop offset="60%" stop-color="#FBBF24" stop-opacity="0.8" />
-            <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.4" />
+            <stop offset="50%" stop-color="#FBBF24" stop-opacity="0.95" />
+            <stop offset="100%" stop-color="#FCD34D" stop-opacity="0.9" />
           </linearGradient>
-          <linearGradient id="sidebarWaveTeal" x1="30" y1="0" x2="160" y2="130" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#10B981" stop-opacity="0.9" />
-            <stop offset="65%" stop-color="#059669" stop-opacity="0.7" />
-            <stop offset="100%" stop-color="#047857" stop-opacity="0.3" />
+          <linearGradient id="sidebarWaveGreen" x1="60" y1="0" x2="180" y2="82" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#10B981" stop-opacity="0.95" />
+            <stop offset="50%" stop-color="#059669" stop-opacity="0.95" />
+            <stop offset="100%" stop-color="#047857" stop-opacity="0.9" />
+          </linearGradient>
+          <linearGradient id="sidebarWaveDarkGreen" x1="95" y1="0" x2="180" y2="52" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#059669" stop-opacity="0.95" />
+            <stop offset="100%" stop-color="#064E3B" stop-opacity="0.9" />
           </linearGradient>
         </defs>
-        <path d="M25 0C65 35 110 65 160 75V25C115 22 70 8 25 0Z" fill="url(#sidebarWaveGold)" />
-        <path d="M55 0C90 40 130 75 160 100V65C130 48 90 20 55 0Z" fill="url(#sidebarWaveTeal)" />
+
+        <!-- Pita Kuning / Emas: Melengkung Halus & Presisi -->
+        <path d="M25 0 C85 30, 140 75, 180 115 V82 C148 55, 105 22, 60 0 Z" fill="url(#sidebarWaveGold)" />
+
+        <!-- Pita Hijau Segar: Mengalir Sejajar Tepat di Bawah Pita Emas -->
+        <path d="M60 0 C105 22, 148 55, 180 82 V52 C158 35, 128 15, 95 0 Z" fill="url(#sidebarWaveGreen)" />
+
+        <!-- Pita Hijau Zamrud (Diskominfo Accent): Aksen Sudut Kanan Atas -->
+        <path d="M95 0 C128 15, 158 35, 180 52 V24 C168 15, 150 7, 130 0 Z" fill="url(#sidebarWaveDarkGreen)" />
       </svg>
 
       <!-- HEADER SIDEBAR: LOGO RESMI DISKOMINFO & RFC KE TENGAH-TENGAH -->
@@ -163,39 +174,50 @@
 
       </div>
 
-      <!-- BAGIAN BAWAH SIDEBAR: ILUSTRASI GEDUNG SATE & GRADASI MENYATU LEMBUT -->
-      <div class="relative w-full overflow-hidden select-none pointer-events-none mt-auto pt-1">
-        <!-- Gedung Sate Monokrom Biru Tua dengan Mask Gradasi Halus -->
-        <div class="relative">
+      <!-- BAGIAN BAWAH SIDEBAR: ILUSTRASI GEDUNG SATE & ORNAMEN JABAR -->
+      <div class="relative w-full overflow-hidden select-none pointer-events-none mt-auto pt-2">
+        <!-- Gedung Sate Lebih Besar, Tegas & Proporsional -->
+        <div class="relative w-full flex items-end justify-center">
           <img
             src="/images/assets/gedung_sate.png"
             alt="Gedung Sate"
-            class="w-full max-h-24 h-auto object-contain object-bottom opacity-75 relative z-0"
-            style="mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%); -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);"
+            class="w-full max-h-36 sm:max-h-40 h-auto object-contain object-bottom opacity-90 relative z-0 transform origin-bottom scale-110 drop-shadow-md transition-all duration-300"
+            style="mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0.1) 100%); -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0.1) 100%);"
           />
         </div>
 
-        <!-- ORNAMEN GELOMBANG KIRI BAWAH (KONTRAS LEBIH TINGGI & TEGAS) -->
+        <!-- ORNAMEN GELOMBANG KIRI BAWAH (RAPI, HARMONIS & SEJAJAR) -->
         <svg
-          class="absolute -bottom-4 -left-4 w-40 h-40 pointer-events-none select-none z-10 opacity-80"
-          viewBox="0 0 160 160"
+          class="absolute bottom-0 left-0 w-44 h-44 pointer-events-none select-none z-10 opacity-95"
+          viewBox="0 0 180 180"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id="sidebarBottomGold" x1="0" y1="160" x2="160" y2="0" gradientUnits="userSpaceOnUse">
+            <linearGradient id="sidebarBottomGold" x1="0" y1="180" x2="140" y2="70" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.95" />
-              <stop offset="60%" stop-color="#FBBF24" stop-opacity="0.75" />
-              <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.3" />
+              <stop offset="50%" stop-color="#FBBF24" stop-opacity="0.95" />
+              <stop offset="100%" stop-color="#FCD34D" stop-opacity="0.9" />
             </linearGradient>
-            <linearGradient id="sidebarBottomGreen" x1="0" y1="160" x2="140" y2="20" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#10B981" stop-opacity="0.9" />
-              <stop offset="65%" stop-color="#059669" stop-opacity="0.7" />
-              <stop offset="100%" stop-color="#047857" stop-opacity="0.3" />
+            <linearGradient id="sidebarBottomGreen" x1="0" y1="180" x2="110" y2="95" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#10B981" stop-opacity="0.95" />
+              <stop offset="50%" stop-color="#059669" stop-opacity="0.95" />
+              <stop offset="100%" stop-color="#047857" stop-opacity="0.9" />
+            </linearGradient>
+            <linearGradient id="sidebarBottomDarkGreen" x1="0" y1="180" x2="80" y2="120" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#059669" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#064E3B" stop-opacity="0.85" />
             </linearGradient>
           </defs>
-          <path d="M0 65C45 70 90 105 115 160H85C65 125 35 95 0 90V65Z" fill="url(#sidebarBottomGold)" />
-          <path d="M0 95C35 100 75 125 95 160H65C50 135 25 115 0 115V95Z" fill="url(#sidebarBottomGreen)" />
+
+          <!-- Pita Kuning / Emas: Melengkung Halus & Presisi -->
+          <path d="M0 72C50 76 100 114 138 180H108C76 126 36 98 0 98Z" fill="url(#sidebarBottomGold)" />
+
+          <!-- Pita Hijau Terang: Mengalir Sejajar Tepat di Bawah Pita Emas -->
+          <path d="M0 98C36 98 76 126 108 180H82C56 134 24 116 0 120Z" fill="url(#sidebarBottomGreen)" />
+
+          <!-- Pita Hijau Tua / Zamrud: Aksen Elegan Menyatu ke Sudut Bawah -->
+          <path d="M0 120C24 116 56 134 82 180H58C36 145 14 135 0 138Z" fill="url(#sidebarBottomDarkGreen)" />
         </svg>
       </div>
     </aside>
