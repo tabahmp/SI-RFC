@@ -10,19 +10,10 @@
           <p class="text-xs text-[#64748B] mt-0.5">Kelola daftar OPD Pemerintah Provinsi Jawa Barat, status keaktifan, dan kontak kedinasan.</p>
         </div>
         <div class="flex items-center gap-3">
-          <!-- Stat badge info -->
-          <div class="hidden sm:flex items-center gap-3 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-            <span class="text-slate-500">Total: <strong class="text-slate-800">{{ statistik?.total ?? opd?.total ?? 0 }}</strong></span>
-            <span class="text-slate-300">|</span>
-            <span class="text-green-600 font-semibold">Aktif: {{ statistik?.aktif ?? '-' }}</span>
-            <span class="text-slate-300">|</span>
-            <span class="text-slate-500">Nonaktif: {{ statistik?.nonaktif ?? '-' }}</span>
-          </div>
-
           <!-- Tombol Tambah OPD -->
           <button
             @click="bukaModalTambah"
-            class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0757A8] text-white text-xs font-bold rounded-xl hover:bg-[#063D78] transition-all shadow-sm active:scale-95"
+            class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0757A8] text-white text-xs font-bold rounded-xl hover:bg-[#063D78] transition-all shadow-sm"
           >
             <Icon icon="lucide:plus" class="w-4 h-4" />
             Tambah OPD
@@ -31,17 +22,17 @@
       </div>
 
       <!-- Filter Bar -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-wrap gap-3 items-end shadow-xs">
+      <div class="bg-white rounded-xl border border-[#DFE7F1] p-4 flex flex-wrap gap-3 items-end shadow-xs">
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Status</label>
-          <select v-model="filter.status" class="text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 bg-white">
+          <label class="block text-xs font-bold text-[#0F172A] mb-1">Status</label>
+          <select v-model="filter.status" class="h-9 text-xs border border-[#DFE7F1] rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 bg-white">
             <option value="">Semua Status</option>
             <option value="aktif">Aktif</option>
             <option value="nonaktif">Nonaktif</option>
           </select>
         </div>
         <div class="flex-1 min-w-[220px]">
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Cari OPD</label>
+          <label class="block text-xs font-bold text-[#0F172A] mb-1">Cari OPD</label>
           <div class="relative">
             <Icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
             <input
@@ -49,86 +40,77 @@
               @keyup.enter="terapkanFilter"
               type="text"
               placeholder="Cari kode OPD, nama dinas, alamat, atau telepon..."
-              class="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20"
+              class="w-full h-9 pl-8 pr-3 text-xs border border-[#DFE7F1] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] placeholder:text-[#94A3B8]"
             />
           </div>
         </div>
-        <button @click="terapkanFilter" class="px-4 py-2 bg-[#0757A8] text-white text-xs font-bold rounded-lg hover:bg-[#063D78] transition-colors">
+        <button @click="terapkanFilter" class="h-9 px-4 bg-[#0757A8] text-white text-xs font-bold rounded-lg hover:bg-[#063D78] transition-colors">
           Terapkan
         </button>
-        <button @click="resetFilter" class="px-4 py-2 border border-slate-200 text-xs font-semibold text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
+        <button @click="resetFilter" class="h-9 px-4 border border-slate-200 text-xs font-semibold text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
           Reset
         </button>
       </div>
 
       <!-- Tabel OPD -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="bg-white rounded-xl border border-[#DFE7F1] shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full text-xs">
-            <thead class="bg-slate-50 border-b border-slate-100">
-              <tr>
-                <th class="text-left px-5 py-3 text-slate-500 font-semibold w-36">Kode OPD</th>
-                <th class="text-left px-5 py-3 text-slate-500 font-semibold">Nama Perangkat Daerah & Alamat</th>
-                <th class="text-left px-5 py-3 text-slate-500 font-semibold w-48">Telepon / Kontak</th>
-                <th class="text-left px-5 py-3 text-slate-500 font-semibold w-32">Status</th>
-                <th class="text-center px-5 py-3 text-slate-500 font-semibold w-40">Aksi</th>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#F8FAFC] border-b border-slate-200 text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
+                <th class="py-3 px-5 w-40">KODE OPD</th>
+                <th class="py-3 px-5">NAMA PERANGKAT DAERAH & ALAMAT</th>
+                <th class="py-3 px-5 w-48">TELEPON / KONTAK</th>
+                <th class="py-3 px-5 w-32">STATUS</th>
+                <th class="py-3 px-5 text-center w-40">AKSI</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-slate-100 text-xs">
               <tr v-if="!opd?.data?.length">
-                <td colspan="5" class="text-center py-12 text-slate-400">
-                  <Icon icon="lucide:building-2" class="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                  <p>Tidak ada data Organisasi Perangkat Daerah yang ditemukan</p>
+                <td colspan="5" class="py-10 text-center text-slate-400">
+                  <Icon icon="lucide:search-x" class="w-6 h-6 mx-auto mb-2 text-slate-300" />
+                  <p>Tidak ada data Organisasi Perangkat Daerah yang ditemukan.</p>
                 </td>
               </tr>
               <tr v-for="item in opd?.data" :key="item.id" class="hover:bg-slate-50 transition-colors">
                 <!-- Kode OPD -->
-                <td class="px-5 py-3 font-bold text-slate-800">
-                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md font-mono text-[11px] border border-slate-200">
-                    {{ item.kode_opd }}
-                  </span>
+                <td class="py-3.5 px-5 font-semibold text-slate-800">
+                  {{ item.kode_opd }}
                 </td>
 
                 <!-- Nama OPD & Alamat -->
-                <td class="px-5 py-3 text-slate-700">
-                  <div class="font-semibold text-slate-800 text-[12px]">{{ item.nama_opd }}</div>
-                  <div v-if="item.alamat" class="text-slate-400 text-[11px] mt-0.5 line-clamp-1">
+                <td class="py-3.5 px-5">
+                  <div class="font-semibold text-slate-800">{{ item.nama_opd }}</div>
+                  <div v-if="item.alamat" class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">
                     {{ item.alamat }}
                   </div>
                 </td>
 
                 <!-- Telepon -->
-                <td class="px-5 py-3 text-slate-600">
-                  <div class="flex items-center gap-1.5">
-                    <Icon icon="lucide:phone" class="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>{{ item.telepon || '-' }}</span>
-                  </div>
+                <td class="py-3.5 px-5 text-slate-500">
+                  {{ item.telepon || '-' }}
                 </td>
 
                 <!-- Status -->
-                <td class="px-5 py-3">
+                <td class="py-3.5 px-5">
                   <span
                     :class="[
-                      'px-2.5 py-1 rounded-lg text-[10px] font-bold inline-flex items-center gap-1',
-                      item.aktif ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                      'px-2.5 py-1 rounded-full text-[10px] font-bold',
+                      item.aktif ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-600'
                     ]"
                   >
-                    <span
-                      class="w-1.5 h-1.5 rounded-full"
-                      :class="item.aktif ? 'bg-green-500' : 'bg-slate-400'"
-                    ></span>
                     {{ item.aktif ? 'Aktif' : 'Nonaktif' }}
                   </span>
                 </td>
 
                 <!-- Aksi -->
-                <td class="px-5 py-3">
+                <td class="py-3.5 px-5">
                   <div class="flex items-center justify-center gap-1.5">
                     <!-- Edit -->
                     <button
                       @click="bukaModalEdit(item)"
                       title="Edit OPD"
-                      class="p-1.5 text-slate-600 hover:text-[#0757A8] hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200"
+                      class="p-1.5 text-slate-500 hover:text-[#0757A8] hover:bg-slate-100 rounded-lg transition-colors"
                     >
                       <Icon icon="lucide:pencil" class="w-3.5 h-3.5" />
                     </button>
@@ -138,13 +120,12 @@
                       @click="bukaKonfirmasi(item.aktif ? 'nonaktif' : 'aktif', item)"
                       :title="item.aktif ? 'Nonaktifkan OPD' : 'Aktifkan OPD'"
                       :class="[
-                        'px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors flex items-center gap-1 border',
+                        'px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors',
                         item.aktif
-                          ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200'
-                          : 'bg-green-600 text-white hover:bg-green-700 border-green-600'
+                          ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          : 'bg-green-50 text-green-700 hover:bg-green-100'
                       ]"
                     >
-                      <Icon :icon="item.aktif ? 'lucide:ban' : 'lucide:check'" class="w-3 h-3" />
                       {{ item.aktif ? 'Nonaktif' : 'Aktifkan' }}
                     </button>
 
@@ -152,7 +133,7 @@
                     <button
                       @click="bukaKonfirmasi('hapus', item)"
                       title="Hapus OPD"
-                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Icon icon="lucide:trash-2" class="w-3.5 h-3.5" />
                     </button>

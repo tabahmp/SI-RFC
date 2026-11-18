@@ -87,53 +87,47 @@
       </div>
 
       <!-- Tabel Laporan -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="bg-white rounded-xl border border-[#DFE7F1] shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
-          <table class="w-full text-xs">
-            <thead class="bg-slate-50 border-b border-slate-100">
-              <tr>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">No</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Kode RFC</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Pemohon</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">OPD</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Kategori</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Urgensi</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Status</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Tgl Ajuan</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Tgl Selesai</th>
-                <th class="text-left px-4 py-3 text-slate-500 font-semibold">Durasi</th>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#F8FAFC] border-b border-slate-200 text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
+                <th class="py-3 px-4">NO</th>
+                <th class="py-3 px-4">KODE RFC</th>
+                <th class="py-3 px-4">PEMOHON</th>
+                <th class="py-3 px-4">OPD</th>
+                <th class="py-3 px-4">KATEGORI</th>
+                <th class="py-3 px-4">URGENSI</th>
+                <th class="py-3 px-4">STATUS</th>
+                <th class="py-3 px-4">TGL AJUAN</th>
+                <th class="py-3 px-4">TGL SELESAI</th>
+                <th class="py-3 px-4">DURASI</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-slate-100 text-xs">
               <tr v-if="!rfc?.data?.length">
-                <td colspan="10" class="text-center py-12 text-slate-400">
-                  <Icon icon="lucide:file-search" class="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                  <p>Tidak ada data sesuai filter</p>
+                <td colspan="10" class="py-10 text-center text-slate-400">
+                  <Icon icon="lucide:search-x" class="w-6 h-6 mx-auto mb-2 text-slate-300" />
+                  <p>Tidak ada data sesuai filter.</p>
                 </td>
               </tr>
               <tr v-for="(item, idx) in rfc?.data" :key="item.id" class="hover:bg-slate-50 transition-colors">
-                <td class="px-4 py-3 text-slate-400">{{ (rfc.from ?? 0) + idx }}</td>
-                <td class="px-4 py-3">
-                  <Link :href="`/rfc/${item.kode_pelacakan}/workspace`" class="font-mono font-bold text-[#0757A8] hover:underline" title="Buka Workspace">{{ item.kode_pelacakan }}</Link>
+                <td class="py-3.5 px-4 text-slate-400">{{ (rfc.from ?? 0) + idx }}</td>
+                <td class="py-3.5 px-4">
+                  <Link :href="`/rfc/${item.kode_pelacakan}/workspace`" class="font-bold text-[#0757A8] hover:underline" title="Buka Workspace">{{ item.kode_pelacakan }}</Link>
                 </td>
-                <td class="px-4 py-3 text-slate-700">{{ item.nama_pemohon }}</td>
-                <td class="px-4 py-3 text-slate-500 max-w-[140px]"><span class="line-clamp-2">{{ item.opd }}</span></td>
-                <td class="px-4 py-3 text-slate-500">{{ item.kategori }}</td>
-                <td class="px-4 py-3">
+                <td class="py-3.5 px-4 font-semibold text-slate-800">{{ item.nama_pemohon }}</td>
+                <td class="py-3.5 px-4 text-slate-500 max-w-[160px]"><span class="line-clamp-2">{{ item.opd }}</span></td>
+                <td class="py-3.5 px-4 text-slate-500">{{ item.kategori }}</td>
+                <td class="py-3.5 px-4">
                   <span :class="['px-2 py-0.5 rounded-md text-[10px] font-bold', urgensiKelas(item.urgensi)]">{{ item.urgensi_label }}</span>
                 </td>
-                <td class="px-4 py-3">
+                <td class="py-3.5 px-4">
                   <StatusBadge :status="item.status_terkini" :label="item.status_label" />
                 </td>
-                <td class="px-4 py-3 text-slate-500">{{ item.tanggal_ajuan }}</td>
-                <td class="px-4 py-3 text-slate-500">{{ item.tanggal_selesai ?? '-' }}</td>
-                <td class="px-4 py-3 text-slate-500">
-                  <span v-if="item.durasi_teks" class="inline-flex items-center gap-1">
-                    <Icon icon="lucide:clock" class="w-3 h-3 text-slate-400" />
-                    {{ item.durasi_teks }}
-                  </span>
-                  <span v-else class="text-slate-300">-</span>
-                </td>
+                <td class="py-3.5 px-4 text-slate-500">{{ item.tanggal_ajuan }}</td>
+                <td class="py-3.5 px-4 text-slate-500">{{ item.tanggal_selesai ?? '-' }}</td>
+                <td class="py-3.5 px-4 text-slate-500">{{ item.durasi_teks ?? '-' }}</td>
               </tr>
             </tbody>
           </table>
