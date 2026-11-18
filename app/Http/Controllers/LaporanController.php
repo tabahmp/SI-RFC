@@ -91,13 +91,13 @@ class LaporanController extends Controller
             // Header CSV
             fputcsv($output, [
                 'No', 'Kode RFC', 'Pemohon', 'OPD', 'Kategori',
-                'Urgensi', 'Status', 'Tanggal Ajuan', 'Tanggal Selesai', 'Durasi (Hari)',
+                'Urgensi', 'Status', 'Tanggal Ajuan', 'Tanggal Selesai', 'Durasi Proses',
             ]);
 
             foreach ($rfcList as $i => $rfc) {
                 $selesaiPada   = $rfc->status_terkini === 'selesai' ? $rfc->updated_at : null;
-                $durasiHari    = $selesaiPada
-                    ? $rfc->created_at->diffInDays($selesaiPada)
+                $durasiTeks    = $selesaiPada
+                    ? $this->formatDurasi($rfc->created_at, $selesaiPada)
                     : '-';
 
                 fputcsv($output, [
@@ -110,7 +110,7 @@ class LaporanController extends Controller
                     $rfc->status_terkini_label,
                     $rfc->created_at->format('d/m/Y'),
                     $selesaiPada?->format('d/m/Y') ?? '-',
-                    $durasiHari,
+                    $durasiTeks,
                 ]);
             }
 
@@ -118,6 +118,34 @@ class LaporanController extends Controller
         }, $filename, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    /**
+     * Format durasi menjadi teks yang mudah dibaca.
+     * mis: "< 1 jam", "3 jam 20 menit", "2 hari 4 jam"
+     */
+    private function formatDurasi(\Carbon\Carbon $dari, \Carbon\Carbon $sampai): string
+    {
+        $totalMenit = (int) round($dari->diffInMinutes($sampai));
+
+        if ($totalMenit < 1) {
+            return '< 1 menit';
+        }
+
+        if ($totalMenit < 60) {
+            return "{$totalMenit} menit";
+        }
+
+        $jam = intdiv($totalMenit, 60);
+
+        if ($jam < 24) {
+            $sisa = $totalMenit % 60;
+            return $sisa > 0 ? "{$jam} jam {$sisa} menit" : "{$jam} jam";
+        }
+
+        $hari = intdiv($jam, 24);
+        $sisaJam = $jam % 24;
+        return $sisaJam > 0 ? "{$hari} hari {$sisaJam} jam" : "{$hari} hari";
     }
 
     private function formatRfcLaporan(PermohonanRfc $rfc): array
@@ -137,8 +165,8 @@ class LaporanController extends Controller
             'warna_badge'     => $rfc->warna_badge,
             'tanggal_ajuan'   => $rfc->created_at->format('d/m/Y'),
             'tanggal_selesai' => $selesaiPada?->format('d/m/Y'),
-            'durasi_hari'     => $selesaiPada
-                ? $rfc->created_at->diffInDays($selesaiPada)
+            'durasi_teks'     => $selesaiPada
+                ? $this->formatDurasi($rfc->created_at, $selesaiPada)
                 : null,
         ];
     }

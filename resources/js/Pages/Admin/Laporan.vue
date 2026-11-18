@@ -127,7 +127,13 @@
                 </td>
                 <td class="px-4 py-3 text-slate-500">{{ item.tanggal_ajuan }}</td>
                 <td class="px-4 py-3 text-slate-500">{{ item.tanggal_selesai ?? '-' }}</td>
-                <td class="px-4 py-3 text-slate-500">{{ item.durasi_hari != null ? item.durasi_hari + ' hari' : '-' }}</td>
+                <td class="px-4 py-3 text-slate-500">
+                  <span v-if="item.durasi_teks" class="inline-flex items-center gap-1">
+                    <Icon icon="lucide:clock" class="w-3 h-3 text-slate-400" />
+                    {{ item.durasi_teks }}
+                  </span>
+                  <span v-else class="text-slate-300">-</span>
+                </td>
               </tr>
             </tbody>
           </table>

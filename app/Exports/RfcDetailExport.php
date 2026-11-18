@@ -54,7 +54,7 @@ class RfcDetailExport implements FromCollection, WithHeadings, WithMapping, With
             'Urgensi',
             'Status',
             'Target SLA',
-            'Durasi Proses (hari)',
+            'Durasi Proses',
             'History Count',
         ];
     }
@@ -66,7 +66,22 @@ class RfcDetailExport implements FromCollection, WithHeadings, WithMapping, With
         
         $durasiProses = null;
         if ($rfc->status_terkini === 'selesai') {
-            $durasiProses = $rfc->created_at->diffInDays($rfc->updated_at);
+            $totalMenit = (int) round($rfc->created_at->diffInMinutes($rfc->updated_at));
+            if ($totalMenit < 1) {
+                $durasiProses = '< 1 menit';
+            } elseif ($totalMenit < 60) {
+                $durasiProses = "{$totalMenit} menit";
+            } else {
+                $jam = intdiv($totalMenit, 60);
+                if ($jam < 24) {
+                    $sisa = $totalMenit % 60;
+                    $durasiProses = $sisa > 0 ? "{$jam} jam {$sisa} menit" : "{$jam} jam";
+                } else {
+                    $hari = intdiv($jam, 24);
+                    $sisaJam = $jam % 24;
+                    $durasiProses = $sisaJam > 0 ? "{$hari} hari {$sisaJam} jam" : "{$hari} hari";
+                }
+            }
         }
         
         return [
