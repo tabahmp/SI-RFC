@@ -1146,9 +1146,30 @@ class PermohonanRfcController extends Controller
                 ->with('error', 'Dokumen FR-015 baru dapat diakses setelah permohonan diajukan.');
         }
 
+        // Unduh PDF resmi FR-015 bila ada query ?download=1 atau ?pdf=1
+        if ($request->boolean('download') || $request->query('download') == '1' || $request->has('pdf')) {
+            return $this->downloadPdfFr015($rfc);
+        }
+
         return Inertia::render('RFC/Document', [
             'rfc' => $this->formatRfcLengkap($rfc),
         ]);
+    }
+
+    /**
+     * Endpoint terpisah untuk unduh PDF FR-015 resmi.
+     */
+    public function unduhPdf(Request $request, string $kode)
+    {
+        $rfc = $this->loadRfcLengkap($kode);
+        $this->authorizeRfcAccess($rfc);
+
+        if ($rfc->status_terkini === 'draf') {
+            return redirect()->route('rfc.edit', $rfc->id)
+                ->with('error', 'Dokumen FR-015 baru dapat diakses setelah permohonan diajukan.');
+        }
+
+        return $this->downloadPdfFr015($rfc);
     }
 
     /**

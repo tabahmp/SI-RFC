@@ -94,7 +94,7 @@
               </div>
               <div>
                 <label class="block text-[11px] font-bold text-[#475569] mb-1">Asal Organisasi Perangkat Daerah</label>
-                <select v-model="form.opd_id" required
+                <select v-model="form.opd_id" @change="onSelectOpd" required
                   class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all">
                   <option value="" disabled selected>Pilih Organisasi Perangkat Daerah</option>
                   <option v-for="opd in opdList" :key="opd.id" :value="opd.id">{{ opd.nama_opd }}</option>
@@ -111,8 +111,27 @@
               </div>
               <div>
                 <label class="block text-[11px] font-bold text-[#475569] mb-1">Email dinas</label>
-                <input v-model="form.email" type="email" placeholder="nama@diskominfo.jabarprov.go.id" required
-                  class="w-full h-9 px-3 text-xs text-[#0F172A] bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8] transition-all placeholder:text-[#CBD5E1]" />
+                <input
+                  v-model="form.email"
+                  type="email"
+                  placeholder="nama@diskominfo.jabarprov.go.id"
+                  required
+                  :class="[
+                    'w-full h-9 px-3 text-xs text-[#0F172A] bg-white border rounded-lg focus:outline-none transition-all placeholder:text-[#CBD5E1]',
+                    emailDomainError
+                      ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 text-rose-900 bg-rose-50/20'
+                      : 'border-[#E2E8F0] focus:ring-2 focus:ring-[#0757A8]/20 focus:border-[#0757A8]'
+                  ]"
+                />
+                <!-- PEMBERITAHUAN ERROR JIKA DOMAIN BUKAN JABAR -->
+                <div v-if="emailDomainError" class="mt-1 flex items-start gap-1 text-[10px] text-rose-600 font-medium leading-tight">
+                  <Icon icon="lucide:alert-circle" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-rose-500" />
+                  <span>{{ emailDomainError }}</span>
+                </div>
+                <div v-else-if="form.email && isEmailValid" class="mt-1 flex items-center gap-1 text-[10px] text-emerald-600 font-medium leading-tight">
+                  <Icon icon="lucide:check-circle-2" class="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                  <span>Email dinas resmi Pemerintah Provinsi Jawa Barat</span>
+                </div>
               </div>
             </div>
 
@@ -210,8 +229,13 @@
             <!-- Tombol Submit -->
             <button
               type="submit"
-              :disabled="loading"
-              class="w-full h-10 flex items-center justify-center gap-2 bg-[#0757A8] hover:bg-[#063D78] text-white rounded-lg font-bold text-sm shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="loading || Boolean(emailDomainError) || !isEmailValid"
+              :class="[
+                'w-full h-10 flex items-center justify-center gap-2 rounded-lg font-bold text-sm shadow-sm transition-all',
+                (loading || Boolean(emailDomainError) || !isEmailValid)
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-70'
+                  : 'bg-[#0757A8] hover:bg-[#063D78] text-white cursor-pointer'
+              ]"
             >
               <Icon v-if="loading" icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
               <Icon v-else icon="lucide:user-plus" class="w-4 h-4" />
@@ -296,9 +320,62 @@ const form = reactive({
   pernyataan: false,
 })
 
+const emailRegexJabar = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)?jabarprov\.go\.id$/i
+
+// Pengecekan real-time domain email resmi Jawa Barat
+const emailDomainError = computed(() => {
+  const email = (form.email || '').trim()
+  if (!email) return null
+
+  // Jika belum memasukkan '@', belum dievaluasi domainnya
+  if (!email.includes('@')) return null
+
+  const domainPart = email.split('@')[1] || ''
+  if (!domainPart) {
+    return 'Lengkapi domain email dinas (@*.jabarprov.go.id atau @jabarprov.go.id).'
+  }
+
+  // Jika domain bukan jabarprov.go.id atau subdomain resminya
+  if (!emailRegexJabar.test(email)) {
+    return 'Pendaftaran ditolak: Hanya email dinas resmi Pemerintah Provinsi Jawa Barat (@*.jabarprov.go.id atau @jabarprov.go.id) yang dapat didaftarkan.'
+  }
+
+  return null
+})
+
+const isEmailValid = computed(() => {
+  const email = (form.email || '').trim()
+  return email.length > 0 && emailRegexJabar.test(email)
+})
+
+// Otomatisasi penambahan domain email saat memilih OPD
+function onSelectOpd() {
+  if (!form.opd_id) return
+  const selected = props.opdList.find(o => o.id == form.opd_id)
+  if (!selected || !selected.kode_opd) return
+
+  const domain = `@${selected.kode_opd.toLowerCase()}.jabarprov.go.id`
+  const currentEmail = (form.email || '').trim()
+
+  if (!currentEmail || currentEmail.startsWith('@')) {
+    form.email = domain
+  } else if (currentEmail.includes('@')) {
+    const prefix = currentEmail.split('@')[0]
+    form.email = `${prefix}${domain}`
+  } else {
+    form.email = `${currentEmail}${domain}`
+  }
+}
+
 function submitRegister() {
   errorMessage.value = null
   successMessage.value = null
+
+  // Validasi Domain Email Dinas Resmi Jawa Barat
+  if (!isEmailValid.value) {
+    errorMessage.value = 'Pendaftaran ditolak: Anda harus menggunakan email dinas resmi Pemerintah Provinsi Jawa Barat (@*.jabarprov.go.id atau @jabarprov.go.id).'
+    return
+  }
 
   // Validasi Kriteria Keamanan Password (Minimal 8 karakter, Kapital, Angka, dan Simbol)
   const rules = passwordRules.value

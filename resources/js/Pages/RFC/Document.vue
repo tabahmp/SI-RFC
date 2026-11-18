@@ -34,10 +34,23 @@
             <span>Kembali ke Workspace</span>
           </Link>
 
+          <!-- Tombol Cetak Browser -->
+          <button
+            type="button"
+            @click="cetakDokumen"
+            class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            title="Cetak atau simpan sebagai PDF langsung via browser (Ctrl+P)"
+          >
+            <Icon icon="lucide:printer" class="w-4 h-4 text-slate-600" />
+            <span>Cetak Dokumen</span>
+          </button>
+
           <!-- Tombol Unduh PDF FR-015 Resmi (via backend generator DOCX→PDF, tanpa buka tab baru) -->
           <a
             :href="`/rfc/${rfcData.kode_pelacakan}/dokumen?download=1`"
+            download
             class="px-4 py-2 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer no-underline"
+            title="Unduh file PDF resmi FR-015 hasil konversi template Microsoft Word"
           >
             <Icon icon="lucide:download" class="w-4 h-4" />
             <span>Unduh PDF FR-015 (A4)</span>
@@ -545,6 +558,10 @@ function hasJenis(val) {
 function isKriteria(val) {
   const k = (rfcData.value.kriteria_risiko || '').toLowerCase().replace(/\s+/g, '_')
   return k === val
+}
+
+function cetakDokumen() {
+  window.print()
 }
 
 const namaKabidOpd = computed(() => {

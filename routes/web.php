@@ -94,9 +94,13 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
         Route::post('/opd',               [AdminController::class, 'simpanOpd'])->name('opd.simpan');
         Route::patch('/opd/{id}',         [AdminController::class, 'perbaruiOpd'])->name('opd.perbarui');
         Route::patch('/opd/{id}/toggle',  [AdminController::class, 'toggleAktifOpd'])->name('opd.toggle');
+        Route::delete('/opd/{id}',        [AdminController::class, 'hapusOpd'])->name('opd.hapus');
+
         Route::get('/kategori',           [AdminController::class, 'masterKategori'])->name('kategori');
         Route::post('/kategori',          [AdminController::class, 'simpanKategori'])->name('kategori.simpan');
         Route::patch('/kategori/{id}',    [AdminController::class, 'perbaruiKategori'])->name('kategori.perbarui');
+        Route::patch('/kategori/{id}/toggle', [AdminController::class, 'toggleAktifKategori'])->name('kategori.toggle');
+        Route::delete('/kategori/{id}',   [AdminController::class, 'hapusKategori'])->name('kategori.hapus');
         Route::get('/laporan',            [LaporanController::class, 'index'])->name('laporan');
         Route::get('/laporan/ekspor',     [LaporanController::class, 'ekspor'])->name('laporan.ekspor');
     });
@@ -105,6 +109,7 @@ Route::middleware(['auth.user', 'active.user'])->group(function () {
     Route::get('/rfc',               [PermohonanRfcController::class, 'index'])->name('rfc.index');
     Route::get('/rfc/{kode}',        [PermohonanRfcController::class, 'show'])->name('rfc.show');
     Route::get('/rfc/{kode}/dokumen',[PermohonanRfcController::class, 'dokumen'])->name('rfc.dokumen');
+    Route::get('/rfc/{kode}/unduh-pdf',[PermohonanRfcController::class, 'unduhPdf'])->name('rfc.unduh-pdf');
     Route::get('/rfc/{kode}/workspace',[PermohonanRfcController::class, 'workspace'])->name('rfc.workspace');
     Route::get('/analytics',         fn () => Inertia::render('Analytics/Index'))->name('analytics.index');
 

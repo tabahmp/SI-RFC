@@ -49,7 +49,7 @@ class AuthController extends Controller
             'nomor_kontak' => ['required', 'string', 'max:50'],
             'opd_id'       => ['required', 'exists:opd,id'],
             'unit_kerja'   => ['required', 'string', 'max:255'],
-            'email'        => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email'        => ['required', 'email', 'max:255', 'unique:users,email', new EmailJabarprov],
             'password'     => ['required', 'string', 'min:8', 'confirmed'],
             'pernyataan'   => ['accepted'],
         ], [

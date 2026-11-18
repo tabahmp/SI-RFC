@@ -311,10 +311,38 @@ class AdminController extends Controller
 
     public function masterOpd(Request $request)
     {
-        $opd = Opd::orderBy('nama_opd')->paginate(25);
+        $query = Opd::query();
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_opd', 'like', "%{$search}%")
+                  ->orWhere('kode_opd', 'like', "%{$search}%")
+                  ->orWhere('telepon', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'aktif') {
+                $query->where('aktif', true);
+            } elseif ($request->status === 'nonaktif') {
+                $query->where('aktif', false);
+            }
+        }
+
+        $opd = $query->orderBy('nama_opd')->paginate(15)->withQueryString();
+
+        $statistik = [
+            'total'    => Opd::count(),
+            'aktif'    => Opd::where('aktif', true)->count(),
+            'nonaktif' => Opd::where('aktif', false)->count(),
+        ];
 
         return Inertia::render('Admin/MasterOpd', [
-            'opd' => $opd,
+            'opd'         => $opd,
+            'filterAktif' => $request->only(['search', 'status']),
+            'statistik'   => $statistik,
         ]);
     }
 
@@ -325,9 +353,16 @@ class AdminController extends Controller
             'nama_opd' => ['required', 'string', 'max:255'],
             'alamat'   => ['nullable', 'string'],
             'telepon'  => ['nullable', 'string', 'max:30'],
+            'aktif'    => ['nullable', 'boolean'],
         ]);
 
-        $opd = Opd::create(array_merge($validated, ['aktif' => true]));
+        $opd = Opd::create([
+            'kode_opd' => strtoupper(trim($validated['kode_opd'])),
+            'nama_opd' => trim($validated['nama_opd']),
+            'alamat'   => $validated['alamat'] ?? null,
+            'telepon'  => $validated['telepon'] ?? null,
+            'aktif'    => $request->has('aktif') ? (bool) $request->aktif : true,
+        ]);
 
         return response()->json(['message' => 'OPD berhasil ditambahkan.', 'opd' => $opd]);
     }
@@ -340,11 +375,23 @@ class AdminController extends Controller
             'nama_opd' => ['required', 'string', 'max:255'],
             'alamat'   => ['nullable', 'string'],
             'telepon'  => ['nullable', 'string', 'max:30'],
+            'aktif'    => ['nullable', 'boolean'],
         ]);
 
-        $opd->update($validated);
+        $updateData = [
+            'kode_opd' => strtoupper(trim($validated['kode_opd'])),
+            'nama_opd' => trim($validated['nama_opd']),
+            'alamat'   => $validated['alamat'] ?? null,
+            'telepon'  => $validated['telepon'] ?? null,
+        ];
 
-        return response()->json(['message' => 'OPD berhasil diperbarui.', 'opd' => $opd]);
+        if ($request->has('aktif')) {
+            $updateData['aktif'] = (bool) $request->aktif;
+        }
+
+        $opd->update($updateData);
+
+        return response()->json(['message' => 'Data OPD berhasil diperbarui.', 'opd' => $opd]);
     }
 
     public function toggleAktifOpd(int $id)
@@ -353,8 +400,28 @@ class AdminController extends Controller
         $opd->update(['aktif' => ! $opd->aktif]);
 
         return response()->json([
-            'message' => $opd->aktif ? 'OPD diaktifkan.' : 'OPD dinonaktifkan.',
+            'message' => $opd->aktif ? 'OPD berhasil diaktifkan.' : 'OPD berhasil dinonaktifkan.',
             'opd'     => $opd,
+        ]);
+    }
+
+    public function hapusOpd(int $id)
+    {
+        $opd = Opd::findOrFail($id);
+
+        $terkaitUser = User::where('opd_id', $id)->exists();
+        $terkaitRfc  = PermohonanRfc::where('opd_id', $id)->exists();
+
+        if ($terkaitUser || $terkaitRfc) {
+            return response()->json([
+                'message' => 'OPD tidak dapat dihapus karena masih digunakan pada data pengguna atau permohonan RFC. Anda dapat menonaktifkannya.',
+            ], 422);
+        }
+
+        $opd->delete();
+
+        return response()->json([
+            'message' => 'OPD berhasil dihapus.',
         ]);
     }
 
@@ -364,10 +431,36 @@ class AdminController extends Controller
 
     public function masterKategori(Request $request)
     {
-        $kategori = KategoriRfc::orderBy('nama_kategori')->paginate(25);
+        $query = KategoriRfc::query();
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_kategori', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'aktif') {
+                $query->where('aktif', true);
+            } elseif ($request->status === 'nonaktif') {
+                $query->where('aktif', false);
+            }
+        }
+
+        $kategori = $query->orderBy('nama_kategori')->paginate(15)->withQueryString();
+
+        $statistik = [
+            'total'    => KategoriRfc::count(),
+            'aktif'    => KategoriRfc::where('aktif', true)->count(),
+            'nonaktif' => KategoriRfc::where('aktif', false)->count(),
+        ];
 
         return Inertia::render('Admin/MasterKategori', [
-            'kategori' => $kategori,
+            'kategori'    => $kategori,
+            'filterAktif' => $request->only(['search', 'status']),
+            'statistik'   => $statistik,
         ]);
     }
 
@@ -376,11 +469,16 @@ class AdminController extends Controller
         $validated = $request->validate([
             'nama_kategori' => ['required', 'string', 'max:100', 'unique:kategori_rfc,nama_kategori'],
             'deskripsi'     => ['nullable', 'string'],
+            'aktif'         => ['nullable', 'boolean'],
         ]);
 
-        $kategori = KategoriRfc::create(array_merge($validated, ['aktif' => true]));
+        $kategori = KategoriRfc::create([
+            'nama_kategori' => trim($validated['nama_kategori']),
+            'deskripsi'     => $validated['deskripsi'] ?? null,
+            'aktif'         => $request->has('aktif') ? (bool) $request->aktif : true,
+        ]);
 
-        return response()->json(['message' => 'Kategori berhasil ditambahkan.', 'kategori' => $kategori]);
+        return response()->json(['message' => 'Kategori RFC berhasil ditambahkan.', 'kategori' => $kategori]);
     }
 
     public function perbaruiKategori(Request $request, int $id)
@@ -392,9 +490,48 @@ class AdminController extends Controller
             'aktif'         => ['nullable', 'boolean'],
         ]);
 
-        $kategori->update($validated);
+        $updateData = [
+            'nama_kategori' => trim($validated['nama_kategori']),
+            'deskripsi'     => $validated['deskripsi'] ?? null,
+        ];
 
-        return response()->json(['message' => 'Kategori berhasil diperbarui.', 'kategori' => $kategori]);
+        if ($request->has('aktif')) {
+            $updateData['aktif'] = (bool) $request->aktif;
+        }
+
+        $kategori->update($updateData);
+
+        return response()->json(['message' => 'Data kategori RFC berhasil diperbarui.', 'kategori' => $kategori]);
+    }
+
+    public function toggleAktifKategori(int $id)
+    {
+        $kategori = KategoriRfc::findOrFail($id);
+        $kategori->update(['aktif' => ! $kategori->aktif]);
+
+        return response()->json([
+            'message'  => $kategori->aktif ? 'Kategori RFC berhasil diaktifkan.' : 'Kategori RFC berhasil dinonaktifkan.',
+            'kategori' => $kategori,
+        ]);
+    }
+
+    public function hapusKategori(int $id)
+    {
+        $kategori = KategoriRfc::findOrFail($id);
+
+        $terkaitRfc = PermohonanRfc::where('kategori_id', $id)->exists();
+
+        if ($terkaitRfc) {
+            return response()->json([
+                'message' => 'Kategori tidak dapat dihapus karena masih digunakan pada data permohonan RFC. Anda dapat menonaktifkannya.',
+            ], 422);
+        }
+
+        $kategori->delete();
+
+        return response()->json([
+            'message' => 'Kategori RFC berhasil dihapus.',
+        ]);
     }
 
     // ═══════════════════════════════════════════════════════════════════════
