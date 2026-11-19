@@ -1513,6 +1513,59 @@ class PermohonanRfcController extends Controller
         $imageData = base64_decode($data[1]);
         $ext       = str_contains($data[0], 'png') ? 'png' : 'jpg';
         $namaFile  = uniqid('ttd_', true) . ".{$ext}";
+
+        // Auto-crop ruang kosong transparan di sekitar goresan tanda tangan agar tampil besar & presisi
+        if ($ext === 'png' && function_exists('imagecreatefromstring')) {
+            $im = @imagecreatefromstring($imageData);
+            if ($im) {
+                $w = imagesx($im);
+                $h = imagesy($im);
+                $minX = $w;
+                $minY = $h;
+                $maxX = 0;
+                $maxY = 0;
+                $found = false;
+
+                for ($y = 0; $y < $h; $y++) {
+                    for ($x = 0; $x < $w; $x++) {
+                        $rgba = imagecolorat($im, $x, $y);
+                        $alpha = ($rgba >> 24) & 0x7F;
+                        if ($alpha < 120) {
+                            $found = true;
+                            if ($x < $minX) $minX = $x;
+                            if ($x > $maxX) $maxX = $x;
+                            if ($y < $minY) $minY = $y;
+                            if ($y > $maxY) $maxY = $y;
+                        }
+                    }
+                }
+
+                if ($found) {
+                    $pad = 8;
+                    $cropX = max(0, $minX - $pad);
+                    $cropY = max(0, $minY - $pad);
+                    $cropW = min($w - $cropX, ($maxX - $minX + 1) + $pad * 2);
+                    $cropH = min($h - $cropY, ($maxY - $minY + 1) + $pad * 2);
+
+                    $dst = imagecreatetruecolor($cropW, $cropH);
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                    $trans = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+                    imagefill($dst, 0, 0, $trans);
+                    imagecopy($dst, $im, 0, 0, $cropX, $cropY, $cropW, $cropH);
+
+                    ob_start();
+                    imagepng($dst);
+                    $croppedData = ob_get_clean();
+                    if ($croppedData) {
+                        $imageData = $croppedData;
+                    }
+                    imagedestroy($dst);
+                }
+                imagedestroy($im);
+            }
+        }
+
         // Simpan di disk 'public' agar bisa diakses via /storage/
         Storage::disk('public')->put("{$folder}/{$namaFile}", $imageData);
         // Kembalikan path dengan prefix 'public/' agar Storage::url() menghasilkan URL yang benar

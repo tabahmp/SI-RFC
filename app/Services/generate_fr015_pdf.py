@@ -181,10 +181,10 @@ def generate_pdf(data: dict, pdf_output_path: str) -> str:
                     p.paragraph_format.space_before = Pt(2)
                     p.paragraph_format.space_after = Pt(2)
                     if img_path and os.path.exists(img_path):
-                        # Sisipkan gambar tanda tangan
+                        # Sisipkan gambar tanda tangan (ukuran tinggi proporsional besar & presisi)
                         try:
                             run = p.add_run()
-                            run.add_picture(img_path, width=Inches(1.2))
+                            run.add_picture(img_path, height=Inches(0.75))
                         except Exception:
                             # Fallback jika gambar tidak valid
                             p.add_run(" ")

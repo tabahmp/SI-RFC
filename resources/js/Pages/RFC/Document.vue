@@ -39,13 +39,13 @@
             type="button"
             @click="cetakDokumen"
             class="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-            title="Cetak atau simpan sebagai PDF langsung via browser (Ctrl+P)"
+            title="Cetak dokumen sesuai template resmi FR-015 (Ctrl+P)"
           >
             <Icon icon="lucide:printer" class="w-4 h-4 text-slate-600" />
             <span>Cetak Dokumen</span>
           </button>
 
-          <!-- Tombol Unduh PDF FR-015 Resmi (via backend generator DOCX→PDF, tanpa buka tab baru) -->
+          <!-- Tombol Unduh PDF FR-015 Resmi -->
           <a
             :href="`/rfc/${rfcData.kode_pelacakan}/dokumen?download=1`"
             download
@@ -58,180 +58,216 @@
         </div>
       </div>
 
-      <!-- KERTAS PRATINJAU DOKUMEN BERUKURAN STANDAR A4 (MENGIKUTI TEMPLATE RESMI WORD) -->
+      <!-- KERTAS PRATINJAU DOKUMEN BERUKURAN STANDAR A4 PERSIS SESUAI TEMPLATE FR-015 -->
       <div id="printable-fr015" class="w-full flex flex-col items-center py-2">
         <div
-          class="fr015-sheet bg-white border border-slate-300 shadow-xl text-black a4-sheet p-0"
-          style="width: 190mm; min-height: 277mm; box-sizing: border-box; background: #ffffff; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 9.5pt; line-height: 1.3; color: #000000;"
+          class="fr015-sheet bg-white border border-slate-300 shadow-xl text-black"
+          style="width: 210mm; min-height: 297mm; padding: 14mm 10mm 14mm 10mm; box-sizing: border-box; background: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 10.5pt; line-height: 1.35; color: #000000;"
         >
-          <!-- KOP / HEADER BOX STANDAR FR-015 (23mm | 107mm | 60mm = 190mm) -->
+          <!-- TABEL UTAMA DOKUMEN FR-015 DENGAN THEAD KOP BERULANG DI SETIAP HALAMAN CETAK -->
           <table
-            class="fr015-kop-table"
+            class="fr015-main-table"
             cellpadding="0"
             cellspacing="0"
-            style="width: 190mm; border-collapse: collapse; border: 1.5px solid #000; table-layout: fixed; margin: 0;"
+            style="width: 190mm; border-collapse: collapse; table-layout: fixed; font-size: 10.5pt; margin: 0 auto;"
           >
             <colgroup>
-              <col style="width: 23mm;" />
-              <col style="width: 107mm;" />
-              <col style="width: 60mm;" />
+              <col style="width: 62.5mm;" />
+              <col style="width: 32.5mm;" />
+              <col style="width: 95mm;" />
             </colgroup>
-            <tbody>
-              <tr>
-                <!-- Kolom 1: Logo Pemprov Jabar -->
-                <td
-                  style="width: 23mm; border: 1px solid #000; padding: 4px 2px; text-align: center; vertical-align: middle; background: #ffffff;"
-                >
-                  <img
-                    src="/images/assets/logo_fr015_jabar.png"
-                    alt="Logo Pemprov Jabar"
-                    style="max-height: 48px; max-width: 50px; width: auto; height: auto; display: block; margin: 0 auto; object-fit: contain;"
-                  />
-                </td>
 
-                <!-- Kolom 2: Judul Formulir -->
-                <td
-                  style="width: 107mm; border: 1px solid #000; padding: 6px 8px; text-align: center; vertical-align: middle; font-weight: bold; font-size: 11pt; letter-spacing: 0.5px; background: #ffffff;"
-                >
-                  FORMULIR PERMINTAAN PERUBAHAN TI
-                </td>
+            <!-- THEAD: Otomatis berulang di halaman 1, halaman 2, dst. saat dicetak -->
+            <thead class="fr015-repeating-header">
+              <!-- Spacer margin atas khusus saat print (agar tiap halaman punya jarak atas 12mm) -->
+              <tr class="print-only-spacer-row">
+                <td colspan="3" class="no-border-cell print-top-spacer" style="border: none !important; padding: 0; height: 0;"></td>
+              </tr>
 
-                <!-- Kolom 3: Metadata Dokumen ISO SMKI -->
-                <td
-                  style="width: 60mm; border: 1px solid #000; padding: 4px 6px; vertical-align: middle; font-size: 7.5pt; line-height: 1.3; background: #ffffff;"
-                >
-                  <table cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse; border: none; margin: 0;">
+              <!-- Baris Kop Surat (5 Kolom x 3 Baris Persis Template Word) -->
+              <tr class="kop-container-row">
+                <td colspan="3" class="no-border-cell" style="border: none !important; padding: 0 0 5.5mm 0; background: #ffffff;">
+                  <table
+                    class="fr015-kop-table"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="width: 190mm; border-collapse: collapse; table-layout: fixed; margin: 0;"
+                  >
+                    <colgroup>
+                      <col style="width: 22.3mm;" />
+                      <col style="width: 107.5mm;" />
+                      <col style="width: 21.3mm;" />
+                      <col style="width: 4.2mm;" />
+                      <col style="width: 34.7mm;" />
+                    </colgroup>
                     <tbody>
                       <tr>
-                        <td style="border: none; padding: 1px 0; font-weight: bold; width: 24mm; white-space: nowrap;">No. Dokumen</td>
-                        <td style="border: none; padding: 1px 2px; width: 3mm; text-align: center;">:</td>
-                        <td style="border: none; padding: 1px 0; width: 33mm; font-size: 7.5pt; white-space: nowrap;">FR-015/KOM.03.05/<br>SANDIKAMI</td>
+                        <!-- Kolom 1: Logo Pemprov Jabar (Rowspan 3) -->
+                        <td
+                          rowspan="3"
+                          style="border: 1px solid #000000; padding: 4px 2px; text-align: center; vertical-align: middle; background: #ffffff;"
+                        >
+                          <img
+                            src="/images/assets/logo_fr015_jabar.png"
+                            alt="Logo Pemprov Jabar"
+                            style="max-height: 60px; max-width: 58px; width: auto; height: auto; display: block; margin: 0 auto; object-fit: contain;"
+                          />
+                        </td>
+
+                        <!-- Kolom 2: Judul Formulir (Rowspan 3) -->
+                        <td
+                          rowspan="3"
+                          style="border: 1px solid #000000; padding: 6px 8px; text-align: center; vertical-align: middle; font-weight: bold; font-size: 13.5pt; font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #000000;"
+                        >
+                          FORMULIR PERMINTAAN PERUBAHAN TI
+                        </td>
+
+                        <!-- Kolom 3-5 Baris 1: No. Dokumen -->
+                        <td style="border: 1px solid #000000; padding: 3px 5px; font-size: 8pt; font-weight: normal; vertical-align: middle; background: #ffffff;">
+                          No.<br />Dokumen
+                        </td>
+                        <td style="border: 1px solid #000000; padding: 3px 2px; font-size: 8pt; font-weight: normal; text-align: center; vertical-align: middle; background: #ffffff;">
+                          :
+                        </td>
+                        <td style="border: 1px solid #000000; padding: 3px 5px; font-size: 8pt; font-weight: normal; vertical-align: middle; background: #ffffff;">
+                          FR-015/KOM.03.05/<br />SANDIKAMI
+                        </td>
                       </tr>
                       <tr>
-                        <td style="border: none; padding: 1px 0; font-weight: bold;">No. Revisi</td>
-                        <td style="border: none; padding: 1px 2px; text-align: center;">:</td>
-                        <td style="border: none; padding: 1px 0;">1.1</td>
+                        <!-- Kolom 3-5 Baris 2: No. Revisi -->
+                        <td style="border: 1px solid #000000; padding: 3px 5px; font-size: 8pt; font-weight: normal; vertical-align: middle; background: #ffffff;">
+                          No. Revisi
+                        </td>
+                        <td style="border: 1px solid #000000; padding: 3px 2px; font-size: 8pt; font-weight: normal; text-align: center; vertical-align: middle; background: #ffffff;">
+                          :
+                        </td>
+                        <td style="border: 1px solid #000000; padding: 3px 5px; font-size: 8pt; font-weight: normal; vertical-align: middle; background: #ffffff;">
+                          1.1
+                        </td>
                       </tr>
                       <tr>
-                        <td style="border: none; padding: 1px 0; font-weight: bold; white-space: nowrap;">Tanggal Berlaku</td>
-                        <td style="border: none; padding: 1px 2px; text-align: center;">:</td>
-                        <td style="border: none; padding: 1px 0; white-space: nowrap;">28 April 2022</td>
+                        <!-- Kolom 3-5 Baris 3: Tanggal Berlaku -->
+                        <td style="border: 1px solid #000000; padding: 3px 5px; font-size: 8pt; font-weight: normal; vertical-align: middle; background: #ffffff;">
+                          Tanggal<br />Berlaku
+                        </td>
+                        <td style="border: 1px solid #000000; padding: 3px 2px; font-size: 8pt; font-weight: normal; text-align: center; vertical-align: middle; background: #ffffff;">
+                          :
+                        </td>
+                        <td style="border: 1px solid #000000; padding: 3px 5px; font-size: 8pt; font-weight: normal; vertical-align: middle; background: #ffffff;">
+                          28 April 2022
+                        </td>
                       </tr>
                     </tbody>
                   </table>
                 </td>
               </tr>
-            </tbody>
-          </table>
+            </thead>
 
-          <!-- TABEL UTAMA FORMULIR FR-015 PERSIS SESUAI TEMPLATE WORD (ROW 0 HINGGA ROW 19 UTUH) -->
-          <table
-            class="fr015-main-table"
-            cellpadding="0"
-            cellspacing="0"
-            style="width: 190mm; border-collapse: collapse; border: 1.5px solid #000; border-top: none; table-layout: fixed; font-size: 9.5pt; margin: 0;"
-          >
-            <colgroup>
-              <col style="width: 63mm;" />
-              <col style="width: 127mm;" />
-            </colgroup>
+            <!-- TFOOT: Menjaga jarak margin bawah di setiap halaman saat dicetak -->
+            <tfoot class="fr015-repeating-footer">
+              <tr class="print-only-spacer-row">
+                <td colspan="3" class="no-border-cell print-bottom-spacer" style="border: none !important; padding: 0; height: 0;"></td>
+              </tr>
+            </tfoot>
+
             <tbody>
-              <!-- Row 0: No. RFC -->
-              <tr>
-                <td colspan="2" style="border: 1px solid #000; padding: 4px 8px; font-weight: bold; background: #ffffff; font-size: 9.5pt;">
-                  No. RFC : <span style="font-size: 9.5pt; font-weight: bold; margin-left: 4px;">{{ rfcData.kode_pelacakan || '-' }}</span>
+              <!-- Row 0: No. RFC (Tanpa border atas, kiri, kanan — persis template) -->
+              <tr class="no-outer-border-row">
+                <td
+                  colspan="3"
+                  class="no-top-left-right-border"
+                  style="border-top: none !important; border-left: none !important; border-right: none !important; border-bottom: 1px solid #000000; padding: 2px 2px 5px 2px; font-weight: bold; background: #ffffff; font-size: 11pt;"
+                >
+                  No. RFC : {{ rfcData.kode_pelacakan || '' }}
                 </td>
               </tr>
 
-              <!-- Row 1: Header Seksi I: Informasi Pemohon (Center Aligned) -->
-              <tr class="section-header">
-                <td colspan="2" style="border: 1px solid #000; padding: 3.5px 8px; font-weight: bold; font-size: 9pt; background: #E5E7EB; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; vertical-align: middle;">
+              <!-- Row 1: Header Seksi I: Informasi Pemohon (Navy #1F3864, Teks Putih, Rata Kiri) -->
+              <tr class="navy-section-row">
+                <td
+                  colspan="3"
+                  class="navy-section-cell"
+                  style="border: 1px solid #000000; padding: 4.5px 8px; font-weight: bold; font-size: 11pt; background-color: #1F3864 !important; color: #FFFFFF !important; text-align: left; vertical-align: middle;"
+                >
                   Informasi Pemohon
                 </td>
               </tr>
 
               <!-- Row 2: Pemohon -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 5px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Pemohon
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff;">
-                  <span style="font-weight: 600;">{{ rfcData.nama_pemohon || '-' }}</span>
-                  <span v-if="rfcData.nip" style="display: block; font-size: 8.5pt; color: #4B5563; margin-top: 1px;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 5px 8px; vertical-align: middle; background: #ffffff;">
+                  <div>{{ rfcData.nama_pemohon || '-' }}</div>
+                  <div v-if="rfcData.nip" style="font-size: 9.5pt;">
                     NIP. {{ rfcData.nip }}
-                  </span>
+                  </div>
                 </td>
               </tr>
 
               <!-- Row 3: Unit Kerja -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 5px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Unit Kerja
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 5px 8px; vertical-align: middle; background: #ffffff;">
                   {{ rfcData.unit_kerja || '-' }}
                 </td>
               </tr>
 
               <!-- Row 4: Perangkat Daerah -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 5px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Perangkat Daerah
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 5px 8px; vertical-align: middle; background: #ffffff;">
                   {{ rfcData.opd || '-' }}
                 </td>
               </tr>
 
               <!-- Row 5: Nomor Surat / Contact Person -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
-                  Nomor Surat/Contact Person
+                <td style="border: 1px solid #000000; padding: 5px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
+                  Nomor Surat/<i>Contact Person</i>
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 5px 8px; vertical-align: middle; background: #ffffff;">
                   <span v-if="rfcData.nomor_surat">No: {{ rfcData.nomor_surat }} • </span>
                   <span>{{ rfcData.nomor_kontak || '-' }}</span>
-                  <span v-if="rfcData.email_dinas" style="color: #4B5563;"> ({{ rfcData.email_dinas }})</span>
+                  <span v-if="rfcData.email_dinas"> ({{ rfcData.email_dinas }})</span>
                 </td>
               </tr>
 
-              <!-- Row 6: Header Seksi II: Informasi Data (Center Aligned) -->
-              <tr class="section-header">
-                <td colspan="2" style="border: 1px solid #000; padding: 3.5px 8px; font-weight: bold; font-size: 9pt; background: #E5E7EB; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; vertical-align: middle;">
+              <!-- Row 6: Header Seksi II: Informasi Data (Navy #1F3864, Teks Putih, Rata Kiri) -->
+              <tr class="navy-section-row">
+                <td
+                  colspan="3"
+                  class="navy-section-cell"
+                  style="border: 1px solid #000000; padding: 4.5px 8px; font-weight: bold; font-size: 11pt; background-color: #1F3864 !important; color: #FFFFFF !important; text-align: left; vertical-align: middle;"
+                >
                   Informasi Data
                 </td>
               </tr>
 
-              <!-- Row 7: Jenis Perubahan (Checkbox Sesuai Template Word) -->
+              <!-- Row 7: Jenis Perubahan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4.5px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 5px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Jenis Perubahan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4.5px 8px; vertical-align: top; background: #ffffff;">
-                  <div style="display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: center;">
-                    <span style="display: inline-flex; align-items: center; gap: 4px;">
-                      <span style="font-size: 10pt; font-weight: bold;">{{ hasJenis('permintaan_baru') ? '☑' : '☐' }}</span>
-                      <span>Permintaan Baru</span>
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 4px;">
-                      <span style="font-size: 10pt; font-weight: bold;">{{ hasJenis('peningkatan_sistem') ? '☑' : '☐' }}</span>
-                      <span>Peningkatan Sistem</span>
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 4px;">
-                      <span style="font-size: 10pt; font-weight: bold;">{{ hasJenis('perbaikan_sistem') ? '☑' : '☐' }}</span>
-                      <span>Perbaikan Sistem</span>
-                    </span>
-                  </div>
+                <td colspan="2" style="border: 1px solid #000000; padding: 5px 8px; vertical-align: middle; background: #ffffff;">
+                  <span>{{ hasJenis('permintaan_baru') ? '☑' : '☐' }} Permintaan Baru</span>
+                  <span style="margin-left: 14px;">{{ hasJenis('peningkatan_sistem') ? '☑' : '☐' }} Peningkatan Sistem</span>
+                  <span style="margin-left: 14px;">{{ hasJenis('perbaikan_sistem') ? '☑' : '☐' }} Perbaikan Sistem</span>
                 </td>
               </tr>
 
               <!-- Row 8: Perubahan yang diharapkan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4.5px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Perubahan yang diharapkan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4.5px 8px; vertical-align: top; background: #ffffff; line-height: 1.35;">
-                  <div v-if="rfcData.nama_aplikasi" style="font-weight: bold; color: #1E3A8A; margin-bottom: 2px;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: top; background: #ffffff;">
+                  <div v-if="rfcData.nama_aplikasi" style="font-weight: bold; margin-bottom: 2px;">
                     Sistem/Aplikasi: {{ rfcData.nama_aplikasi }}
                   </div>
                   <div>{{ rfcData.deskripsi || rfcData.deskripsi_perubahan || '-' }}</div>
@@ -240,57 +276,58 @@
 
               <!-- Row 9: Latar belakang perubahan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4.5px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Latar belakang perubahan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4.5px 8px; vertical-align: top; background: #ffffff; line-height: 1.35; white-space: pre-wrap;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: top; background: #ffffff; white-space: pre-wrap;">
                   {{ rfcData.latar_belakang || '-' }}
                 </td>
               </tr>
 
               <!-- Row 10: Rincian atas perubahan yang diajukan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4.5px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
-                  Rincian atas perubahan yang diajukan
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
+                  Rincian atas perubahan<br />yang diajukan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4.5px 8px; vertical-align: top; background: #ffffff; line-height: 1.35; white-space: pre-wrap;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: top; background: #ffffff; white-space: pre-wrap;">
                   {{ rfcData.rincian_perubahan || '-' }}
                 </td>
               </tr>
 
               <!-- Row 11: Risiko terkait bila perubahan tidak dilakukan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4.5px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
-                  Risiko terkait bila perubahan tidak dilakukan
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
+                  Risiko terkait bila perubahan<br />tidak dilakukan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4.5px 8px; vertical-align: top; background: #ffffff; line-height: 1.35;">
-                  <div style="font-weight: bold; margin-bottom: 2px;">Kriteria:</div>
-                  <div style="display: flex; flex-wrap: wrap; gap: 3px 14px; margin-bottom: 5px; font-size: 8.5pt;">
-                    <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('malapetaka') ? '☑' : '☐' }}</span>
-                      <span>Malapetaka</span>
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('sangat_berat') ? '☑' : '☐' }}</span>
-                      <span>Sangat Berat</span>
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('berat') ? '☑' : '☐' }}</span>
-                      <span>Berat</span>
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('agak_berat') ? '☑' : '☐' }}</span>
-                      <span>Agak Berat</span>
-                    </span>
-                    <span style="display: inline-flex; align-items: center; gap: 3px;">
-                      <span style="font-size: 9.5pt; font-weight: bold;">{{ isKriteria('tidak_berat') ? '☑' : '☐' }}</span>
-                      <span>Tidak Berat</span>
-                    </span>
-                  </div>
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: top; background: #ffffff;">
+                  <div style="font-weight: bold; margin-bottom: 4px;">Kriteria:</div>
+                  <table cellpadding="0" cellspacing="0" class="no-border-table" style="width: 100%; border: none !important; margin-bottom: 6px;">
+                    <tbody>
+                      <tr>
+                        <td class="no-border-cell" style="border: none !important; padding: 1px 0; width: 36%;">
+                          {{ isKriteria('malapetaka') ? '☑' : '☐' }} Malapetaka
+                        </td>
+                        <td class="no-border-cell" style="border: none !important; padding: 1px 0; width: 36%;">
+                          {{ isKriteria('sangat_berat') ? '☑' : '☐' }} Sangat Berat
+                        </td>
+                        <td class="no-border-cell" style="border: none !important; padding: 1px 0; width: 28%;">
+                          {{ isKriteria('berat') ? '☑' : '☐' }} Berat
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="no-border-cell" style="border: none !important; padding: 1px 0;">
+                          {{ isKriteria('agak_berat') ? '☑' : '☐' }} Agak Berat
+                        </td>
+                        <td class="no-border-cell" style="border: none !important; padding: 1px 0;" colspan="2">
+                          {{ isKriteria('tidak_berat') ? '☑' : '☐' }} Tidak Berat
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                  <div style="font-weight: bold; margin-bottom: 1px;">Keterangan:</div>
+                  <div style="font-weight: bold; margin-bottom: 2px;">Keterangan:</div>
                   <div>{{ rfcData.risiko_tidak_dilakukan || rfcData.keterangan_risiko || '-' }}</div>
-                  <div v-if="rfcData.rencana_pemulihan" style="font-size: 8.5pt; color: #4B5563; margin-top: 3px;">
+                  <div v-if="rfcData.rencana_pemulihan" style="margin-top: 3px;">
                     <strong>Rencana Pemulihan:</strong> {{ rfcData.rencana_pemulihan }}
                   </div>
                 </td>
@@ -298,226 +335,167 @@
 
               <!-- Row 12: Solusi yang diharapkan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4.5px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Solusi yang diharapkan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4.5px 8px; vertical-align: top; background: #ffffff; line-height: 1.35;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: top; background: #ffffff;">
                   {{ rfcData.solusi_diharapkan || '-' }}
                 </td>
               </tr>
 
               <!-- Row 13: Risiko Perubahan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Risiko Perubahan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff; line-height: 1.35;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: top; background: #ffffff;">
                   {{ rfcData.risiko_perubahan || '-' }}
                 </td>
               </tr>
 
               <!-- Row 14: Alternatif Perubahan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Alternatif Perubahan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff; line-height: 1.35;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: top; background: #ffffff;">
                   {{ rfcData.alternatif_perubahan || '-' }}
                 </td>
               </tr>
 
               <!-- Row 15: Biaya Perubahan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Biaya Perubahan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; background: #ffffff;">
                   {{ rfcData.biaya_perubahan || '-' }}
                 </td>
               </tr>
 
               <!-- Row 16: Waktu Perubahan -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Waktu Perubahan
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; background: #ffffff;">
                   {{ rfcData.waktu_perubahan || '-' }}
                 </td>
               </tr>
 
               <!-- Row 17: Lampiran -->
               <tr>
-                <td style="width: 63mm; border: 1px solid #000; padding: 4px 8px; font-weight: bold; vertical-align: top; background: #ffffff;">
+                <td style="border: 1px solid #000000; padding: 6px 8px; font-weight: bold; vertical-align: middle; background: #ffffff;">
                   Lampiran
                 </td>
-                <td style="width: 127mm; border: 1px solid #000; padding: 4px 8px; vertical-align: top; background: #ffffff;">
+                <td colspan="2" style="border: 1px solid #000000; padding: 6px 8px; vertical-align: middle; background: #ffffff;">
                   <div v-if="rfcData.lampiran_urls && rfcData.lampiran_urls.length > 0">
-                    <div v-for="(fileUrl, fIdx) in rfcData.lampiran_urls" :key="fIdx" style="font-size: 8.5pt; margin-bottom: 2px;">
-                      • <a :href="fileUrl" target="_blank" style="color: #1D4ED8; text-decoration: underline;">Dokumen Lampiran {{ fIdx + 1 }}</a>
+                    <div v-for="(fileUrl, fIdx) in rfcData.lampiran_urls" :key="fIdx">
+                      <a :href="fileUrl" target="_blank" style="color: #000000; text-decoration: none;">
+                        Dokumen Lampiran {{ fIdx + 1 }}
+                      </a>
                     </div>
                   </div>
-                  <div v-else style="color: #6B7280; font-style: italic; font-size: 8.5pt;">
-                    Terlampir pada berkas digital sistem SI-RFC
+                  <div v-else>
+                    -
                   </div>
                 </td>
               </tr>
-            </tbody>
-          </table>
 
-          <!-- =========================================================================
-               BAGIAN PERSETUJUAN & TANDA TANGAN DIGITAL: PRESISI KE TENGAH (95mm | 95mm = 50% | 50%)
-               ========================================================================= -->
-          <table
-            class="fr015-ttd-table"
-            cellpadding="0"
-            cellspacing="0"
-            style="width: 190mm; border-collapse: collapse; border: 1.5px solid #000; border-top: none; table-layout: fixed; font-size: 9.5pt; margin: 0;"
-          >
-            <colgroup>
-              <col style="width: 95mm;" />
-              <col style="width: 95mm;" />
-            </colgroup>
-            <tbody>
-              <!-- Row 18: Pemohon (Kiri 50%) & Koordinator Agen (Kanan 50%) -->
+              <!-- Row 18: Pemohon (Kiri 95mm) & Koordinator Agen (Kanan 95mm) — Rata Tengah Persis Template -->
               <tr style="page-break-inside: avoid; break-inside: avoid;">
-                <!-- KIRI: Pemohon (DIBUAT OLEH) -->
-                <td style="width: 95mm; border: 1px solid #000; padding: 10px 12px; vertical-align: top; background: #ffffff;">
-                  <div style="font-size: 8.5pt; color: #374151; margin-bottom: 2px;">
-                    Tanggal: {{ rfcData.tanggal_permohonan || '-' }}
-                  </div>
-                  <div style="font-weight: bold; font-size: 9.5pt;">Dibuat Oleh:</div>
-                  <div style="font-size: 9.5pt; margin-bottom: 4px;">Pemohon,</div>
+                <!-- KIRI: Dibuat Oleh Pemohon -->
+                <td colspan="2" style="width: 95mm; border: 1px solid #000000; padding: 8px 10px; text-align: center; vertical-align: top; background: #ffffff; font-size: 9.5pt;">
+                  <div>Tanggal: {{ rfcData.tanggal_permohonan || '' }}</div>
+                  <div>Dibuat Oleh:</div>
+                  <div>Pemohon,</div>
 
-                  <!-- Tanda Tangan Digital Pemohon -->
-                  <div style="height: 58px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                  <div style="height: 78px; display: flex; align-items: center; justify-content: center; margin: 4px auto;">
                     <img
                       v-if="rfcData.tanda_tangan_url"
                       :src="rfcData.tanda_tangan_url"
                       alt="Tanda Tangan Pemohon"
-                      style="max-height: 52px; max-width: 170px; object-fit: contain;"
+                      style="height: 74px; max-height: 74px; max-width: 220px; width: auto; object-fit: contain; display: block; margin: 0 auto;"
                     />
-                    <div v-else style="font-size: 8pt; color: #9CA3AF; font-style: italic;">
-                      (Tanda Tangan Digital Pemohon)
-                    </div>
                   </div>
 
-                  <div style="margin-top: 4px; padding-top: 3px; border-top: 1px solid #000; text-align: center;">
-                    <div style="font-weight: bold; font-size: 9.5pt;">( {{ rfcData.nama_pemohon || '.........................' }} )</div>
-                    <div v-if="rfcData.nip" style="font-size: 8.5pt; color: #4B5563;">NIP. {{ rfcData.nip }}</div>
-                  </div>
+                  <div>( {{ rfcData.nama_pemohon || '……………………………' }} )</div>
+                  <div v-if="rfcData.nip" style="font-size: 8.5pt;">NIP. {{ rfcData.nip }}</div>
                 </td>
 
-                <!-- KANAN: Koordinator Agen (DITERIMA OLEH - Pimpinan Diskominfo) -->
-                <td style="width: 95mm; border: 1px solid #000; padding: 10px 12px; vertical-align: top; background: #ffffff;">
-                  <div style="font-size: 8.5pt; color: #374151; margin-bottom: 2px;">
-                    Tanggal: {{ rfcData.persetujuan ? (rfcData.persetujuan.diputuskan_pada_tanggal || rfcData.persetujuan.diputuskan_pada || '........................................') : '........................................' }}
+                <!-- KANAN: Diterima Oleh Koordinator Agen -->
+                <td style="width: 95mm; border: 1px solid #000000; padding: 8px 10px; text-align: center; vertical-align: top; background: #ffffff; font-size: 9.5pt;">
+                  <div>
+                    Tanggal: {{ rfcData.persetujuan ? (rfcData.persetujuan.diputuskan_pada_tanggal || rfcData.persetujuan.diputuskan_pada || '') : '' }}
                   </div>
-                  <div style="font-weight: bold; font-size: 9.5pt;">Diterima Oleh:</div>
-                  <div style="font-size: 9.5pt; margin-bottom: 4px;">Koordinator Agen,</div>
+                  <div>Diterima Oleh:</div>
+                  <div>Koordinator Agen,</div>
 
-                  <!-- TTD Pimpinan: tampil jika sudah ada persetujuan -->
-                  <div style="height: 58px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                  <div style="height: 78px; display: flex; align-items: center; justify-content: center; margin: 4px auto;">
                     <img
                       v-if="rfcData.persetujuan && rfcData.persetujuan.tanda_tangan_pimpinan_url"
                       :src="rfcData.persetujuan.tanda_tangan_pimpinan_url"
-                      alt="Tanda Tangan Pimpinan"
-                      style="max-height: 52px; max-width: 170px; object-fit: contain;"
+                      alt="Tanda Tangan Koordinator Agen"
+                      style="height: 74px; max-height: 74px; max-width: 220px; width: auto; object-fit: contain; display: block; margin: 0 auto;"
                     />
-                    <div v-else-if="rfcData.persetujuan" style="text-align: center;">
-                      <div style="font-size: 8pt; font-weight: bold; color: #047857; letter-spacing: 0.5px;">✓ DISETUJUI</div>
-                      <div style="font-size: 7.5pt; color: #15803D;">{{ rfcData.persetujuan.diputuskan_pada }}</div>
-                    </div>
-                    <span v-else style="color: #9CA3AF; font-size: 8.5pt; font-style: italic;">
-                      (Menunggu verifikasi agen Diskominfo)
-                    </span>
                   </div>
 
-                  <div style="margin-top: 4px; padding-top: 3px; border-top: 1px solid #000; text-align: center;">
-                    <div style="font-weight: bold; font-size: 9.5pt;">( {{ rfcData.persetujuan ? rfcData.persetujuan.pimpinan : '………………………………………' }} )</div>
-                    <div v-if="rfcData.persetujuan && rfcData.persetujuan.pimpinan_nip" style="font-size: 8.5pt; color: #4B5563;">NIP. {{ rfcData.persetujuan.pimpinan_nip }}</div>
-                    <div v-else style="font-size: 8.5pt; color: #6B7280;">Koordinator Agen Diskominfo</div>
+                  <div>( {{ rfcData.persetujuan ? rfcData.persetujuan.pimpinan : '……………………………' }} )</div>
+                  <div v-if="rfcData.persetujuan && rfcData.persetujuan.pimpinan_nip" style="font-size: 8.5pt;">
+                    NIP. {{ rfcData.persetujuan.pimpinan_nip }}
                   </div>
                 </td>
               </tr>
 
-              <!-- Row 19: Penanggung Jawab OPD (Kiri) & Pelaksana Agen (Kanan) -->
+              <!-- Row 19: Penanggung Jawab Perangkat (Kiri 95mm) & Agen (Kanan 95mm) — Rata Tengah Persis Template -->
               <tr style="page-break-inside: avoid; break-inside: avoid;">
-                <!-- KIRI: Penanggung Jawab Perangkat (KABID OPD PEMOHON) -->
-                <td style="width: 95mm; border: 1px solid #000; padding: 10px 12px; vertical-align: top; background: #ffffff;">
-                  <div style="font-size: 8.5pt; color: #374151; margin-bottom: 2px;">
-                    Tanggal: {{ rfcData.tanggal_permohonan || '-' }}
-                  </div>
-                  <div style="font-weight: bold; font-size: 9.5pt;">Disetujui Oleh:</div>
-                  <div style="font-size: 9.5pt; font-weight: bold;">Penanggung Jawab Perangkat Daerah,</div>
-                  <div style="font-size: 8.5pt; color: #4B5563; margin-bottom: 3px;">
-                    Kepala Bidang {{ rfcData.unit_kerja || 'OPD Pemohon' }}
-                  </div>
+                <!-- KIRI: Disetujui Oleh Penanggung Jawab Perangkat -->
+                <td colspan="2" style="width: 95mm; border: 1px solid #000000; padding: 8px 10px; text-align: center; vertical-align: top; background: #ffffff; font-size: 9.5pt;">
+                  <div>Tanggal: {{ rfcData.tanggal_permohonan || '' }}</div>
+                  <div>Disetujui Oleh:</div>
+                  <div>Penanggung Jawab Perangkat,</div>
 
-                  <!-- TTD Kabid OPD: gunakan tanda tangan dari input Create.vue -->
-                  <div style="height: 58px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                  <div style="height: 78px; display: flex; align-items: center; justify-content: center; margin: 4px auto;">
                     <img
                       v-if="rfcData.tanda_tangan_penanggung_jawab_url"
                       :src="rfcData.tanda_tangan_penanggung_jawab_url"
-                      alt="Tanda Tangan Kepala Bidang OPD"
-                      style="max-height: 52px; max-width: 170px; object-fit: contain;"
+                      alt="Tanda Tangan Penanggung Jawab"
+                      style="height: 74px; max-height: 74px; max-width: 220px; width: auto; object-fit: contain; display: block; margin: 0 auto;"
                     />
-                    <div v-else style="text-align: center; background: #F0FDF4; border: 1px dashed #86EFAC; border-radius: 4px; padding: 4px 8px; width: 100%;">
-                      <div style="font-size: 7.5pt; font-weight: bold; color: #166534; letter-spacing: 0.5px;">
-                        ✓ TERVERIFIKASI KEDINASAN OPD
-                      </div>
-                      <div style="font-size: 7pt; color: #15803D;">
-                        Disetujui Kepala Bidang Kedinasan
-                      </div>
-                    </div>
                   </div>
 
-                  <div style="margin-top: 4px; padding-top: 3px; border-top: 1px solid #000; text-align: center;">
-                    <div style="font-weight: bold; font-size: 9.5pt;">( {{ rfcData.nama_penanggung_jawab || namaKabidOpd }} )</div>
-                    <div style="font-size: 8.5pt; color: #4B5563;">NIP. {{ rfcData.nip_penanggung_jawab || nipKabidOpd }}</div>
+                  <div>( {{ rfcData.nama_penanggung_jawab || '……………………………' }} )</div>
+                  <div v-if="rfcData.nip_penanggung_jawab" style="font-size: 8.5pt;">
+                    NIP. {{ rfcData.nip_penanggung_jawab }}
                   </div>
                 </td>
 
-                <!-- KANAN: Agen Pelaksana (DILAKSANAKAN OLEH - Teknisi) -->
-                <td style="width: 95mm; border: 1px solid #000; padding: 10px 12px; vertical-align: top; background: #ffffff;">
-                  <div style="font-size: 8.5pt; color: #374151; margin-bottom: 2px;">
-                    Tanggal: {{ rfcData.bast ? (rfcData.bast.dibuat_pada_tanggal || rfcData.bast.dibuat_pada || '........................................') : '........................................' }}
+                <!-- KANAN: Dilaksanakan Oleh Agen -->
+                <td style="width: 95mm; border: 1px solid #000000; padding: 8px 10px; text-align: center; vertical-align: top; background: #ffffff; font-size: 9.5pt;">
+                  <div>
+                    Tanggal: {{ rfcData.bast ? (rfcData.bast.dibuat_pada_tanggal || rfcData.bast.dibuat_pada || '') : '' }}
                   </div>
-                  <div style="font-weight: bold; font-size: 9.5pt;">Dilaksanakan Oleh:</div>
-                  <div style="font-size: 9.5pt; margin-bottom: 4px;">Agen,</div>
+                  <div>Dilaksanakan Oleh:</div>
+                  <div>Agen,</div>
 
-                  <!-- TTD Teknisi: tampil jika BAST sudah ada -->
-                  <div style="height: 58px; display: flex; align-items: center; justify-content: center; margin: 4px 0;">
+                  <div style="height: 78px; display: flex; align-items: center; justify-content: center; margin: 4px auto;">
                     <img
                       v-if="rfcData.bast && rfcData.bast.tanda_tangan_teknisi_url"
                       :src="rfcData.bast.tanda_tangan_teknisi_url"
-                      alt="Tanda Tangan Teknisi"
-                      style="max-height: 52px; max-width: 170px; object-fit: contain;"
+                      alt="Tanda Tangan Agen"
+                      style="height: 74px; max-height: 74px; max-width: 220px; width: auto; object-fit: contain; display: block; margin: 0 auto;"
                     />
-                    <div v-else-if="rfcData.bast" style="text-align: center;">
-                      <div style="font-size: 8pt; font-weight: bold; color: #0e7490; letter-spacing: 0.5px;">✓ SELESAI DIKERJAKAN</div>
-                      <div style="font-size: 7.5pt; color: #0e7490;">BAST: {{ rfcData.bast.nomor_dokumen }}</div>
-                    </div>
-                    <span v-else style="color: #9CA3AF; font-size: 8.5pt; font-style: italic;">
-                      (Menunggu pelaksanaan teknis agen)
-                    </span>
                   </div>
 
-                  <div style="margin-top: 4px; padding-top: 3px; border-top: 1px solid #000; text-align: center;">
-                    <div style="font-weight: bold; font-size: 9.5pt;">( {{ rfcData.bast ? rfcData.bast.nama_teknisi : '………………………………………' }} )</div>
-                    <div v-if="rfcData.bast && rfcData.bast.nip_teknisi !== '-'" style="font-size: 8.5pt; color: #4B5563;">NIP. {{ rfcData.bast.nip_teknisi }}</div>
-                    <div v-else style="font-size: 8.5pt; color: #6B7280;">Pelaksana Agen Diskominfo</div>
+                  <div>( {{ rfcData.bast ? rfcData.bast.nama_teknisi : '……………………………' }} )</div>
+                  <div v-if="rfcData.bast && rfcData.bast.nip_teknisi && rfcData.bast.nip_teknisi !== '-'" style="font-size: 8.5pt;">
+                    NIP. {{ rfcData.bast.nip_teknisi }}
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
 
-          <!-- Catatan Kaki Dokumen Resmi -->
-          <div style="margin-top: 8px; font-size: 7.5pt; color: #4B5563; display: flex; justify-content: space-between; padding: 0 2px;">
-            <span>FR-015 • Formulir Permintaan Perubahan TI</span>
-            <span>Dokumen Resmi Sistem Informasi SI-RFC Prov. Jawa Barat</span>
-          </div>
         </div>
       </div>
 
@@ -563,27 +541,20 @@ function isKriteria(val) {
 function cetakDokumen() {
   window.print()
 }
-
-const namaKabidOpd = computed(() => {
-  if (rfcData.value.nama_penanggung_jawab) return rfcData.value.nama_penanggung_jawab
-  const opd = (rfcData.value.opd || '').toLowerCase()
-  if (opd.includes('komunikasi') || opd.includes('diskominfo')) return 'Drs. H. Iwan G., M.Si'
-  if (opd.includes('bappeda')) return 'Dr. Ir. H. Ahmad Sudrajat, M.T.'
-  if (opd.includes('dpmptsp') || opd.includes('perizinan')) return 'Dra. Hj. Ratna Sari, M.Si'
-  if (opd.includes('bkd') || opd.includes('kepegawaian')) return 'H. Dedi Mulyadi, S.IP, M.Si'
-  if (opd.includes('pemberdayaan') || opd.includes('perempuan') || opd.includes('anak')) return 'Dra. Hj. Nunung Nurjanah, M.Si'
-  return 'Drs. H. Penanggung Jawab OPD, M.Si'
-})
-
-const nipKabidOpd = computed(() => {
-  if (rfcData.value.nip_penanggung_jawab) return rfcData.value.nip_penanggung_jawab
-  return '19760812 200103 1 004'
-})
 </script>
 
 <style>
-/* Gaya cetak bila user menekan Ctrl+P pada browser */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 0mm !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body * {
     visibility: hidden !important;
   }
@@ -594,25 +565,11 @@ const nipKabidOpd = computed(() => {
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 210mm !important;
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
-    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
-  }
-
-  #app,
-  .min-h-screen,
-  main,
-  div {
-    min-height: 0 !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    overflow: visible !important;
-    display: block !important;
+    font-family: Arial, Helvetica, sans-serif !important;
   }
 
   .no-print {
@@ -628,39 +585,65 @@ const nipKabidOpd = computed(() => {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 210mm !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
   }
 
   .fr015-sheet {
-    width: 190mm !important;
-    max-width: 190mm !important;
+    width: 210mm !important;
+    max-width: 210mm !important;
+    min-height: 0 !important;
     margin: 0 auto !important;
-    padding: 0 !important;
-    background: #ffffff !important;
+    padding: 0 10mm !important;
+    box-sizing: border-box !important;
     border: none !important;
     box-shadow: none !important;
-    min-height: 0 !important;
+    background: #ffffff !important;
   }
 
-  table {
+  .fr015-repeating-header {
+    display: table-header-group !important;
+  }
+
+  .fr015-repeating-footer {
+    display: table-footer-group !important;
+  }
+
+  .print-top-spacer {
+    height: 12mm !important;
+  }
+
+  .print-bottom-spacer {
+    height: 12mm !important;
+  }
+
+  .fr015-kop-table {
     width: 190mm !important;
-    border-collapse: collapse !important;
-    table-layout: fixed !important;
     margin: 0 !important;
-    padding: 0 !important;
   }
 
-  th,
-  td {
-    border: 1px solid #000000 !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    word-break: break-word !important;
-    vertical-align: top;
+  .fr015-main-table {
+    width: 190mm !important;
+    margin: 0 auto !important;
+  }
+
+  .navy-section-cell {
+    background-color: #1F3864 !important;
+    color: #FFFFFF !important;
+  }
+
+  .no-top-left-right-border {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid #000000 !important;
+  }
+
+  .no-border-table,
+  .no-border-cell {
+    border: none !important;
   }
 
   tr {

@@ -52,17 +52,21 @@ const isDrawing = ref(false)
 const isEmpty = ref(true)
 let ctx = null
 
+function applyBrushStyle(context) {
+  if (!context) return
+  context.strokeStyle = '#0f172a'
+  context.lineWidth = 2.8
+  context.lineCap = 'round'
+  context.lineJoin = 'round'
+}
+
 onMounted(() => {
   const canvas = canvasRef.value
   canvas.width = canvas.offsetWidth
   canvas.height = canvas.offsetHeight
   ctx = canvas.getContext('2d')
-  ctx.strokeStyle = '#0f172a'
-  ctx.lineWidth = 2
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
+  applyBrushStyle(ctx)
 
-  // If initial value provided, draw it
   if (props.modelValue) {
     loadImageFromDataURL(props.modelValue)
   }
@@ -82,11 +86,73 @@ watch(
 function loadImageFromDataURL(dataURL) {
   const img = new Image()
   img.onload = () => {
-    ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height)
-    ctx.drawImage(img, 0, 0, canvasRef.value.width, canvasRef.value.height)
+    const canvas = canvasRef.value
+    if (!canvas || !ctx) return
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Gambar secara proporsional & presisi di tengah canvas (tanpa distorsi stretch)
+    const pad = 16
+    const maxW = canvas.width - pad * 2
+    const maxH = canvas.height - pad * 2
+    const scale = Math.min(1, maxW / img.width, maxH / img.height)
+    const drawW = img.width * scale
+    const drawH = img.height * scale
+    const drawX = (canvas.width - drawW) / 2
+    const drawY = (canvas.height - drawH) / 2
+
+    ctx.drawImage(img, drawX, drawY, drawW, drawH)
+    applyBrushStyle(ctx)
     isEmpty.value = false
   }
   img.src = dataURL
+}
+
+/**
+ * Potong otomatis ruang kosong transparan di sekeliling goresan tanda tangan
+ * agar hasil tanda tangan tampil besar, penuh, dan presisi di tengah dokumen.
+ */
+function getCroppedDataURL(canvas) {
+  const w = canvas.width
+  const h = canvas.height
+  const context = canvas.getContext('2d')
+  const imgData = context.getImageData(0, 0, w, h).data
+
+  let minX = w
+  let minY = h
+  let maxX = 0
+  let maxY = 0
+  let found = false
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const alpha = imgData[(y * w + x) * 4 + 3]
+      if (alpha > 15) {
+        found = true
+        if (x < minX) minX = x
+        if (x > maxX) maxX = x
+        if (y < minY) minY = y
+        if (y > maxY) maxY = y
+      }
+    }
+  }
+
+  if (!found) {
+    return canvas.toDataURL('image/png')
+  }
+
+  const pad = 10
+  const cropX = Math.max(0, minX - pad)
+  const cropY = Math.max(0, minY - pad)
+  const cropW = Math.min(w - cropX, maxX - minX + 1 + pad * 2)
+  const cropH = Math.min(h - cropY, maxY - minY + 1 + pad * 2)
+
+  const trimmed = document.createElement('canvas')
+  trimmed.width = cropW
+  trimmed.height = cropH
+  const trimmedCtx = trimmed.getContext('2d')
+  trimmedCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH)
+
+  return trimmed.toDataURL('image/png')
 }
 
 function getPos(e, canvas) {
@@ -99,6 +165,7 @@ function getPos(e, canvas) {
 
 function startDraw(e) {
   isDrawing.value = true
+  applyBrushStyle(ctx)
   const pos = getPos(e, canvasRef.value)
   ctx.beginPath()
   ctx.moveTo(pos.x, pos.y)
@@ -115,7 +182,7 @@ function draw(e) {
 function stopDraw() {
   if (!isDrawing.value) return
   isDrawing.value = false
-  emit('update:modelValue', canvasRef.value.toDataURL('image/png'))
+  emit('update:modelValue', getCroppedDataURL(canvasRef.value))
 }
 
 function startDrawTouch(e) {
