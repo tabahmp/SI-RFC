@@ -316,10 +316,18 @@
                     v-model="formAkun.email"
                     type="email"
                     required
-                    placeholder="nama@instansi.go.id"
-                    class="w-full text-xs border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 transition-colors"
-                    :class="formErrors.email ? 'border-red-400 bg-red-50/20' : 'border-slate-200'"
+                    placeholder="nama@diskominfo.jabarprov.go.id"
+                    class="w-full text-xs border rounded-lg px-3 py-2.5 focus:outline-none transition-colors"
+                    :class="(formErrors.email || emailDomainError) ? 'border-red-400 bg-red-50/20 focus:ring-2 focus:ring-red-500/20' : 'border-slate-200 focus:ring-2 focus:ring-[#0757A8]/20'"
                   />
+                  <div v-if="emailDomainError" class="mt-1 flex items-start gap-1 text-[10px] text-rose-600 font-medium leading-tight">
+                    <Icon icon="lucide:alert-circle" class="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-rose-500" />
+                    <span>{{ emailDomainError }}</span>
+                  </div>
+                  <div v-else-if="formAkun.email && isEmailValid" class="mt-1 flex items-center gap-1 text-[10px] text-emerald-600 font-medium leading-tight">
+                    <Icon icon="lucide:check-circle-2" class="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                    <span>Email dinas resmi Pemerintah Provinsi Jawa Barat</span>
+                  </div>
                   <p v-if="formErrors.email" class="mt-1 text-[11px] text-red-600">{{ formErrors.email[0] }}</p>
                 </div>
 
@@ -350,6 +358,7 @@
                   </label>
                   <select
                     v-model="formAkun.opd_id"
+                    @change="onSelectOpd"
                     class="w-full text-xs border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 bg-white transition-colors"
                   >
                     <option value="">-- Tanpa OPD / Internal --</option>
@@ -433,7 +442,7 @@
                       v-model="formAkun.password"
                       :type="showPassword ? 'text' : 'password'"
                       :required="!isEditing"
-                      placeholder="Minimal 8 karakter"
+                      placeholder="Minimal 8 karakter unik"
                       class="w-full text-xs border rounded-lg pl-3 pr-9 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0757A8]/20 transition-colors"
                       :class="formErrors.password ? 'border-red-400 bg-red-50/20' : 'border-slate-200'"
                     />
@@ -446,6 +455,46 @@
                     </button>
                   </div>
                   <p v-if="formErrors.password" class="mt-1 text-[11px] text-red-600">{{ formErrors.password[0] }}</p>
+                </div>
+
+                <!-- Indikator Keamanan Password (Live Strength & Checklist Syarat) -->
+                <div v-if="formAkun.password" class="md:col-span-2 p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-2">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="font-bold text-[#475569]">Kekuatan kata sandi:</span>
+                    <span :class="passwordStrength.colorClass" class="font-extrabold uppercase tracking-wide">
+                      {{ passwordStrength.label }}
+                    </span>
+                  </div>
+
+                  <!-- Bar Progres Kekuatan -->
+                  <div class="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden flex gap-1">
+                    <div
+                      v-for="i in 4"
+                      :key="i"
+                      class="flex-1 h-full rounded-full transition-all duration-300"
+                      :class="i <= passwordStrength.score ? passwordStrength.barClass : 'bg-[#E2E8F0]'"
+                    ></div>
+                  </div>
+
+                  <!-- Checklist 4 Kriteria Keamanan -->
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[10.5px]">
+                    <div class="flex items-center gap-1.5" :class="passwordRules.hasMinLength ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                      <Icon :icon="passwordRules.hasMinLength ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Minimal 8 karakter</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" :class="passwordRules.hasUpper ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                      <Icon :icon="passwordRules.hasUpper ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Huruf kapital (A-Z)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" :class="passwordRules.hasNumber ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                      <Icon :icon="passwordRules.hasNumber ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Angka (0-9)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" :class="passwordRules.hasSymbol ? 'text-emerald-600 font-medium' : 'text-slate-400'">
+                      <Icon :icon="passwordRules.hasSymbol ? 'lucide:check-circle-2' : 'lucide:circle'" class="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Simbol unik (@$!%*?&#)</span>
+                    </div>
+                  </div>
                 </div>
 
               </div>
@@ -461,8 +510,8 @@
                 </button>
                 <button
                   type="submit"
-                  :disabled="formSaving"
-                  class="px-6 py-2.5 bg-[#0757A8] text-white text-xs font-bold rounded-xl hover:bg-[#063D78] transition-colors disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                  :disabled="formSaving || Boolean(emailDomainError) || !isEmailValid || !isPasswordValid"
+                  class="px-6 py-2.5 bg-[#0757A8] text-white text-xs font-bold rounded-xl hover:bg-[#063D78] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
                 >
                   <Icon v-if="formSaving" icon="lucide:loader-2" class="w-3.5 h-3.5 animate-spin" />
                   <span>{{ formSaving ? 'Menyimpan...' : (isEditing ? 'Perbarui Akun' : 'Simpan Akun') }}</span>
@@ -580,6 +629,96 @@ const formAkun = ref({
   password: '',
 })
 
+const emailRegexJabar = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.)?jabarprov\.go\.id$/i
+
+const emailDomainError = computed(() => {
+  const email = (formAkun.value.email || '').trim()
+  if (!email) return null
+
+  if (!email.includes('@')) return null
+
+  const domainPart = email.split('@')[1] || ''
+  if (!domainPart) {
+    return 'Lengkapi domain email dinas (@*.jabarprov.go.id atau @jabarprov.go.id).'
+  }
+
+  if (!emailRegexJabar.test(email)) {
+    return 'Hanya email dinas resmi Pemerintah Provinsi Jawa Barat (@*.jabarprov.go.id atau @jabarprov.go.id) yang dapat didaftarkan.'
+  }
+
+  return null
+})
+
+const isEmailValid = computed(() => {
+  const email = (formAkun.value.email || '').trim()
+  return email.length > 0 && emailRegexJabar.test(email)
+})
+
+// Evaluasi aturan keamanan password (Kapital, Simbol, Angka, Minimal 8 Karakter)
+const passwordRules = computed(() => {
+  const pwd = formAkun.value.password || ''
+  return {
+    hasMinLength: pwd.length >= 8,
+    hasUpper: /[A-Z]/.test(pwd),
+    hasNumber: /[0-9]/.test(pwd),
+    hasSymbol: /[^A-Za-z0-9]/.test(pwd),
+  }
+})
+
+const passwordStrength = computed(() => {
+  const rules = passwordRules.value
+  let score = 0
+  if (rules.hasMinLength) score++
+  if (rules.hasUpper) score++
+  if (rules.hasNumber) score++
+  if (rules.hasSymbol) score++
+
+  if (score <= 1) {
+    return { score, label: 'Sangat Lemah', colorClass: 'text-rose-500', barClass: 'bg-rose-500' }
+  } else if (score === 2) {
+    return { score, label: 'Lemah', colorClass: 'text-amber-500', barClass: 'bg-amber-500' }
+  } else if (score === 3) {
+    return { score, label: 'Sedang', colorClass: 'text-sky-600', barClass: 'bg-sky-600' }
+  } else {
+    return { score, label: 'Kuat & Aman', colorClass: 'text-emerald-600', barClass: 'bg-emerald-600' }
+  }
+})
+
+const isPasswordValid = computed(() => {
+  const pwd = formAkun.value.password || ''
+  if (isEditing.value && !pwd) return true
+  const r = passwordRules.value
+  return r.hasMinLength && r.hasUpper && r.hasNumber && r.hasSymbol
+})
+
+function onSelectOpd() {
+  if (!formAkun.value.opd_id) {
+    const currentEmail = (formAkun.value.email || '').trim()
+    if (currentEmail.startsWith('@')) {
+      formAkun.value.email = ''
+    } else if (currentEmail.includes('@')) {
+      const prefix = currentEmail.split('@')[0]
+      formAkun.value.email = prefix ? `${prefix}@jabarprov.go.id` : ''
+    }
+    return
+  }
+
+  const selected = props.daftarOpd.find(o => o.id == formAkun.value.opd_id)
+  if (!selected || !selected.kode_opd) return
+
+  const domain = `@${selected.kode_opd.toLowerCase()}.jabarprov.go.id`
+  const currentEmail = (formAkun.value.email || '').trim()
+
+  if (!currentEmail || currentEmail.startsWith('@')) {
+    formAkun.value.email = domain
+  } else if (currentEmail.includes('@')) {
+    const prefix = currentEmail.split('@')[0]
+    formAkun.value.email = `${prefix}${domain}`
+  } else {
+    formAkun.value.email = `${currentEmail}${domain}`
+  }
+}
+
 function bukaModalTambah() {
   isEditing.value = false
   showPassword.value = false
@@ -646,9 +785,20 @@ function tutupModalForm() {
 
 async function simpanFormAkun() {
   if (formSaving.value) return
-  formSaving.value = true
   formErrors.value = {}
   formErrorGeneral.value = ''
+
+  if (!isEmailValid.value) {
+    formErrorGeneral.value = 'Hanya email dinas resmi Pemerintah Provinsi Jawa Barat (@*.jabarprov.go.id atau @jabarprov.go.id) yang dapat didaftarkan.'
+    return
+  }
+
+  if (!isPasswordValid.value) {
+    formErrorGeneral.value = 'Kata sandi harus minimal 8 karakter dan mengandung huruf kapital, angka, serta simbol unik.'
+    return
+  }
+
+  formSaving.value = true
 
   try {
     if (isEditing.value) {

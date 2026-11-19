@@ -92,8 +92,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'nama_lengkap'    => ['required', 'string', 'max:255'],
-            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password'        => ['required', 'string', 'min:8'],
+            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email', new \App\Rules\EmailJabarprov],
+            'password'        => ['required', 'string', 'min:8', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
             'peran_id'        => ['required', 'exists:peran,id'],
             'opd_id'          => ['nullable', 'exists:opd,id'],
             'nip'             => ['nullable', 'string', 'max:30'],
@@ -106,7 +106,8 @@ class AdminController extends Controller
             'email.email'              => 'Format email tidak valid.',
             'email.unique'             => 'Email sudah terdaftar.',
             'password.required'        => 'Kata sandi wajib diisi.',
-            'password.min'             => 'Kata sandi minimal 8 karakter.',
+            'password.min'             => 'Kata sandi harus minimal 8 karakter.',
+            'password.regex'           => 'Kata sandi harus minimal 8 karakter dan mengandung huruf kapital, angka, serta simbol unik.',
             'peran_id.required'        => 'Peran akun wajib dipilih.',
             'status_aktivasi.required' => 'Status akun wajib dipilih.',
         ]);
@@ -146,8 +147,8 @@ class AdminController extends Controller
 
         $request->validate([
             'nama_lengkap'    => ['required', 'string', 'max:255'],
-            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'password'        => ['nullable', 'string', 'min:8'],
+            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id, new \App\Rules\EmailJabarprov],
+            'password'        => ['nullable', 'string', 'min:8', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[^A-Za-z0-9]/'],
             'peran_id'        => ['required', 'exists:peran,id'],
             'opd_id'          => ['nullable', 'exists:opd,id'],
             'nip'             => ['nullable', 'string', 'max:30'],
@@ -159,7 +160,8 @@ class AdminController extends Controller
             'email.required'           => 'Email dinas wajib diisi.',
             'email.email'              => 'Format email tidak valid.',
             'email.unique'             => 'Email sudah terdaftar oleh pengguna lain.',
-            'password.min'             => 'Kata sandi minimal 8 karakter.',
+            'password.min'             => 'Kata sandi harus minimal 8 karakter.',
+            'password.regex'           => 'Kata sandi harus minimal 8 karakter dan mengandung huruf kapital, angka, serta simbol unik.',
             'peran_id.required'        => 'Peran akun wajib dipilih.',
             'status_aktivasi.required' => 'Status akun wajib dipilih.',
         ]);
