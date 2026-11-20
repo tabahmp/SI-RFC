@@ -2,13 +2,8 @@
   <AppLayout>
     <div class="max-w-4xl mx-auto space-y-6">
 
-      <!-- Breadcrumb -->
+      <!-- Header -->
       <div>
-        <nav class="text-xs text-slate-500 mb-1 flex items-center gap-1">
-          <span>Akun</span>
-          <span>/</span>
-          <span class="text-slate-700 font-medium">Profil kedinasan</span>
-        </nav>
         <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Pengaturan akun</h1>
         <p class="text-sm text-slate-500 mt-0.5">Kelola identitas pemohon, keamanan, dan preferensi pemberitahuan.</p>
       </div>
@@ -133,11 +128,6 @@
           </div>
 
         </div>
-      </div>
-
-      <!-- Footer halaman -->
-      <div class="text-[11px] text-slate-400 text-center pb-2">
-        SI-RFC v2.0 &middot; FR-015 &middot; Pengaturan Akun Kedinasan
       </div>
 
     </div>

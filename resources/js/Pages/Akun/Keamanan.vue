@@ -2,14 +2,8 @@
   <AppLayout>
     <div class="max-w-4xl mx-auto space-y-6">
 
-      <!-- Breadcrumb -->
+      <!-- Header -->
       <div>
-        <nav class="text-xs text-slate-500 mb-1 flex items-center gap-1">
-          <span>Akun</span><span>/</span>
-          <Link href="/akun/profil" class="hover:text-[#0757a8]">Pengaturan</Link>
-          <span>/</span>
-          <span class="text-slate-700 font-medium">Keamanan</span>
-        </nav>
         <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Ubah kata sandi</h1>
         <p class="text-sm text-slate-500 mt-0.5">Perbarui kata sandi untuk menjaga keamanan akses akun kedinasan Anda.</p>
       </div>
@@ -203,10 +197,6 @@
           </div>
         </div>
 
-      </div>
-
-      <div class="text-[11px] text-slate-400 text-center pb-2">
-        SI-RFC v2.0 &middot; SMKI ISO/IEC 27001 &middot; Pengaturan Keamanan Akun Kedinasan
       </div>
 
     </div>

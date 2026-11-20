@@ -149,14 +149,13 @@
           </div>
           <div class="space-y-1">
             <!-- Pengaturan Akun -->
-            <Link
+            <SidebarLink
               href="/akun/profil"
+              :aktif="isPath('/akun')"
+              icon="lucide:settings"
+              label="Pengaturan Akun"
               @click="tutupSidebarMobile"
-              class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-[#D5E3F5] hover:bg-white/[0.08] hover:text-white transition-all"
-            >
-              <Icon icon="lucide:settings" class="w-5 h-5 text-[#8DB4DE]" />
-              <span>Pengaturan Akun</span>
-            </Link>
+            />
 
             <!-- Keluar -->
             <Link

@@ -10,10 +10,6 @@
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div class="text-[13px] text-[#64748B] mb-1 flex items-center gap-1.5">
-              <span>Pemohon</span><span>/</span>
-              <span class="text-[#0757A8] font-semibold">Draf</span>
-            </div>
             <h1 class="text-2xl sm:text-[32px] font-bold text-[#0F172A] tracking-tight">Draf permohonan</h1>
             <p class="text-xs sm:text-sm text-[#64748B] mt-1">Lanjutkan pengisian FR-015. Draf belum dikirim ke verifikator.</p>
           </div>
@@ -122,10 +118,6 @@
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div class="text-[13px] text-[#64748B] mb-1 flex items-center gap-1.5">
-              <span>Pemohon</span><span>/</span>
-              <span class="text-[#0757A8] font-semibold">Permohonan saya</span>
-            </div>
             <h1 class="text-2xl sm:text-[32px] font-bold text-[#0F172A] tracking-tight">Semua permohonan</h1>
             <p class="text-xs sm:text-sm text-[#64748B] mt-1">Cari, saring, dan pantau perjalanan perubahan layanan TI Anda.</p>
           </div>
@@ -255,11 +247,6 @@
             <p class="text-xs sm:text-sm text-[#64748B] mt-0.5">Kelola pengajuan perubahan layanan TI dan pantau posisi penelaahan secara langsung.</p>
           </div>
           <div class="flex items-center gap-2.5">
-            <button type="button" @click="activeView = 'permohonan'"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-xs transition-all">
-              <Icon icon="lucide:list" class="w-4 h-4 text-[#0757A8]" />
-              <span>Lihat Permohonan Saya</span>
-            </button>
             <Link href="/rfc/baru"
               class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white font-bold text-xs shadow-sm transition-all">
               <Icon icon="lucide:plus" class="w-4 h-4" />
