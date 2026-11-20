@@ -650,18 +650,122 @@
 
               <!-- TTD Kabid OPD -->
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">
-                  Tanda Tangan Kepala Bidang OPD <span class="text-red-500">*</span>
-                </label>
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <label class="block text-sm font-medium text-slate-700">
+                    Tanda Tangan Kepala Bidang OPD <span class="text-red-500">*</span>
+                  </label>
+
+                  <!-- Pilihan Metode TTD Khusus Penanggung Jawab OPD -->
+                  <div class="inline-flex rounded-lg bg-slate-100 p-0.5 border border-slate-200">
+                    <button
+                      type="button"
+                      @click="ttdPjMode = 'gambar'"
+                      :class="[
+                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer',
+                        ttdPjMode === 'gambar'
+                          ? 'bg-white text-[#0757A8] shadow-xs'
+                          : 'text-slate-600 hover:text-slate-800'
+                      ]"
+                    >
+                      <Icon icon="lucide:pen-tool" class="w-3.5 h-3.5" />
+                      <span>Gambar Langsung</span>
+                    </button>
+                    <button
+                      type="button"
+                      @click="ttdPjMode = 'upload'"
+                      :class="[
+                        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer',
+                        ttdPjMode === 'upload'
+                          ? 'bg-white text-[#0757A8] shadow-xs'
+                          : 'text-slate-600 hover:text-slate-800'
+                      ]"
+                    >
+                      <Icon icon="lucide:upload" class="w-3.5 h-3.5" />
+                      <span>Unggah E-TTD</span>
+                    </button>
+                  </div>
+                </div>
 
                 <!-- Badge TTD Kabid loaded -->
                 <div v-if="!ttdPjLoading && mode === 'edit' && form.tanda_tangan_penanggung_jawab"
                   class="mb-2 flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-700">
                   <Icon icon="lucide:check-circle-2" class="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <span>Tanda tangan Kepala Bidang sebelumnya dimuat. Gambar ulang untuk mengubah.</span>
+                  <span>Tanda tangan Kepala Bidang sebelumnya dimuat. Gambar ulang atau unggah file baru untuk mengubah.</span>
                 </div>
 
-                <SignaturePad v-model="form.tanda_tangan_penanggung_jawab" />
+                <!-- Mode 1: Gambar Langsung di Kanvas -->
+                <div v-if="ttdPjMode === 'gambar'">
+                  <SignaturePad v-model="form.tanda_tangan_penanggung_jawab" />
+                </div>
+
+                <!-- Mode 2: Unggah Gambar E-TTD -->
+                <div v-else class="space-y-2">
+                  <input
+                    ref="ttdPjUploadRef"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    class="hidden"
+                    @change="onUploadTtdPj"
+                  />
+
+                  <!-- Pratinjau E-TTD jika sudah terunggah -->
+                  <div
+                    v-if="form.tanda_tangan_penanggung_jawab"
+                    class="border-2 border-dashed border-emerald-300 bg-white rounded-xl p-4 flex flex-col items-center justify-center gap-3"
+                  >
+                    <div class="w-full flex items-center justify-center bg-slate-50/70 rounded-lg p-3 min-h-[120px]">
+                      <img
+                        :src="form.tanda_tangan_penanggung_jawab"
+                        alt="Pratinjau E-TTD Kepala Bidang OPD"
+                        class="max-h-28 max-w-full object-contain"
+                      />
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                      <span v-if="ttdPjFileName" class="text-xs text-slate-500 font-medium px-2.5 py-1 bg-slate-100 rounded-md">
+                        {{ ttdPjFileName }}
+                      </span>
+                      <button
+                        type="button"
+                        @click="ttdPjUploadRef?.click()"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
+                      >
+                        <Icon icon="lucide:refresh-cw" class="w-3.5 h-3.5" />
+                        <span>Ganti File E-TTD</span>
+                      </button>
+                      <button
+                        type="button"
+                        @click="hapusUploadTtdPj"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs font-semibold text-red-600 transition-colors cursor-pointer"
+                      >
+                        <Icon icon="lucide:trash-2" class="w-3.5 h-3.5" />
+                        <span>Hapus</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Area Pilih File E-TTD -->
+                  <button
+                    v-else
+                    type="button"
+                    @click="ttdPjUploadRef?.click()"
+                    class="w-full border-2 border-dashed border-slate-300 hover:border-[#0757A8] hover:bg-blue-50/30 rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-center transition-all cursor-pointer bg-white"
+                  >
+                    <div class="w-10 h-10 rounded-full bg-blue-50 text-[#0757A8] flex items-center justify-center">
+                      <Icon icon="lucide:upload-cloud" class="w-5 h-5" />
+                    </div>
+                    <div class="text-xs font-bold text-slate-700">
+                      Klik untuk mengunggah gambar E-TTD Kepala Bidang OPD
+                    </div>
+                    <div class="text-[11px] text-slate-400">
+                      Format PNG (disarankan latar transparan), JPG, atau WEBP · Maks. 2 MB
+                    </div>
+                  </button>
+
+                  <p v-if="ttdPjUploadError" class="text-xs text-red-500 flex items-center gap-1">
+                    <Icon icon="lucide:alert-circle" class="w-3.5 h-3.5" />
+                    {{ ttdPjUploadError }}
+                  </p>
+                </div>
 
                 <p class="mt-1.5 text-xs text-slate-500">
                   <strong>Disetujui Oleh: Kepala Bidang</strong> — {{ form.nama_penanggung_jawab || '(nama kepala bidang)' }}
@@ -866,10 +970,66 @@ const isSavingDraf = ref(false)
 const selectedFiles= ref([])    // [{file, status:'ready'|'uploading'|'done', progress:0}]
 const existingFiles= ref([])    // [{url, nama, path}] - file existing dari draft
 const isDragOver   = ref(false)
-const ttdLoading   = ref(false)
-const ttdFailed    = ref(false)
-const ttdPjLoading = ref(false)
-const fileInputRef = ref(null)
+const ttdLoading       = ref(false)
+const ttdFailed        = ref(false)
+const ttdPjLoading     = ref(false)
+const ttdPjMode        = ref('gambar') // 'gambar' | 'upload'
+const ttdPjUploadRef   = ref(null)
+const ttdPjFileName    = ref('')
+const ttdPjUploadError = ref('')
+const fileInputRef     = ref(null)
+
+function onUploadTtdPj(event) {
+  ttdPjUploadError.value = ''
+  const file = event.target?.files?.[0]
+  if (!file) return
+
+  const allowed = ['image/png', 'image/jpeg', 'image/webp']
+  if (!allowed.includes(file.type)) {
+    ttdPjUploadError.value = 'Format file tidak didukung. Gunakan gambar PNG, JPG, atau WEBP.'
+    event.target.value = ''
+    return
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    ttdPjUploadError.value = 'Ukuran gambar E-TTD maksimal 2 MB.'
+    event.target.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const img = new Image()
+    img.onload = () => {
+      // Normalisasi ke PNG bersih via offscreen canvas (maks 900px) agar seragam & siap untuk dokumen FR-015
+      const maxDim = 900
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.max(1, Math.round(img.width * scale))
+      canvas.height = Math.max(1, Math.round(img.height * scale))
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+      form.tanda_tangan_penanggung_jawab = canvas.toDataURL('image/png')
+      ttdPjFileName.value = file.name
+      delete errors.tanda_tangan_penanggung_jawab
+    }
+    img.onerror = () => {
+      ttdPjUploadError.value = 'Gagal membaca file gambar. Pastikan file gambar valid.'
+    }
+    img.src = e.target.result
+  }
+  reader.readAsDataURL(file)
+}
+
+function hapusUploadTtdPj() {
+  form.tanda_tangan_penanggung_jawab = null
+  ttdPjFileName.value = ''
+  ttdPjUploadError.value = ''
+  if (ttdPjUploadRef.value) {
+    ttdPjUploadRef.value.value = ''
+  }
+}
 const successModal = reactive({ show: false, kodePelacakan: '' })
 
 // -- Auto-isi dari profil user yang login --------------------------------------
