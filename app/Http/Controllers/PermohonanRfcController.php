@@ -781,7 +781,10 @@ class PermohonanRfcController extends Controller
 
         $this->kirimNotifikasiRfcDiajukan($rfc);
 
-        return response()->json(['message' => 'RFC berhasil diajukan ke verifikator.']);
+        return response()->json([
+            'message'        => 'RFC berhasil diajukan ke verifikator.',
+            'kode_pelacakan' => $rfc->kode_pelacakan,
+        ]);
     }
 
     // -----------------------------------------------------------------------
@@ -1247,7 +1250,7 @@ class PermohonanRfcController extends Controller
             'koordinator_nip'     => '-',
             // Penanggung Jawab (Kabid OPD)
             'tgl_disetujui'       => $rfc->updated_at?->format('d/m/Y') ?? '-',
-            'penanggung_jabatan'  => $rfc->jabatan_penanggung_jawab ?? $rfc->nama_penanggung_jawab ?? '-',
+            'penanggung_jabatan'  => $rfc->opd?->nama_opd ?? '-',
             'ttd_penanggung_path' => $normalizeTtdPath($rfc->tanda_tangan_penanggung_jawab),
             'penanggung_nama'     => $rfc->nama_penanggung_jawab ?? '-',
             'penanggung_nip'      => $rfc->nip_penanggung_jawab ?? '-',

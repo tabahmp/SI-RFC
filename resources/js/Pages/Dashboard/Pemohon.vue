@@ -421,6 +421,32 @@
       v-model="showAktivasiModal"
       :data-akun="dataAkunAktivasi"
     />
+
+    <!-- Modal Tiket Berhasil Dikirim (dari Draf) -->
+    <div v-if="successAjukanModal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="tutupSuccessAjukan"></div>
+      <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+          <Icon icon="lucide:check-circle-2" class="w-8 h-8 text-[#16834a]" />
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Permohonan Berhasil Dikirim!</h3>
+        <p class="text-slate-500 text-sm mb-4">RFC Anda telah diajukan dan sedang menunggu verifikasi.</p>
+        <div class="bg-slate-50 rounded-xl p-4 mb-6">
+          <p class="text-xs text-slate-500 mb-1">Nomor RFC Anda</p>
+          <p class="text-2xl font-bold font-mono text-[#0757a8] tracking-widest">{{ successAjukanModal.kodePelacakan }}</p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <Link :href="`/rfc/${successAjukanModal.kodePelacakan}/workspace`"
+            class="w-full px-4 py-2.5 rounded-lg bg-[#0757a8] text-white text-sm font-semibold hover:bg-[#065096] transition-colors">
+            Buka Workspace RFC
+          </Link>
+          <button type="button" @click="tutupSuccessAjukan"
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors cursor-pointer">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
   </AppLayout>
 </template>
 
@@ -558,19 +584,30 @@ async function hapusDraf() {
 }
 
 // -- Modal ajukan draf ---------------------------------------------------------
-const showModalAjukan = ref(false)
-const targetAjukan    = ref(null)
+const showModalAjukan    = ref(false)
+const targetAjukan       = ref(null)
+const successAjukanModal = ref({ show: false, kodePelacakan: '' })
 
 function bukaModalAjukan(d) {
   targetAjukan.value = d
   showModalAjukan.value = true
 }
 
+function tutupSuccessAjukan() {
+  successAjukanModal.value.show = false
+  router.reload({ preserveScroll: true })
+}
+
 async function ajukanDraf() {
   if (!targetAjukan.value) return
+  const draf = targetAjukan.value
   showModalAjukan.value = false
   try {
-    await axios.patch(`/rfc/${targetAjukan.value.id}/ajukan`)
+    const res = await axios.patch(`/rfc/${draf.id}/ajukan`)
+    successAjukanModal.value = {
+      show: true,
+      kodePelacakan: res.data?.kode_pelacakan || draf.kode_pelacakan || '-',
+    }
     router.reload({ preserveScroll: true })
   } catch (e) {
     alert(e.response?.data?.message ?? 'Gagal mengajukan draf.')

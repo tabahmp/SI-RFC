@@ -120,7 +120,7 @@
       </div>
 
       <!-- Form -->
-      <form @submit.prevent="handleSubmit" class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+      <form @submit.prevent="handleSubmit" novalidate class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
         <!-- Error umum -->
         <div v-if="errors._general" class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
@@ -847,7 +847,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { Link, usePage }   from '@inertiajs/vue3'
 import AppLayout           from '@/Layouts/AppLayout.vue'
 import SignaturePad        from '@/Components/SignaturePad.vue'
@@ -1314,23 +1314,39 @@ function validate() {
   return valid
 }
 
+async function scrollToFirstError() {
+  await nextTick()
+  const firstErrMsg = document.querySelector('form p.text-red-500')
+  if (!firstErrMsg) return
+
+  const fieldWrapper = firstErrMsg.parentElement || firstErrMsg
+  fieldWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+  const focusTarget = fieldWrapper.querySelector('input:not([type="hidden"]), textarea, select')
+  if (focusTarget) {
+    setTimeout(() => {
+      focusTarget.focus({ preventScroll: true })
+    }, 300)
+  }
+}
+
 async function handleSubmit() {
   if (!validate()) {
-    document.querySelector('.text-red-500')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    await scrollToFirstError()
     return
   }
   isSubmitting.value = true
   try {
     let res
     if (props.mode === 'edit' && props.rfc) {
-      // Mode edit: POST dengan _method=PUT ke /rfc/{id}
-      const data = buildFormData(false)  // pakai buildFormData agar file & existing ikut
+      // Mode edit (termasuk dari draf atau revisi): POST dengan _method=PUT ke /rfc/{id}
+      const data = buildFormData(false)
       data.append('_method', 'PUT')
       res = await axios.post(`/rfc/${props.rfc.id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      // Redirect ke workspace RFC
-      window.location.href = `/rfc/${props.rfc.kode_pelacakan || res.data?.kode_pelacakan}/workspace`
+      successModal.kodePelacakan = res.data?.kode_pelacakan || props.rfc.kode_pelacakan || 'RFC-' + Date.now()
+      successModal.show = true
     } else {
       // Mode create: POST ke /rfc
       res = await axios.post('/rfc', buildFormData(false), {
@@ -1340,8 +1356,17 @@ async function handleSubmit() {
       successModal.show = true
     }
   } catch (err) {
-    if (err.response?.data?.errors) Object.assign(errors, err.response.data.errors)
-    else errors._general = err.response?.data?.message ?? 'Terjadi kesalahan. Silakan coba lagi.'
+    if (err.response?.data?.errors) {
+      const srvErrors = err.response.data.errors
+      Object.keys(srvErrors).forEach(k => {
+        errors[k] = Array.isArray(srvErrors[k]) ? srvErrors[k][0] : srvErrors[k]
+      })
+      await scrollToFirstError()
+    } else {
+      errors._general = err.response?.data?.message ?? 'Terjadi kesalahan. Silakan coba lagi.'
+      await nextTick()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   } finally {
     isSubmitting.value = false
   }

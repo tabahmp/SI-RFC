@@ -45,16 +45,18 @@
             <span>Cetak Dokumen</span>
           </button>
 
-          <!-- Tombol Unduh PDF FR-015 Resmi -->
-          <a
-            :href="`/rfc/${rfcData.kode_pelacakan}/dokumen?download=1`"
-            download
-            class="px-4 py-2 rounded-xl bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer no-underline"
+          <!-- Tombol Unduh PDF FR-015 Resmi dengan Indikator Loading -->
+          <button
+            type="button"
+            @click="unduhPdf"
+            :disabled="isDownloading"
+            class="px-4 py-2 rounded-xl bg-[#0757A8] hover:bg-[#063D78] disabled:opacity-70 disabled:cursor-wait text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
             title="Unduh file PDF resmi FR-015 hasil konversi template Microsoft Word"
           >
-            <Icon icon="lucide:download" class="w-4 h-4" />
-            <span>Unduh PDF FR-015 (A4)</span>
-          </a>
+            <Icon v-if="isDownloading" icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
+            <Icon v-else icon="lucide:download" class="w-4 h-4" />
+            <span>{{ isDownloading ? 'Menyiapkan PDF...' : 'Unduh PDF FR-015 (A4)' }}</span>
+          </button>
         </div>
       </div>
 
@@ -453,7 +455,8 @@
                 <td colspan="2" style="width: 95mm; border: 1px solid #000000; padding: 8px 10px; text-align: center; vertical-align: top; background: #ffffff; font-size: 9.5pt;">
                   <div>Tanggal: {{ rfcData.tanggal_permohonan || '' }}</div>
                   <div>Disetujui Oleh:</div>
-                  <div>Penanggung Jawab Perangkat,</div>
+                  <div>Penanggung Jawab Perangkat Daerah,</div>
+                  <div v-if="rfcData.opd && rfcData.opd !== '-'" style="font-size: 9pt;">{{ rfcData.opd }}</div>
 
                   <div style="height: 78px; display: flex; align-items: center; justify-content: center; margin: 4px auto;">
                     <img
@@ -500,14 +503,44 @@
       </div>
 
     </div>
+
+    <!-- Modal Overlay Loading Saat Mengunduh PDF -->
+    <Teleport to="body">
+      <div
+        v-if="isDownloading"
+        class="no-print fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/45 backdrop-blur-xs"
+      >
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-6 text-center space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#0757A8] flex items-center justify-center mx-auto">
+            <Icon icon="lucide:loader-2" class="w-6 h-6 animate-spin" />
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Menyiapkan PDF FR-015 (A4)</h3>
+            <p class="text-xs text-slate-500 mt-1">
+              Sedang mengonversi dokumen resmi beserta tanda tangan. Mohon tunggu sebentar...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Berhasil Unduh -->
+      <div
+        v-if="downloadToast"
+        class="no-print fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-[#0F172A] text-white text-xs font-medium rounded-xl shadow-xl border border-slate-700/50"
+      >
+        <Icon icon="lucide:check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0" />
+        <span>{{ downloadToast }}</span>
+      </div>
+    </Teleport>
   </AppLayout>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Icon } from '@iconify/vue'
+import axios from 'axios'
 
 const props = defineProps({
   rfc: { type: Object, default: () => null },
@@ -517,6 +550,45 @@ const props = defineProps({
 const rfcData = computed(() => {
   return props.rfc ?? props.doc ?? {}
 })
+
+const isDownloading = ref(false)
+const downloadToast = ref('')
+let toastTimer = null
+
+function tampilToast(pesan) {
+  clearTimeout(toastTimer)
+  downloadToast.value = pesan
+  toastTimer = setTimeout(() => {
+    downloadToast.value = ''
+  }, 3500)
+}
+
+async function unduhPdf() {
+  if (isDownloading.value) return
+  const kode = rfcData.value.kode_pelacakan
+  if (!kode) return
+
+  isDownloading.value = true
+  try {
+    const res = await axios.get(`/rfc/${kode}/dokumen?download=1`, {
+      responseType: 'blob',
+    })
+    const blob = new Blob([res.data], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `FR-015_${kode}.pdf`)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+    tampilToast(`Dokumen FR-015_${kode}.pdf berhasil diunduh.`)
+  } catch (err) {
+    alert('Gagal mengunduh PDF FR-015. Silakan coba lagi atau gunakan tombol Cetak Dokumen.')
+  } finally {
+    isDownloading.value = false
+  }
+}
 
 function hasJenis(val) {
   const jenis = rfcData.value.jenis_perubahan
