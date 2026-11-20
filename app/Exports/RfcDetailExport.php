@@ -93,7 +93,9 @@ class RfcDetailExport implements FromCollection, WithHeadings, WithMapping, With
             $rfc->opd?->nama_opd,
             $rfc->unit_kerja,
             $rfc->kategori?->nama_kategori,
-            is_array($rfc->jenis_perubahan) ? implode(', ', $rfc->jenis_perubahan) : '-',
+            is_array($rfc->jenis_perubahan)
+                ? implode(', ', array_map(fn ($v) => ucwords(str_replace('_', ' ', (string) $v)), $rfc->jenis_perubahan))
+                : '-',
             substr($rfc->deskripsi_perubahan ?? '-', 0, 200),
             substr($rfc->latar_belakang ?? '-', 0, 200),
             ucfirst($rfc->urgensi ?? '-'),

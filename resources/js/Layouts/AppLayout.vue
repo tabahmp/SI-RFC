@@ -298,9 +298,8 @@
                 <div class="font-bold text-xs sm:text-sm text-white leading-tight truncate max-w-[150px] md:max-w-[220px]">
                   {{ authUser?.nama_lengkap ?? 'Pengguna' }}
                 </div>
-                <div class="text-[11px] text-emerald-100/85 font-medium capitalize flex items-center gap-1 mt-0.5">
-                  <span>{{ labelPeran }}</span>
-                  <Icon icon="lucide:chevron-down" class="w-3 h-3 text-emerald-200" />
+                <div class="text-[11px] text-emerald-100/85 font-medium capitalize mt-0.5">
+                  {{ labelPeran }}
                 </div>
               </div>
             </div>

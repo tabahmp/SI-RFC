@@ -148,7 +148,7 @@
           <!-- NIP -->
           <div>
             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">NIP Pemohon</div>
-            <div class="text-slate-900 font-semibold font-mono">{{ rfc.nip || '-' }}</div>
+            <div class="text-slate-900 font-semibold">{{ rfc.nip || '-' }}</div>
           </div>
 
           <!-- Nomor Kontak -->
@@ -190,7 +190,7 @@
           <!-- Alamat Aplikasi -->
           <div>
             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Alamat URL Aplikasi</div>
-            <div class="text-slate-900 font-medium font-mono truncate">{{ rfc.alamat_aplikasi || '-' }}</div>
+            <div class="text-slate-900 font-medium truncate">{{ rfc.alamat_aplikasi || '-' }}</div>
           </div>
 
           <!-- Deskripsi Perubahan -->
@@ -212,7 +212,7 @@
           <!-- Rincian Perubahan -->
           <div class="md:col-span-2">
             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Rincian Perubahan yang Diajukan</div>
-            <div class="text-slate-800 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100 whitespace-pre-wrap font-mono text-xs">
+            <div class="text-slate-800 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100 whitespace-pre-wrap">
               {{ rfc.rincian_perubahan || '-' }}
             </div>
           </div>
@@ -535,15 +535,30 @@ const persetujuanTanggal = computed(() => props.rfc.persetujuan?.diputuskan_pada
 const eksekusiTeknisi = computed(() => props.rfc.eksekusi?.teknisi ?? null)
 const eksekusiTanggal = computed(() => props.rfc.eksekusi?.dimulai_pada ?? null)
 
+const JENIS_LABEL_MAP = {
+  permintaan_baru: 'Permintaan Baru',
+  peningkatan_sistem: 'Peningkatan Sistem',
+  perbaikan_sistem: 'Perbaikan Sistem',
+}
+
 function formatJenisPerubahan(jenis) {
   if (!jenis) return '-'
-  if (Array.isArray(jenis)) return jenis.join(', ')
-  try {
-    const parsed = JSON.parse(jenis)
-    return Array.isArray(parsed) ? parsed.join(', ') : parsed
-  } catch {
-    return String(jenis)
+  let list = jenis
+  if (!Array.isArray(list)) {
+    try {
+      const parsed = JSON.parse(list)
+      list = Array.isArray(parsed) ? parsed : [parsed]
+    } catch {
+      list = [list]
+    }
   }
+  const formatted = list
+    .filter(Boolean)
+    .map(v => {
+      const key = String(v).trim()
+      return JENIS_LABEL_MAP[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    })
+  return formatted.length ? formatted.join(', ') : '-'
 }
 
 function roleColor(role) {

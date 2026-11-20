@@ -124,7 +124,7 @@
                 <!-- 4. NIP Pemohon -->
                 <div>
                   <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">NIP PEMOHON</div>
-                  <div class="text-slate-900 font-semibold font-mono">{{ rfc.nip || '-' }}</div>
+                  <div class="text-slate-900 font-semibold">{{ rfc.nip || '-' }}</div>
                 </div>
 
                 <!-- 5. Nomor Whatsapp / Kontak -->
@@ -166,7 +166,7 @@
                 <!-- 11. Alamat URL Aplikasi -->
                 <div>
                   <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">ALAMAT URL APLIKASI</div>
-                  <div class="text-slate-900 font-medium font-mono truncate">
+                  <div class="text-slate-900 font-medium truncate">
                     <a v-if="rfc.alamat_aplikasi" :href="rfc.alamat_aplikasi" target="_blank" class="text-[#0757a8] hover:underline">{{ rfc.alamat_aplikasi }}</a>
                     <span v-else>-</span>
                   </div>
@@ -191,7 +191,7 @@
                 <!-- 14. Rincian Perubahan yang Diajukan (Box) -->
                 <div class="md:col-span-2">
                   <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">RINCIAN PERUBAHAN YANG DIAJUKAN</div>
-                  <div class="text-slate-800 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100 whitespace-pre-wrap font-mono text-xs">
+                  <div class="text-slate-800 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100 whitespace-pre-wrap">
                     {{ rfc.rincian_perubahan || '-' }}
                   </div>
                 </div>
@@ -1057,15 +1057,30 @@ async function submitBast() {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+const JENIS_LABEL_MAP = {
+  permintaan_baru: 'Permintaan Baru',
+  peningkatan_sistem: 'Peningkatan Sistem',
+  perbaikan_sistem: 'Perbaikan Sistem',
+}
+
 function formatJenisPerubahan(jenis) {
   if (!jenis) return '-'
-  if (Array.isArray(jenis)) return jenis.join(', ')
-  try {
-    const parsed = JSON.parse(jenis)
-    return Array.isArray(parsed) ? parsed.join(', ') : parsed
-  } catch {
-    return String(jenis)
+  let list = jenis
+  if (!Array.isArray(list)) {
+    try {
+      const parsed = JSON.parse(list)
+      list = Array.isArray(parsed) ? parsed : [parsed]
+    } catch {
+      list = [list]
+    }
   }
+  const formatted = list
+    .filter(Boolean)
+    .map(v => {
+      const key = String(v).trim()
+      return JENIS_LABEL_MAP[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    })
+  return formatted.length ? formatted.join(', ') : '-'
 }
 
 function showAlert(msg, type = 'success') {

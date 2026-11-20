@@ -309,11 +309,11 @@
               <h2 class="text-base font-bold text-[#0F172A]">Permohonan terbaru</h2>
               <p class="text-xs text-[#64748B] mt-0.5">Pelacakan status secara langsung</p>
             </div>
-            <button type="button" @click="activeView = 'permohonan'"
+            <Link href="/dashboard/pemohon?view=permohonan"
               class="text-xs font-bold text-[#0757A8] hover:underline flex items-center gap-1">
               <span>Lihat semua {{ totalCount }} permohonan</span>
               <Icon icon="lucide:arrow-right" class="w-4 h-4" />
-            </button>
+            </Link>
           </div>
 
           <div class="overflow-x-auto">

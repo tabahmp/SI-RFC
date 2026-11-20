@@ -32,11 +32,11 @@
                 <h2 class="text-base font-bold text-[#0F172A]">Smart priority queue</h2>
                 <p class="text-xs text-slate-500">{{ countAntrean }} tiket perlu ditelaah</p>
               </div>
-              <button @click="activeTab = 'antrean'"
+              <Link href="/dashboard/verifikator?view=antrean"
                 class="text-xs font-bold text-[#0757A8] px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center gap-1.5 transition-colors">
                 <Icon icon="lucide:list-filter" class="w-3.5 h-3.5" />
                 <span>Lihat Seluruh Antrean</span>
-              </button>
+              </Link>
             </div>
 
             <div v-if="antrean.length === 0" class="py-8 text-center text-slate-400">
@@ -58,7 +58,7 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-3 flex-shrink-0">
-                  <SlaTimer v-if="rfc.target_sla" :deadline="rfc.target_sla" class="text-right" />
+                  <SlaTimer v-if="rfc.target_sla" :target-sla="rfc.target_sla" class="text-right" />
                   <Link :href="`/rfc/${rfc.kode_pelacakan}/workspace`"
                     class="px-3.5 py-1.5 rounded-lg bg-[#0757A8] hover:bg-[#063D78] text-white text-xs font-bold transition-all shadow-xs whitespace-nowrap">
                     Telaah
@@ -69,33 +69,85 @@
           </div>
 
           <!-- SLA Alert Widget -->
-          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 space-y-4">
-            <div>
-              <div class="flex items-center gap-2 text-red-600 font-extrabold text-xs tracking-wider uppercase mb-1">
-                <Icon icon="lucide:alert-triangle" class="w-4 h-4" />
-                <span>SLA ALERT</span>
-              </div>
-              <h3 class="text-base font-extrabold text-[#0F172A]">{{ slaKritis.length }} tiket mendekati batas</h3>
-              <p class="text-xs text-slate-500 mt-1 leading-relaxed">Prioritaskan tiket mendesak agar kepatuhan target tanggap terjaga.</p>
-
-              <div v-if="slaKritis.length > 0" class="mt-4 p-4 rounded-xl bg-red-50 border border-red-200 space-y-2">
-                <div class="flex items-center justify-between text-xs">
-                  <span class="text-slate-500 font-medium">Terdekat</span>
-                  <span class="font-mono font-bold text-red-700">{{ slaKritis[0].kode_pelacakan }}</span>
+          <div class="bg-[#053775] rounded-[20px] p-6 text-white shadow-sm flex flex-col justify-between gap-6">
+            <div class="space-y-5">
+              <!-- Top bar: Icon + SLA ALERT Pill -->
+              <div class="flex items-center justify-between gap-3">
+                <div
+                  class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
+                  :class="isTerdekatOverdue ? 'bg-red-500/25' : 'bg-white/10'"
+                >
+                  <Icon
+                    :icon="isTerdekatOverdue ? 'lucide:alarm-clock-off' : 'lucide:alarm-clock'"
+                    class="w-5 h-5"
+                    :class="isTerdekatOverdue ? 'text-red-300' : 'text-white'"
+                  />
                 </div>
-                <SlaTimer :deadline="slaKritis[0].target_sla" class="text-xl font-mono font-black text-red-600" />
-                <div class="text-[11px] text-red-700">{{ slaKritis[0].opd }} — {{ slaKritis[0].deskripsi }}</div>
+                <span
+                  class="px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide uppercase transition-colors"
+                  :class="isTerdekatOverdue ? 'bg-red-500 text-white' : 'bg-[#FACC15] text-[#053775]'"
+                >
+                  {{ isTerdekatOverdue ? 'SLA TERLAMPAUI' : 'SLA ALERT' }}
+                </span>
               </div>
-              <div v-else class="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-semibold text-center">
-                Semua tiket dalam batas SLA ✓
+
+              <!-- Title & subtitle -->
+              <div class="space-y-2.5">
+                <h3 class="text-2xl font-extrabold text-white tracking-tight leading-snug">
+                  {{ slaKritis.length }} tiket mendekati batas
+                </h3>
+                <p class="text-sm text-blue-100/80 leading-relaxed">
+                  Prioritaskan tiket P1 agar kepatuhan target tanggap tetap terjaga.
+                </p>
               </div>
             </div>
 
-            <Link v-if="slaKritis.length > 0" :href="`/rfc/${slaKritis[0].kode_pelacakan}/workspace`"
-              class="w-full h-11 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs shadow-sm transition-all">
-              <span>Verifikasi Tiket Kritis Sekarang</span>
-              <Icon icon="lucide:arrow-right" class="w-4 h-4" />
+            <!-- Inner Terdekat Box -->
+            <Link
+              v-if="slaKritis.length > 0"
+              :href="`/rfc/${slaKritis[0].kode_pelacakan}/workspace`"
+              class="block p-4 rounded-2xl transition-colors space-y-2.5"
+              :class="isTerdekatOverdue
+                ? 'bg-red-500/15 hover:bg-red-500/25 border border-red-400/40'
+                : 'bg-white/10 hover:bg-white/15'"
+            >
+              <div
+                class="text-xs font-medium"
+                :class="isTerdekatOverdue ? 'text-red-200' : 'text-blue-100/75'"
+              >
+                {{ isTerdekatOverdue ? 'Terdekat · Melewati Batas' : 'Terdekat' }}
+              </div>
+              <div class="text-base font-extrabold text-white tracking-wide">
+                {{ slaKritis[0].kode_pelacakan }}
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-white/20 overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-700"
+                  :class="isTerdekatOverdue ? 'bg-red-500' : 'bg-[#FACC15]'"
+                  :style="{ width: `${terdekatSlaProgress}%` }"
+                ></div>
+              </div>
+              <div
+                class="text-xs tabular-nums"
+                :class="isTerdekatOverdue ? 'text-red-200 font-semibold' : 'text-blue-100/80 font-medium'"
+              >
+                {{ terdekatSlaCountdown }}
+              </div>
             </Link>
+
+            <div
+              v-else
+              class="p-4 rounded-2xl bg-white/10 space-y-1.5"
+            >
+              <div class="text-xs font-medium text-blue-100/75">Status SLA</div>
+              <div class="flex items-center gap-2 text-sm font-bold text-white">
+                <Icon icon="lucide:check-circle-2" class="w-4 h-4 text-[#FACC15]" />
+                <span>Semua tiket dalam batas SLA</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-white/20 overflow-hidden">
+                <div class="h-full rounded-full bg-[#FACC15] w-0"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -158,7 +210,7 @@
                     </span>
                   </td>
                   <td class="py-3.5 px-4">
-                    <SlaTimer v-if="rfc.target_sla" :deadline="rfc.target_sla" />
+                    <SlaTimer v-if="rfc.target_sla" :target-sla="rfc.target_sla" />
                     <span v-else class="text-slate-400 text-xs">—</span>
                   </td>
                   <td class="py-3.5 px-4 text-center">
@@ -237,7 +289,7 @@
                     </span>
                   </td>
                   <td class="py-3.5 px-4">
-                    <SlaTimer :deadline="rfc.target_sla" class="font-bold text-red-600" />
+                    <SlaTimer :target-sla="rfc.target_sla" class="font-bold text-red-600" />
                   </td>
                   <td class="py-3.5 px-4 text-center">
                     <Link :href="`/rfc/${rfc.kode_pelacakan}/workspace`"
@@ -261,7 +313,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import SlaTimer from '@/Components/SlaTimer.vue'
@@ -291,8 +343,63 @@ function syncTab() {
   const v = new URLSearchParams(window.location.search).get('view')
   if (v && ['ringkasan', 'antrean', 'sla'].includes(v)) activeTab.value = v
 }
-onMounted(syncTab)
+
+// Live clock for SLA Alert countdown & progress bar
+const nowTick = ref(Date.now())
+let slaInterval = null
+
+onMounted(() => {
+  syncTab()
+  slaInterval = setInterval(() => {
+    nowTick.value = Date.now()
+  }, 1000)
+})
+
+onUnmounted(() => {
+  if (slaInterval) clearInterval(slaInterval)
+})
+
 watch(() => page.url, syncTab)
+
+const SLA_WINDOW_HOURS = {
+  kritis: 4,
+  tinggi: 24,
+  sedang: 72,
+  rendah: 120,
+}
+
+const isTerdekatOverdue = computed(() => {
+  const terdekat = props.slaKritis[0]
+  if (!terdekat?.target_sla) return false
+  return new Date(terdekat.target_sla).getTime() <= nowTick.value
+})
+
+const terdekatSlaCountdown = computed(() => {
+  const terdekat = props.slaKritis[0]
+  if (!terdekat?.target_sla) return 'Tidak ada SLA'
+  const diffMs = new Date(terdekat.target_sla).getTime() - nowTick.value
+  const pad = n => String(n).padStart(2, '0')
+  const formatHms = (ms) => {
+    const totalSec = Math.floor(Math.abs(ms) / 1000)
+    const hrs = Math.floor(totalSec / 3600)
+    const mins = Math.floor((totalSec % 3600) / 60)
+    const secs = totalSec % 60
+    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`
+  }
+  if (diffMs <= 0) return `Terlampaui ${formatHms(diffMs)}`
+  return `${formatHms(diffMs)} tersisa`
+})
+
+const terdekatSlaProgress = computed(() => {
+  const terdekat = props.slaKritis[0]
+  if (!terdekat?.target_sla) return 0
+  const targetMs = new Date(terdekat.target_sla).getTime()
+  const remainingMs = targetMs - nowTick.value
+  if (remainingMs <= 0) return 100
+  const totalWindowMs = (SLA_WINDOW_HOURS[terdekat.urgensi] ?? 24) * 3_600_000
+  const elapsedPct = ((totalWindowMs - remainingMs) / totalWindowMs) * 100
+  return Math.min(100, Math.max(8, Math.round(elapsedPct)))
+})
 
 // ── Filtered list ─────────────────────────────────────────────────────────────
 const filteredAntrean = computed(() => {
